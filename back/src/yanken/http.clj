@@ -11,7 +11,10 @@
    [yanken.util.logging :as l]
    [yanken.util.spec :as us]
    [yanken.http.middleware :as mw]
+   [yanken.main :refer [ws-handler]]
    [clojure.spec.alpha :as s]
+   [clojure.java.io :as io]
+   [cuerdas.core :as str]
    [integrant.core :as ig]
    [ring.adapter.jetty9 :as jetty])
   (:import
@@ -54,13 +57,18 @@
 
 ;; --- HANDLER
 
-(defn handler
+(defn serve-test-page
   [request]
   {:status 200
-   :headers {"content-type" "text/plain"}
-   :body "hello world!\n"})
+   :headers {"content-type" "text/html"}
+   :body (io/input-stream (io/resource "index.html"))})
+
+(defn handler
+  [request]
+  (if (jetty/ws-upgrade-request? request)
+    (jetty/ws-upgrade-response ws-handler)
+    (serve-test-page request)))
 
 (defmethod ig/init-key ::handler
   [_ _]
   (mw/wrap-cors handler))
-

@@ -23,7 +23,7 @@
   commons-io/commons-io {:mvn/version "2.11.0"}
   clojure-humanize/clojure-humanize {:mvn/version "0.2.2"}
 
-  info.sunng/ring-jetty9-adapter {:mvn/version "0.15.2"}
+  info.sunng/ring-jetty9-adapter {:mvn/version "0.16.0"}
   funcool/datoteka {:mvn/version "2.0.0"}
   integrant/integrant {:mvn/version "0.8.0"}
 

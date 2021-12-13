@@ -19,7 +19,7 @@
    [criterium.core :refer [quick-bench bench with-progress-reporting]]
    [datoteka.core :as fs]
    [integrant.core :as ig]
-   [yanken.main :as main]))
+   [yanken.init :as init]))
 
 (repl/disable-reload! (find-ns 'integrant.core))
 
@@ -49,7 +49,7 @@
   []
   (alter-var-root #'system (fn [sys]
                              (when sys (ig/halt! sys))
-                             (-> main/system-config
+                             (-> init/system-config
                                  (ig/prep)
                                  (ig/init))))
   :started)

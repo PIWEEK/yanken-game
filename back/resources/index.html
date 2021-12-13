@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Yanken - WebSockets Test Playground</title>
+    <style>
+      * { font-size: monospace; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Yanken - WebSockets Test Playground</h1>
+    </header>
+    <main>
+      <section class="buttons">
+        <button id="echo-test">CMD: ECHO</button>
+      </section>
+    </main>
+    <script>
+     const ws = new WebSocket("ws://" + location.host);
+
+     ws.addEventListener("open", (event) => {
+         console.log("ws connected");
+         /* ws.send("echo"); */
+     });
+
+     ws.addEventListener("error", (event) => {
+         console.log("ws error", event);
+     })
+
+     ws.addEventListener("close", (event) => {
+         console.log("close", event);
+     });
+
+     ws.addEventListener("message", (event) => {
+         console.log("ws received:", event.data);
+     });
+
+     const send = (msg) => {
+         ws.send(JSON.stringify(msg));
+     };
+
+     const echoBtn = document.getElementById("echo-test");
+     echoBtn.addEventListener("click", (event) => {
+         console.log("btn(click): echo-test");
+         send({
+             "type": "EchoRequest",
+             "n" : Math.random()
+         });
+     });
+
+    </script>
+  </body>
+</html>

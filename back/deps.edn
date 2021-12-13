@@ -1,0 +1,47 @@
+{:deps
+ {org.clojure/clojure {:mvn/version "1.11.0-alpha3"}
+  org.clojure/data.json {:mvn/version "2.4.0"}
+  org.clojure/core.async {:mvn/version "1.5.644"}
+  org.clojure/tools.cli {:mvn/version "1.0.206"}
+  metosin/jsonista {:mvn/version "0.3.4"}
+
+  ;; Logging
+  org.clojure/tools.logging {:mvn/version "1.1.0"}
+  org.apache.logging.log4j/log4j-api {:mvn/version "2.15.0"}
+  org.apache.logging.log4j/log4j-core {:mvn/version "2.15.0"}
+  org.apache.logging.log4j/log4j-web {:mvn/version "2.15.0"}
+  org.apache.logging.log4j/log4j-jul {:mvn/version "2.15.0"}
+  org.apache.logging.log4j/log4j-slf4j18-impl {:mvn/version "2.15.0"}
+  org.slf4j/slf4j-api {:mvn/version "2.0.0-alpha1"}
+
+  expound/expound {:mvn/version "0.8.10"}
+  funcool/promesa {:mvn/version "6.0.2"}
+  funcool/cuerdas {:mvn/version "2021.05.29-0"}
+
+  lambdaisland/uri {:mvn/version "1.11.86"  :exclusions [org.clojure/data.json]}
+  danlentz/clj-uuid {:mvn/version "0.1.9"}
+  commons-io/commons-io {:mvn/version "2.11.0"}
+  clojure-humanize/clojure-humanize {:mvn/version "0.2.2"}
+
+  info.sunng/ring-jetty9-adapter {:mvn/version "0.15.2"}
+  funcool/datoteka {:mvn/version "2.0.0"}
+  integrant/integrant {:mvn/version "0.8.0"}
+
+  ;; exception printing
+  io.aviso/pretty {:mvn/version "1.1"}
+  environ/environ {:mvn/version "1.2.0"}}
+ :paths ["src"]
+ :aliases
+ {:dev
+  {:extra-deps
+   {org.clojure/tools.namespace {:mvn/version "RELEASE"}
+    org.clojure/test.check {:mvn/version "RELEASE"}
+    org.clojure/tools.deps.alpha {:mvn/version "RELEASE"}
+    com.bhauman/rebel-readline {:mvn/version "RELEASE"}
+    criterium/criterium {:mvn/version "RELEASE"}}
+   :extra-paths ["test" "dev"]}
+
+  :outdated
+  {:extra-deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}
+   :main-opts ["-m" "antq.core"]}}}
+

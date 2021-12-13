@@ -4,14 +4,17 @@
 ;;
 ;; Copyright (c) Andrey Antukh <niwi@niwi.nz>
 
-(ns yanken.main.impl
+(ns yanken.main.state
   "State management functions implementation."
   (:require
    [yanken.util.exceptions :as ex]
    [yanken.util.time :as dt]
    [yanken.util.uuid :as uuid]))
 
+(defonce state (atom {}))
+
 ;; --- Helpers
+
 
 (defn get-current-session
   [state {:keys [id] :as ws}]
@@ -39,7 +42,7 @@
   (let [session-id (or session-id (uuid/next))]
     (if-let [session (get-in state [:sessions session-id])]
       (let [session (-> session
-                        (assoc :connection id)
+                        (assoc :connection-id id)
                         (cond-> (string? name) (assoc :name name)))]
         (-> state
             (assoc :current-session-id session-id)
@@ -52,7 +55,7 @@
             session   {:id session-id
                        :avatar-id avatar-id
                        :name (or name (str (gensym "player")))
-                       :connection id}]
+                       :connection-id id}]
         (-> state
             (assoc :current-avatar-id avatar-id)
             (assoc :current-session-id session-id)
@@ -65,7 +68,7 @@
   (let [room-id (inc (:current-room-id state -1))
         room    {:created-at (dt/now)
                  :id room-id
-                 :participants #{}
+                 :players #{}
                  :admin session-id}]
     (-> state
         (assoc :current-room-id room-id)
@@ -75,30 +78,34 @@
 ;; TODO: validate params
 
 (defn join-room
-  [state ws {:keys [room-id]}]
-  (let [room-id (or room-id (uuid/next))
-        session (get-current-session state ws)]
+  [state {:keys [session-id] :as ws} {:keys [room-id]}]
 
+  ;; Session ID is mandatory for join-room
+  (when-not session-id
+    (ex/raise :type :validation
+              :code :session-not-initialized
+              :hint "missing hello event"))
+
+  (let [room-id (or room-id (uuid/next))]
     ;; if room is found in state this means the user tries to rejoin
     ;; the existing game.
     (if-let [room (get-in state [:rooms room-id])]
       (do
         ;; We dont allow join game if is already started or ongoing.
-        (when (not= (:status room) "wait-participants")
+        (when (not= (:status room) "waiting")
           (ex/raise :type :validation
                     :code :cant-join-ongoing-or-finished-game))
 
         (-> state
             (assoc :current-room room)
             (assoc :current-room-created false)
-            (update-in [:rooms room-id :participants] conj (:id session))
-            (update :rooms assoc room-id room)))
+            (update-in [:rooms room-id :players] conj session-id)))
 
       (let [room {:created-at (dt/now)
                   :id room-id
-                  :status "wait-participants"
-                  :participants #{(:id session)}
-                  :admin (:id session)}]
+                  :status "waiting"
+                  :players #{session-id}
+                  :admin session-id}]
         (-> state
             (assoc :current-room room)
             (assoc :current-room-created true)

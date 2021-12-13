@@ -6,55 +6,6 @@
 
 (ns yanken.main
   (:require
-   [clojure.core.async :as a]
-   [yanken.config :as cf]
-   [yanken.main.impl :as impl]
-   [yanken.util.async :as aa]
-   [yanken.util.json :as json]
-   [yanken.util.uuid :as uuid]
-   [yanken.util.logging :as l]
-   [yanken.util.time :as dt])
-  (:import
-   java.util.concurrent.ForkJoinPool))
+   [yanken.main.handler :as handler]))
 
-(defonce state (atom {}))
-
-(defmulti handler (fn [context messate] (:type messate)))
-
-(defmethod handler :default
-  [context message]
-  (l/warn :hint "unrecognized message" :message message)
-  (a/go nil))
-
-(defmethod handler "connect"
-  [ws message]
-  (aa/go-try
-   (swap! state impl/connect ws)
-   nil))
-
-(defmethod handler "disconnect"
-  [ws message]
-  (aa/go-try
-   (swap! state impl/disconnect ws)))
-
-(defmethod handler "echo"
-  [{:keys [out-ch]} message]
-  (a/go message))
-
-(defmethod handler "hello"
-  [ws params]
-  (aa/go-try
-   (let [state (swap! state impl/create-or-update-session ws params)]
-     {:avatar-id (:current-avatar-id state)
-      :session-id (:current-session-id state)})))
-
-(defmethod handler "joinRoom"
-  [{:keys [out-ch] :as ws} params]
-  (aa/go-try
-   (let [state (swap! state impl/join-room ws params)]
-     (:current-room state))))
-
-(defmethod handler "startGame"
-  [{:keys [out-ch] :as ws} params]
-  (aa/go-try
-   (let [state (swap! state impl/start-game ws params)])))
+(def handler handler/handler)

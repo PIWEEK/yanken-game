@@ -29,40 +29,43 @@
       false)))
 
 (defn- start-input-loop
-  [{:keys [rcv-ch out-ch handler] :as context}]
-  (letfn [(recv-loop []
-            (a/go-loop []
-              (let [request (a/<! rcv-ch)]
-                (when (some? request)
-                  (let [response (a/<! (handler context request))]
-                    (cond
-                      (ex/ex-info? response)
-                      (a/>! out-ch {:type "response"
-                                    :request-id (:request-id request)
-                                    :error (ex-data response)})
+  [ws]
+  (let [{:keys [::handler ::input ::output]} @ws]
+    (a/go
+      (a/<! (handler @ws {:type "connect"}))
+      (a/<! (a/go-loop []
+              (when-let [request (a/<! input)]
+                (let [response (a/<! (handler @ws request))]
+                  (cond
+                    (ex/ex-info? response)
+                    (a/>! output {:type "response"
+                                  :request-id (:request-id request)
+                                  :error (ex-data response)})
 
-                      (ex/exception? response)
-                      (a/>! out-ch {:type "response"
-                                    :request-id (:request-id request)
-                                    :error {:message (ex-message response)}})
+                    (ex/exception? response)
+                    (a/>! output {:type "response"
+                                  :request-id (:request-id request)
+                                  :error {:message (ex-message response)}})
 
-                      (map? response)
-                      (a/>! out-ch (assoc response
+                    (map? response)
+                    (let [mdata (meta response)]
+                      (when (map? mdata) (swap! ws merge mdata))
+                      (a/>! output (assoc response
                                           :type "response"
                                           :request-id (:request-id request)))))
-                  (recur)))))]
-    (a/go
-      (a/<! (handler context {:type "connect"}))
-      (a/<! (recv-loop))
-      (a/<! (handler context {:type "disconnect"})))))
+                (recur)))))
+    (a/<! (handler @ws {:type "disconnect"})))))
 
 (defn- start-output-loop
-  [{:keys [conn executor out-ch]}]
+  [{:keys [::conn ::executor ::output]}]
   (a/go-loop []
-    (let [val (a/<! out-ch)]
+    (let [val (a/<! output)]
       (when (some? val)
         (when (a/<! (aa/thread-call executor #(ws-send! conn (json/encode-str val))))
           (recur))))))
+
+
+;; TODO: PING/PONG control
 
 (defn wrap
   ([handler] (wrap handler {}))
@@ -75,19 +78,19 @@
            on-connect
            (fn [conn]
              (l/info :hint "on-connect" :client (jetty/remote-addr conn))
-             (let [context {:out-ch out-ch
-                            :rcv-ch rcv-ch
-                            :executor executor
-                            :handler handler
-                            :id (uuid/next)
-                            :conn conn}]
+             (let [ws (atom {::output out-ch
+                             ::input rcv-ch
+                             ::executor executor
+                             ::handler handler
+                             ::conn conn
+                             :id (uuid/next)})]
 
                ;; Forward all messages from out-ch to the websocket
                ;; connection
-               (start-output-loop context)
+               (start-output-loop @ws)
 
                ;; React on messages received from the client
-               (start-input-loop context)))
+               (start-input-loop ws)))
 
            on-error
            (fn [conn err]

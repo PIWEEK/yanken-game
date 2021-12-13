@@ -2,8 +2,8 @@
  //import * as R from "ramda";
  import store from "$store";
  import type { State } from "$state";
- import { StartCounter } from "$events";
-
+ import { StartCounter, CreateGame } from "$events";
+ 
  const st = store.get<State>();
 
  // Global state
@@ -15,6 +15,7 @@
  function click() {
    clicked = true;
    st.emit(new StartCounter());
+   st.emit(new CreateGame());
  }
 </script>
 

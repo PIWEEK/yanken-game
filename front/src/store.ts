@@ -1,13 +1,12 @@
 import { getContext, setContext } from "svelte";
 import { Observable, Subject, EMPTY, concat, of } from "rxjs";
 import * as rx from "rxjs/operators";
-import produce from "immer"
+import produce from "immer";
 
 const STORE_CONTEXT_KEY = "store";
 
 export abstract class StoreEvent<State> {
-  update(_state: State): void{
-  }
+  update(_state: State): void {}
 
   watch(_state: State, _events: Observable<StoreEvent<State>>): Observable<StoreEvent<State>> {
     return EMPTY;
@@ -27,7 +26,8 @@ export class Store<State> {
           console.error("Error", err);
           return this.state$;
         })
-      ));
+      )
+    );
 
     const watch$: Observable<StoreEvent<State>> = this.event$.pipe(
       rx.withLatestFrom(this.state$),
@@ -52,11 +52,7 @@ export class Store<State> {
 
   // Retrieves a stream with the values
   select<T>(selector: (st: State) => T): Observable<T> {
-    return this.state$.pipe(
-      rx.map(selector),
-      rx.distinct(),
-      rx.shareReplay(1)
-    );
+    return this.state$.pipe(rx.map(selector), rx.distinct(), rx.shareReplay(1));
   }
 }
 
@@ -72,5 +68,5 @@ export default {
   StoreEvent,
   Store,
   start,
-  get,
+  get
 };

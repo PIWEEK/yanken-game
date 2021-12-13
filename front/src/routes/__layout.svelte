@@ -1,36 +1,17 @@
 <script lang="ts">
- import store from "$store";
- import type { State } from "$state";
+ import { start } from "$store"; 
  import { initialState } from "$state";
+ import { GameManager } from "../services";
  import { onMount } from 'svelte';
- import { SetWebSocket } from "$events";
+
+  onMount(() => {
+    const socket = new WebSocket("ws://localhost:10000/");
+    const gameManager = GameManager.getInstance();
+    gameManager.setSocket(socket);
+  });
 
  // Initializes the store
- store.start(initialState);
-
- const st = store.get<State>();
-
- onMount(() => {
-  const socket = new WebSocket("ws://localhost:10000/");
-
-  socket.addEventListener("open", (event: Event) => {
-      console.log("WebSocket connection opened", event);
-  });
-
-  socket.addEventListener("message", (event: MessageEvent) => {
-      console.log("WebSocket message received", event);
-  });
-
-  socket.addEventListener("error", (event) => {
-      console.log("WebSocket error encountered", event);
-  });
-
-  socket.addEventListener("close", (event: CloseEvent) => {
-      console.log("WebSocket connection closed", event);
-  });
-
-  st.emit(new SetWebSocket(socket));
- })
+ start(initialState);
 </script>
 
 <main>

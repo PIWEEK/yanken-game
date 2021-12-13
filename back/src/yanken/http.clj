@@ -31,7 +31,7 @@
 
 (defmethod ig/init-key ::server
   [_ {:keys [handler router ws port name metrics] :as opts}]
-  (l/info :msg "starting http server" :port port :name name)
+  (l/info :msg "starting http server" :port port)
   (let [pre-start (fn [^Server server]
                     (let [handler (doto (ErrorHandler.)
                                     (.setShowStacks true)

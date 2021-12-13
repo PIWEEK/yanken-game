@@ -29,6 +29,7 @@
                              (-> system-config
                                  (ig/prep)
                                  (ig/init))))
+
   (l/info :msg "welcome to yanken"))
 
 (defn stop

@@ -11,7 +11,8 @@
    [yanken.util.logging :as l]
    [yanken.util.spec :as us]
    [yanken.http.middleware :as mw]
-   [yanken.main :refer [ws-handler]]
+   [yanken.websocket :as ws]
+   [yanken.main :as main]
    [clojure.spec.alpha :as s]
    [clojure.java.io :as io]
    [cuerdas.core :as str]
@@ -66,7 +67,8 @@
 (defn handler
   [request]
   (if (jetty/ws-upgrade-request? request)
-    (jetty/ws-upgrade-response ws-handler)
+    (let [ws-handler (ws/wrap main/handler)]
+      (jetty/ws-upgrade-response ws-handler))
     (serve-test-page request)))
 
 (defmethod ig/init-key ::handler

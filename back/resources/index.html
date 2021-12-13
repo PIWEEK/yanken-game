@@ -18,10 +18,10 @@
     </main>
     <script>
      const ws = new WebSocket("ws://" + location.host);
+     const sessionId = "s1";
 
      ws.addEventListener("open", (event) => {
          console.log("ws connected");
-         /* ws.send("echo"); */
      });
 
      ws.addEventListener("error", (event) => {
@@ -37,7 +37,9 @@
      });
 
      const send = (msg) => {
-         ws.send(JSON.stringify(msg));
+         const data = JSON.stringify(msg);
+         console.log("ws send:", data);
+         ws.send(data);
      };
 
      const echoBtn = document.getElementById("echo-test");
@@ -45,6 +47,7 @@
          console.log("btn(click): echo-test");
          send({
              "type": "EchoRequest",
+             "sessionId": sessionId,
              "n" : Math.random()
          });
      });

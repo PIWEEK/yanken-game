@@ -3,8 +3,7 @@
  import type { State } from "$state";
  import { goto } from '$app/navigation';
  import { StartCounter } from "$events";
- import { GameManager } from "$services";
- 
+
  const st = store.get<State>();
 
  // Global state
@@ -16,9 +15,7 @@
  function click() {
    clicked = true;
    st.emit(new StartCounter());
-   GameManager.getInstance().echo(`Hello ${Math.random()}`);
  }
-
 
  let roomId = "";
 

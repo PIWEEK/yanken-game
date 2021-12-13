@@ -45,10 +45,8 @@
   [ws params]
   (aa/go-try
    (let [state (swap! state impl/create-or-update-session ws params)]
-     (if (:session-created state)
-       {:avatar-id (:current-avatar-id state)
-        :session-id (:current-session-id state)}
-       (do :rejoin-game)))))
+     {:avatar-id (:current-avatar-id state)
+      :session-id (:current-session-id state)})))
 
 (defmethod handler "joinRoom"
   [{:keys [out-ch] :as ws} params]

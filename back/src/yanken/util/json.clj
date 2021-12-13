@@ -6,20 +6,26 @@
 
 (ns yanken.util.json
   (:require
-   [jsonista.core :as j]))
+   [jsonista.core :as j]
+   [camel-snake-kebab.core :as csk]))
+
+(def mapper
+  (j/object-mapper
+    {:encode-key-fn csk/->camelCaseString
+     :decode-key-fn csk/->kebab-case-keyword}))
 
 (defn encode-str
   [v]
-  (j/write-value-as-string v j/keyword-keys-object-mapper))
+  (j/write-value-as-string v mapper))
 
 (defn encode
   [v]
-  (j/write-value-as-bytes v j/keyword-keys-object-mapper))
+  (j/write-value-as-bytes v mapper))
 
 (defn decode-str
   [v]
-  (j/read-value v j/keyword-keys-object-mapper))
+  (j/read-value v mapper))
 
 (defn decode
   [v]
-  (j/read-value v j/keyword-keys-object-mapper))
+  (j/read-value v mapper))

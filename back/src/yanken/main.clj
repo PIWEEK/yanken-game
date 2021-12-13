@@ -8,12 +8,16 @@
   (:require
    [clojure.core.async :as a]
    [yanken.config :as cf]
+   [yanken.main.impl :as impl]
    [yanken.util.async :as aa]
    [yanken.util.json :as json]
+   [yanken.util.uuid :as uuid]
    [yanken.util.logging :as l]
    [yanken.util.time :as dt])
   (:import
    java.util.concurrent.ForkJoinPool))
+
+(defonce state (atom {}))
 
 (defmulti handler (fn [context messate] (:type messate)))
 
@@ -22,20 +26,37 @@
   (l/warn :hint "unrecognized message" :message message)
   (a/go nil))
 
-(defmethod handler :connect
-  [context message]
-  (a/go nil))
+(defmethod handler "connect"
+  [ws message]
+  (aa/go-try
+   (swap! state impl/connect ws)
+   nil))
 
-(defmethod handler :disconnect
-  [context message]
-  (a/go nil))
+(defmethod handler "disconnect"
+  [ws message]
+  (aa/go-try
+   (swap! state impl/disconnect ws)))
 
-(defmethod handler "EchoRequest"
+(defmethod handler "echo"
   [{:keys [out-ch]} message]
-  (a/go
-    (a/>! out-ch (assoc message :type "EchoResponse"))))
+  (a/go message))
 
-;; (defmethod handler "CreateGameRequest"
-;;   [{:keys [out-ch]} message]
-;;   (let [session-id (get message :sessionId)]))
+(defmethod handler "hello"
+  [ws params]
+  (aa/go-try
+   (let [state (swap! state impl/create-or-update-session ws params)]
+     (if (:session-created state)
+       {:avatar-id (:current-avatar-id state)
+        :session-id (:current-session-id state)}
+       (do :rejoin-game)))))
 
+(defmethod handler "joinRoom"
+  [{:keys [out-ch] :as ws} params]
+  (aa/go-try
+   (let [state (swap! state impl/join-room ws params)]
+     (:current-room state))))
+
+(defmethod handler "startGame"
+  [{:keys [out-ch] :as ws} params]
+  (aa/go-try
+   (let [state (swap! state impl/start-game ws params)])))

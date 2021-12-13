@@ -11,9 +11,11 @@
    [ring.adapter.jetty9 :as jetty]
    [yanken.config :as cf]
    [yanken.util.async :as aa]
+   [yanken.util.exceptions :as ex]
    [yanken.util.json :as json]
    [yanken.util.logging :as l]
-   [yanken.util.time :as dt])
+   [yanken.util.time :as dt]
+   [yanken.util.uuid :as uuid])
   (:import
    java.util.concurrent.ForkJoinPool))
 
@@ -28,11 +30,31 @@
 
 (defn- start-input-loop
   [{:keys [rcv-ch out-ch handler] :as context}]
-  (a/go-loop []
-    (let [val (a/<! rcv-ch)]
-      (when (some? val)
-        (a/<! (handler context val))
-        (recur)))))
+  (letfn [(recv-loop []
+            (a/go-loop []
+              (let [request (a/<! rcv-ch)]
+                (when (some? request)
+                  (let [response (a/<! (handler context request))]
+                    (cond
+                      (ex/ex-info? response)
+                      (a/>! out-ch {:type "response"
+                                    :request-id (:request-id request)
+                                    :error (ex-data response)})
+
+                      (ex/exception? response)
+                      (a/>! out-ch {:type "response"
+                                    :request-id (:request-id request)
+                                    :error {:message (ex-message response)}})
+
+                      (map? response)
+                      (a/>! out-ch (assoc response
+                                          :type "response"
+                                          :request-id (:request-id request)))))
+                  (recur)))))]
+    (a/go
+      (a/<! (handler context {:type "connect"}))
+      (a/<! (recv-loop))
+      (a/<! (handler context {:type "disconnect"})))))
 
 (defn- start-output-loop
   [{:keys [conn executor out-ch]}]
@@ -57,6 +79,7 @@
                             :rcv-ch rcv-ch
                             :executor executor
                             :handler handler
+                            :id (uuid/next)
                             :conn conn}]
 
                ;; Forward all messages from out-ch to the websocket
@@ -68,11 +91,15 @@
 
            on-error
            (fn [conn err]
-             (l/info :hint "on-error" :err (str err)))
+             (l/info :hint "on-error" :err (str err))
+             (a/close! out-ch)
+             (a/close! rcv-ch))
 
            on-close
            (fn [conn status reason]
-             (l/info :hint "on-close" :status status :reason reason))
+             (l/info :hint "on-close" :status status :reason reason)
+             (a/close! out-ch)
+             (a/close! rcv-ch))
 
            on-message
            (fn [conn message]

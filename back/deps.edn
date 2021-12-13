@@ -27,6 +27,8 @@
   funcool/datoteka {:mvn/version "2.0.0"}
   integrant/integrant {:mvn/version "0.8.0"}
 
+  camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.2"}
+
   ;; exception printing
   io.aviso/pretty {:mvn/version "1.1"}
   environ/environ {:mvn/version "1.2.0"}}

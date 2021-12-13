@@ -4,7 +4,17 @@
     <meta charset="utf-8" />
     <title>Yanken - WebSockets Test Playground</title>
     <style>
-      * { font-size: monospace; }
+     * { font-family: monospace; }
+     .buttons {
+       display:flex;
+       flex-direction: column;
+     }
+
+     .buttons button {
+       max-width: 300px;
+       margin-bottom: 2px;
+       cursor: pointer;
+     }
     </style>
   </head>
   <body>
@@ -13,12 +23,28 @@
     </header>
     <main>
       <section class="buttons">
-        <button id="echo-test">CMD: ECHO</button>
+        <button id="echo">CMD: echo</button>
+        <button id="join-room">CMD: join-room</button>
+        <button id="hello">CMD: hello</button>
       </section>
     </main>
     <script>
+     let sessionId = "s1";
+     let currentRequestId = 0;
+
+     function getNextRequestId() {
+         return currentRequestId++;
+     }
+
      const ws = new WebSocket("ws://" + location.host);
-     const sessionId = "s1";
+
+     function send (msg) {
+         msg.requestId = getNextRequestId();
+
+         const data = JSON.stringify(msg);
+         console.log("ws send:", data);
+         ws.send(data);
+     };
 
      ws.addEventListener("open", (event) => {
          console.log("ws connected");
@@ -36,19 +62,33 @@
          console.log("ws received:", event.data);
      });
 
-     const send = (msg) => {
-         const data = JSON.stringify(msg);
-         console.log("ws send:", data);
-         ws.send(data);
-     };
-
-     const echoBtn = document.getElementById("echo-test");
+     const echoBtn = document.getElementById("echo");
      echoBtn.addEventListener("click", (event) => {
-         console.log("btn(click): echo-test");
+         console.log("btn(click): echo");
          send({
-             "type": "EchoRequest",
-             "sessionId": sessionId,
-             "n" : Math.random()
+             "type": "echo",
+             "n" : Date.now()
+         });
+     });
+
+     const joinRoomBtn = document.getElementById("join-room");
+     joinRoomBtn.addEventListener("click", (event) => {
+         console.log("btn(click): join-room");
+         send({
+             "type": "joinRoom",
+             "roomId": "test-room-id"
+         });
+     });
+
+
+     const helloBtn = document.getElementById("hello");
+     helloBtn.addEventListener("click", (event) => {
+         console.log("btn(click): hello");
+         send({
+             "type": "hello",
+             "roomId": "test-room-id",
+             "sessionId": "s1",
+             "name": "pepito"
          });
      });
 

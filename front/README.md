@@ -16,6 +16,13 @@ npm init svelte@next my-app
 
 > Note: the `@next` is temporary
 
+## Configuration
+Add your application configuration to your .env file in the root of the front project:
+
+```shell
+VITE_BASE_URL=ws://localhost:11010/
+```
+
 ## Developing
 
 Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
@@ -36,3 +43,4 @@ npm run build
 ```
 
 > You can preview the built app with `npm run preview`, regardless of whether you installed an adapter. This should _not_ be used to serve your app in production.
+

@@ -29,9 +29,7 @@
       "$state": ["src/state"],
       "$store": ["src/store"],
       "$events": ["src/events"],
-      "$events/*": ["src/events/*"],
-      "$services": ["src/services"],
-      "$services/*": ["src/services/*"]
+      "$events/*": ["src/events/*"]
 		}
 	},
 

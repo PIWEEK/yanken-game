@@ -1,17 +1,14 @@
 <script lang="ts">
- import { start } from "$store"; 
+ import store from "$store"; 
+ import type { State } from "$state";
  import { initialState } from "$state";
- import { GameManager } from "$services";
- import { onMount } from 'svelte';
-
-  onMount(() => {
-    const socket = new WebSocket(import.meta.env.VITE_BASE_URL || "ws://localhost:3000");
-    const gameManager = GameManager.getInstance();
-    gameManager.setSocket(socket);
-  });
+ import { StartWebsocket } from "$events";
 
  // Initializes the store
- start(initialState);
+ store.start(initialState);
+ const st = store.get<State>();
+ st.emit(new StartWebsocket());
+
 </script>
 
 <div class="main">

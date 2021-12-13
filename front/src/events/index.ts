@@ -18,3 +18,5 @@ export class StartCounter extends StoreEvent<State> {
     return interval(1000).pipe(rx.map(() => new AddValue(1)));
   }
 }
+
+export * from "./websockets";

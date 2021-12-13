@@ -35,10 +35,18 @@
    padding: 1rem;
    background: white;
    border: 1px solid red;
+   height: 100%;
 
    display: flex;
    justify-content: center;
    align-items: center;
+   flex-direction: row;
+ }
+
+ @media (orientation: portrait) {
+   .content {
+     flex-direction: column;
+   }
  }
 
  @media only screen and (min-width: 641px) and (orientation: landscape) {
@@ -79,6 +87,7 @@
    }
  }
 
+ /*
  @media only screen and (min-width: 2080px) and (orientation: landscape) {
    .content {
      transform: scale(3.25);
@@ -90,5 +99,6 @@
      transform: scale(3.5);
    }
  }
+ */
 
 </style>

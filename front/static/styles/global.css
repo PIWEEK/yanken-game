@@ -1,7 +1,3 @@
-@viewport {
-  width: 320px;
-}
-
 @font-face {
   font-family: 'upheaval';
   src: url('/fonts/upheavtt-webfont.woff2') format('woff2'),

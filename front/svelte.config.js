@@ -16,7 +16,8 @@ const config = {
         alias: {
           $state: resolve("./src/state.ts"),
           $store: resolve("./src/store.ts"),
-          $events: resolve("./src/events")
+          $events: resolve("./src/events"),
+          $services: resolve("./src/services")
         }
       }
     }

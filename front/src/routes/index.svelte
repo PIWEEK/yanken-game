@@ -3,7 +3,7 @@
  import store from "$store";
  import type { State } from "$state";
  import { StartCounter } from "$events";
- import { GameManager } from "../services";
+ import { GameManager } from "$services";
  
  const st = store.get<State>();
 
@@ -16,7 +16,7 @@
  function click() {
    clicked = true;
    st.emit(new StartCounter());
-   GameManager.getInstance().createGame();
+   GameManager.getInstance().echo(`Hello ${Math.random()}`);
  }
 </script>
 

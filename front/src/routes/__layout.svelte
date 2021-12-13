@@ -1,11 +1,11 @@
 <script lang="ts">
  import { start } from "$store"; 
  import { initialState } from "$state";
- import { GameManager } from "../services";
+ import { GameManager } from "$services";
  import { onMount } from 'svelte';
 
   onMount(() => {
-    const socket = new WebSocket("ws://localhost:10000/");
+    const socket = new WebSocket(import.meta.env.VITE_BASE_URL);
     const gameManager = GameManager.getInstance();
     gameManager.setSocket(socket);
   });

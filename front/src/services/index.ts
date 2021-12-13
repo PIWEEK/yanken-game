@@ -32,6 +32,10 @@ export class GameManager {
     });
   }
 
+  echo(repeat: string) {
+    this.socket?.send(JSON.stringify({ type: "EchoRequest", repeat }));
+  }
+
   createGame() {
     console.log("Sending create game message");
     this.socket?.send(JSON.stringify({ a: "b" }));

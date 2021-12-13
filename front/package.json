@@ -37,6 +37,8 @@
   "dependencies": {
     "immer": "^9.0.7",
     "ramda": "^0.27.1",
-    "rxjs": "^7.0.0-rc.3"
+    "rxjs": "^7.0.0-rc.3",
+    "svelte-forms-lib": "^2.0.0",
+    "yup": "^0.32.11"
   }
 }

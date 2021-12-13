@@ -10,14 +10,16 @@ const config = {
 
 	kit: {
 		adapter: adapter(),
-		target: '#svelte',
+    ssr: false,
+		target: '#app',
     vite: {
       resolve: {
         alias: {
           $state: resolve("./src/state.ts"),
           $store: resolve("./src/store.ts"),
           $events: resolve("./src/events"),
-          $services: resolve("./src/services")
+          $services: resolve("./src/services"),
+          $styles: resolve("./src/styles"),
         }
       }
     }

@@ -3,11 +3,37 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="description" content="" />
+
+    <meta name="viewport" content="width=360, user-scalable=no" />
+
 		<link rel="icon" href="/favicon.png" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles/normalize.css">
+    <link rel="stylesheet" href="/styles/global.css">
+
+    <title>Yanken Game</title>
 		%svelte.head%
 	</head>
 	<body>
-		<div id="svelte">%svelte.body%</div>
+		<div id="app">%svelte.body%</div>
 	</body>
+
+  <script>
+   function updateOrientation() {
+     var viewport = document.querySelector("meta[name=viewport]");
+
+     switch (window.orientation) {
+       case 0: //portrait
+         viewport.setAttribute("content", "width=360, user-scalable=no");
+         break;
+       case 90: case -90: //landscape
+         viewport.setAttribute("content", "width=640, user-scalable=no");
+         break;
+     }
+   }
+
+   window.addEventListener('orientationchange', updateOrientation, false);
+   updateOrientation();
+
+  </script>
 </html>

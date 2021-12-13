@@ -5,7 +5,7 @@
  import { onMount } from 'svelte';
 
   onMount(() => {
-    const socket = new WebSocket(import.meta.env.VITE_BASE_URL);
+    const socket = new WebSocket(import.meta.env.VITE_BASE_URL || "ws://localhost:3000");
     const gameManager = GameManager.getInstance();
     gameManager.setSocket(socket);
   });
@@ -14,13 +14,81 @@
  start(initialState);
 </script>
 
-<main>
-  <h1>HOLA</h1>
-  <slot></slot>
-</main>
+<div class="main">
+  <div class="content">
+    <slot></slot>
+  </div>
+</div>
 
 <style lang="postcss">
- :global(body) {
-   font-family: "Work Sans";
+ .main {
+   width: 100%;
+   height: 100%;
+   overflow: hidden;
+   background: black;
+   display: flex;
+   flex-direction: column;
  }
+
+ .content {
+   flex: 1;
+   padding: 1rem;
+   background: white;
+   border: 1px solid red;
+
+   display: flex;
+   justify-content: center;
+   align-items: center;
+ }
+
+ @media only screen and (min-width: 641px) and (orientation: landscape) {
+   .main {
+     align-items: center;
+     justify-content: center;
+   }
+
+   .content {
+     flex: initial;
+     width: 640px;
+     height: 320px;
+     transform: scale(2);
+   }
+ }
+
+ @media only screen and (min-width: 1440) and (orientation: landscape) {
+   .content {
+     transform: scale(2.25);
+   }
+ }
+
+ @media only screen and (min-width: 1600) and (orientation: landscape) {
+   .content {
+     transform: scale(2.5);
+   }
+ }
+
+ @media only screen and (min-width: 1760) and (orientation: landscape) {
+   .content {
+     transform: scale(2.75);
+   }
+ }
+
+ @media only screen and (min-width: 1920px) and (orientation: landscape) {
+   .content {
+     transform: scale(3);
+   }
+ }
+
+ @media only screen and (min-width: 2080px) and (orientation: landscape) {
+   .content {
+     transform: scale(3.25);
+   }
+ }
+
+ @media only screen and (min-width: 2240px) and (orientation: landscape) {
+   .content {
+     transform: scale(3.5);
+   }
+ }
+
 </style>

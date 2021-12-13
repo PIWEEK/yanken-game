@@ -1,7 +1,7 @@
 <script lang="ts">
- //import * as R from "ramda";
  import store from "$store";
  import type { State } from "$state";
+ import { goto } from '$app/navigation';
  import { StartCounter } from "$events";
  import { GameManager } from "$services";
  
@@ -18,19 +18,30 @@
    st.emit(new StartCounter());
    GameManager.getInstance().echo(`Hello ${Math.random()}`);
  }
+
+
+ let roomId = "";
+
+ function createGame() {
+   goto("/create-game");
+ }
+
+ function joinGame() {
+   goto(`/join-game/${roomId}`);
+ }
+
 </script>
 
-<div class="test">
-  <div class="counter">{$counter}</div>
-  <button on:click={click} disabled={clicked}>CLICK</button>
+<div>
+  <button on:click={createGame}>CREATE GAME</button>
+
+  <button on:click={joinGame} disabled={roomId === ""}>JOIN GAME</button>
+  <input type="text" placeholder="Room id" bind:value={roomId} />
+
+  <!--
+  <button on:click={click} disabled={clicked}>JOIN GAME</button>
+  -->
 </div>
 
 <style lang="postcss">
- .test {
-   border: 1px solid red;
-
-   &:hover {
-     border: 1px solid blue;
-   }
- }
 </style>

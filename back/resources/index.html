@@ -52,7 +52,7 @@
              msg.requestId = getNextRequestId();
          }
 
-         const data = JSON.stringify(msg);
+         const data = JSON.stringify(msg, null, 2);
          console.log("ws(send):", data);
          ws.send(data);
      };
@@ -70,7 +70,7 @@
      });
 
      ws.addEventListener("message", (event) => {
-         console.log("ws(received):", event.data);
+         console.log("ws(received):", JSON.stringify(JSON.parse(event.data), null, 2));
      });
 
      const echoBtn = document.getElementById("echo");

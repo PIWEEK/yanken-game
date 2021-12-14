@@ -47,8 +47,9 @@
   [state]
   (when-let [room (:current-room state)]
     (let [lookup   #(get-in state [:sessions %])
-          sessions (->> (:players room)
-                        (keep lookup))]
+          sessions (sequence (comp (keep #(get-in state [:sessions %]))
+                                   (map #(dissoc % :connection-id :room-id)))
+                             (:players room))]
       (assoc room :sessions (d/index-by :id (cons yst/bot-session sessions))))))
 
 (defmethod handler ["request" "hello"]

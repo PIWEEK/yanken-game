@@ -16,7 +16,9 @@
 
 (def bot-session
   {:id "yanken$$bot"
-   :is-bot true})
+   :is-bot true
+   :name "Bot"
+   :avatar-id 0})
 
 ;; --- Helpers
 
@@ -67,6 +69,7 @@
       (let [avatar-id 0
             session   {:id session-id
                        :avatar-id avatar-id
+                       :is-bot false
                        :name (or player-name (str (gensym "player")))
                        :connection-id connection-id}]
         (-> state
@@ -145,7 +148,7 @@
 
               room   (-> room
                          (assoc :round round)
-                         (assoc :stage "wait-responses")
+                         (assoc :stage "waitResponses")
                          (assoc :fights (vec fights)))]
 
           (set-room state room))))))
@@ -190,7 +193,7 @@
 
           room   (-> (dissoc room :fights)
                      (assoc :live-players alive)
-                     (assoc :stage "turn-ended")
+                     (assoc :stage "turnEnded")
                      (assoc :last-results fights)
                      (update :results conj fights)
                      (update :dead-players into dead))]

@@ -6,18 +6,18 @@
 
 (ns yanken.http
   (:require
+   [clojure.java.io :as io]
+   [clojure.spec.alpha :as s]
+   [clojure.string :as str]
+   [integrant.core :as ig]
+   [ring.adapter.jetty9 :as jetty]
+   [yanken.http.middleware :as mw]
+   [yanken.main :as main]
    [yanken.util.data :as d]
    [yanken.util.exceptions :as ex]
    [yanken.util.logging :as l]
    [yanken.util.spec :as us]
-   [yanken.http.middleware :as mw]
-   [yanken.websocket :as ws]
-   [yanken.main :as main]
-   [clojure.spec.alpha :as s]
-   [clojure.java.io :as io]
-   [cuerdas.core :as str]
-   [integrant.core :as ig]
-   [ring.adapter.jetty9 :as jetty])
+   [yanken.websocket :as ws])
   (:import
    org.eclipse.jetty.server.Server
    org.eclipse.jetty.server.handler.ErrorHandler))
@@ -40,7 +40,8 @@
                     (let [handler (doto (ErrorHandler.)
                                     (.setShowStacks true)
                                     (.setServer server))]
-                      (.setErrorHandler server ^ErrorHandler handler)))
+                      (.setErrorHandler server ^ErrorHandler handler)
+                      server))
 
         options   {:port port
                    :h2c? true
@@ -64,9 +65,18 @@
    :headers {"content-type" "text/html"}
    :body (io/input-stream (io/resource "index.html"))})
 
+(defn ws-upgrade-request?
+  [{:keys [headers]}]
+  (let [upgrade    (get headers "upgrade")
+        connection (get headers "connection")]
+    (and upgrade
+         connection
+         (str/includes? (str/lower-case upgrade) "websocket")
+         (str/includes? (str/lower-case connection) "upgrade"))))
+
 (defn handler
   [request]
-  (if (jetty/ws-upgrade-request? request)
+  (if (ws-upgrade-request? request)
     (let [ws-handler (ws/wrap main/handler)]
       (jetty/ws-upgrade-response ws-handler))
     (serve-test-page request)))

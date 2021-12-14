@@ -43,24 +43,26 @@
   [{:keys [out-ch]} message]
   (a/go message))
 
+(defn- resolve-room
+  [state]
+  (when-let [room (:current-room state)]
+    (let [lookup   #(get-in state [:sessions %])
+          sessions (->> (:players room)
+                        (keep lookup))]
+      (assoc room :sessions (d/index-by :id (cons yst/bot-session sessions))))))
+
 (defmethod handler ["request" "hello"]
   [{:keys [local] :as ws} {:keys [session-id player-name]}]
   (aa/go-try
-   (let [state  (swap! yst/state yst/create-or-update-session (:id ws) session-id player-name)
-         result {:avatar-id (:current-avatar-id state)
-                 :session-id (:current-session-id state)}]
-     (with-meta result
-       {:session-id (:session-id result)}))))
+   (let [ state  (swap! yst/state yst/update-session (:id ws) session-id player-name)
+         result  {:avatar-id (:current-avatar-id state)
+                  :session-id (:current-session-id state)
+                  :room (resolve-room state)}]
+
+     (-> (d/without-nils result)
+         (with-meta {:session-id (:session-id result)})))))
 
 ;; --- JOIN ROOM
-
-(defn- resolve-room
-  [state]
-  (let [room     (:current-room state)
-        lookup   #(get-in state [:sessions %])
-        sessions (->> (:players room)
-                      (keep lookup))]
-    (assoc room :sessions (d/index-by :id (cons yst/bot-session sessions)))))
 
 (defn- resolve-player
   [state session-id]

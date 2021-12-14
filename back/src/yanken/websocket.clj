@@ -52,7 +52,7 @@
                       (when (map? mdata) (swap! ws merge mdata))
                       (a/>! output (assoc response
                                           :type "response"
-                                          :name (:name request)
+                                          :name (or (:name response) (:name request))
                                           :request-id (:request-id request))))
 
                     (nil? response)

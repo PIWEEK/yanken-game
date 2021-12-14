@@ -49,16 +49,18 @@
   [state {:keys [id] :as ws}]
   (update state :connections dissoc id))
 
-(defn create-or-update-session
+(defn update-session
   [state connection-id session-id player-name]
   (let [session-id (or session-id (uuid/next))]
     (if-let [session (get-in state [:sessions session-id])]
       (let [session (-> session
                         (assoc :connection-id connection-id)
-                        (cond-> (string? player-name) (assoc :name player-name)))]
+                        (cond-> (string? player-name) (assoc :name player-name)))
+            room    (get-room-for-session state session-id)]
         (-> state
             (assoc :current-session-id session-id)
             (assoc :current-avatar-id (:avatar-id session))
+            (cond-> (some? room) (assoc :current-room room))
             (update :sessions assoc session-id session)
             (update :connections update connection-id assoc :session-id session-id)))
 
@@ -73,34 +75,29 @@
             (update :sessions assoc session-id session)
             (update :connections update connection-id assoc :session-id session-id))))))
 
-;; TODO: validate params
-
 (defn join-room
   [state session-id room-id]
   (let [room-id (or room-id (uuid/next))
-        state   (update-in state [:sessions session-id] assoc :room-id room-id)]
-    ;; if room is found in state this means the user tries to rejoin
-    ;; the existing game.
-    (if-let [room (get-in state [:rooms room-id])]
-      (do
-        ;; We dont allow join game if is already started or ongoing.
-        (when (not= (:status room) "waiting")
-          (ex/raise :type :validation
-                    :code :cant-join-ongoing-or-finished-game))
-
-        (-> state
-            (assoc :current-room room)
-            (assoc :current-room-created false)
-            (update-in [:rooms room-id :players] conj session-id)))
-
+        state   (update-in state [:sessions session-id] assoc :room-id room-id)
+        {:keys [status] :as room} (get-in state [:rooms room-id])]
+    (cond
+      (or (= "ended" status)
+          (nil? room))
       (let [room {:id room-id
                   :status "waiting"
                   :players #{session-id}
                   :owner session-id}]
-        (-> state
-            (assoc :current-room room)
-            (assoc :current-room-created true)
-            (update :rooms assoc room-id room))))))
+        (set-room state room))
+
+      (= "playing" status)
+      (ex/raise :type :validation
+                :code :cant-join-ongoing-game)
+
+      :else
+      (-> state
+          (assoc :current-room room)
+          (assoc :current-room-created false)
+          (update-in [:rooms room-id :players] conj session-id)))))
 
 (defn start-game
   [state session-id]

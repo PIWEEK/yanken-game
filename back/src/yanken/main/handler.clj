@@ -151,7 +151,7 @@
      nil)))
 
 (defmethod handler ["request" "sendTurn"]
-  [{:keys [session-id] :as ws} {:keys [response] :as message}]
+  [{:keys [session-id] :as ws} {:keys [result] :as message}]
   (aa/go-try
-   (swap! yst/state yst/update-round session-id response)
+   (swap! yst/state yst/update-round session-id result)
    nil))

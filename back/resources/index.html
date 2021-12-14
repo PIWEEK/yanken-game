@@ -10,8 +10,13 @@
        flex-direction: column;
      }
 
+     .row {
+       padding: 5px;
+       border: 1px solid gray;
+     }
+
      .buttons button {
-       max-width: 300px;
+       /* max-width: 300px; */
        margin-bottom: 2px;
        cursor: pointer;
      }
@@ -27,13 +32,18 @@
           <button id="echo">CMD: echo</button>
         </div>
         <div class="row">
-          <button id="join-room">CMD: join-room</button>
-        </div>
-        <div class="row">
           <button id="hello">CMD: hello</button>
         </div>
         <div class="row">
+          <button id="join-room">CMD: join-room</button>
+        </div>
+        <div class="row">
           <button id="start-game">CMD: start-game</button>
+        </div>
+        <div class="row">
+          <button id="result-1">CMD: result (rock) </button>
+          <button id="result-2">CMD: result (paper) </button>
+          <button id="result-3">CMD: result (scissors) </button>
         </div>
       </section>
     </main>
@@ -110,11 +120,29 @@
          send({
              "type": "request",
              "name": "hello",
-             "roomId": "test-room-id",
              "sessionId": "s1",
              "playerName": "pepito"
          });
      });
+
+     const resultBtn1 = document.getElementById("result-1");
+     const resultBtn2 = document.getElementById("result-2");
+     const resultBtn3 = document.getElementById("result-3");
+
+     function onResultClicked(n) {
+         return function(event) {
+             console.log("btn(click): result-" + n);
+             send({
+                 "type": "request",
+                 "name": "sendTurn",
+                 "result": n
+             });
+         };
+     }
+
+     resultBtn1.addEventListener("click", onResultClicked(1));
+     resultBtn2.addEventListener("click", onResultClicked(2));
+     resultBtn3.addEventListener("click", onResultClicked(3));
 
     </script>
   </body>

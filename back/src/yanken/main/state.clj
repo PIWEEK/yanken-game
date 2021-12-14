@@ -15,7 +15,7 @@
 (defonce state (atom {}))
 
 (def bot-session
-  {:id "yanken$$bot"
+  {:id uuid/zero
    :is-bot true
    :name "Bot"
    :avatar-id 0})
@@ -58,7 +58,7 @@
       (let [session (-> session
                         (assoc :connection-id connection-id)
                         (cond-> (string? player-name) (assoc :name player-name)))
-            room    (get-room-for-session state session-id)]
+            room    (get-in state [:rooms (:room-id session)])]
         (-> state
             (assoc :current-session-id session-id)
             (assoc :current-avatar-id (:avatar-id session))
@@ -148,7 +148,7 @@
 
               room   (-> room
                          (assoc :round round)
-                         (assoc :stage "waitResponses")
+                         (assoc :stage "waitingResponses")
                          (assoc :fights (vec fights)))]
 
           (set-room state room))))))
@@ -172,29 +172,32 @@
               (ffirst responses)
 
               :else
-              (let [[[p1 r1] [p2 r2]] responses]
+              (let [[[p1 r1] [p2 r2]] (seq responses)]
                 (cond
                   (= r1 r2) :both
-                  (= r1 1)  (if (= r2 3) r1 r2)
-                  (= r1 2)  (if (= r2 1) r1 r2)
-                  (= r1 3)  (if (= r2 2) r1 r2)))))
+                  (= r1 1)  (if (= r2 3) p1 p2)
+                  (= r1 2)  (if (= r2 1) p1 p2)
+                  (= r1 3)  (if (= r2 2) p1 p2)))))
 
           (resolve-winner [{:keys [responses players] :as fight}]
             (let [responses (cond-> responses
                               (contains? players (:id bot-session))
                               (assoc (:id bot-session) (inc (rand-int 3))))]
-              (assoc fight :winner (calculate-winner responses))))]
+              (-> fight
+                  (assoc :winner (calculate-winner responses))
+                  (assoc :responses responses))))]
 
     (let [room   (get-room state room-id)
-          fights (into [] (map resolve-winner) (:fights room))
+          fights (into []
+                       (comp (map resolve-winner)
+                             (map #(assoc % :round (:round room))))
+                       (:fights room))
+
           alive  (into #{} (mapcat get-alive-players) fights)
-
           dead   (set/difference (:live-players room) alive)
-
           room   (-> (dissoc room :fights)
                      (assoc :live-players alive)
                      (assoc :stage "turnEnded")
-                     (assoc :last-results fights)
                      (update :results conj fights)
                      (update :dead-players into dead))]
 
@@ -207,8 +210,11 @@
               (contains? players session-id)
               (update :responses assoc session-id response)))]
 
-    (let [room   (get-room-for-session state session-id)
-          fights (into [] (map update-fight) (:fights room))
-          room   (assoc room :fights fights)]
+    (let [room   (get-room-for-session state session-id)]
+      (when (not= (:stage room) "waitingResponses")
+        (ex/raise :type :validation
+                  :code :response-out-of-time))
 
-      (set-room state room))))
+      (let [fights (into [] (map update-fight) (:fights room))
+            room   (assoc room :fights fights)]
+        (set-room state room)))))

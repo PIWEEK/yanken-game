@@ -1,9 +1,11 @@
 <script lang="ts">
  import { page } from '$app/stores';
  import background from "$lib/images/select-bg.png";
+
+ export let hideRoom = false;
 </script>
 
-{#if $page.params.game}
+{#if !hideRoom && $page.params.game}
   <div class="room-name">Room {$page.params.game}</div>
 {/if}
 

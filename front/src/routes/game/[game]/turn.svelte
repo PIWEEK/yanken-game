@@ -132,7 +132,7 @@
    }
 
    & .clock {
-     width: 40px;
+     width: 50px;
      padding: 4px 8px;
      text-align: right;
      background-color: #222034;

@@ -1,7 +1,6 @@
 <script lang="ts">
- import logo from "$lib/images/yanken.png";
-
  import { goto } from "$app/navigation";
+ import logo from "$lib/images/yanken.png";
  import MenuContainer from "$components/MenuContainer.svelte";
  
  let room: string;

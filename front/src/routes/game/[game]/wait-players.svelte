@@ -1,21 +1,22 @@
 <script lang="ts">
  import { goto } from "$app/navigation";
- import background from "$lib/images/select-bg.png"
- import clockIcon from "$lib/images/timer.png"
- 
+ import { page } from '$app/stores';
+
  import PlayerCard from "$components/PlayerCard.svelte";
- 
- let room = "apothecary";
+
+ import MenuContainer from "$components/MenuContainer.svelte";
+ import clockIcon from "$lib/images/timer.png"
+
  let players = new Array(100).fill({name: "Uno", color: "red"});
 
  function startGame() {
+   const room = $page.params.game;
    goto(`/game/${room}/turn`);
  }
  
 </script>
 
-<div class="room-name">Room {room}</div>
-<div class="main" style="--background-image: url({background})">
+<MenuContainer>
   <div class="container">
     <label for="name">Wait until the game starts...</label>
     <div class="clock"><img alt="Timer" src={clockIcon}/></div>
@@ -23,33 +24,12 @@
       {#each players as player}
 	      <PlayerCard name={player.name} color={player.color} flipx={true} />
       {/each}
-      
     </div>
     <button on:click={startGame}>GO!</button>
   </div>
-</div>
+</MenuContainer>
 
 <style lang="postcss">
- @import "$styles/forms.css";
- 
- .main {
-   width: 100%;
-   height: 100%;
-   background-image: var(--background-image);
-   background-size: cover;
-   padding: 30px;
- }
-
- .room-name {
-   position: absolute;
-   width: 100%;
-   top: 0px;
-   color: #c27eca;
-   font-size: 14px;
-   text-align: center;
-   padding: 8px 0;
- }
-
  .container {
    height: 100%;
    display: grid;
@@ -93,7 +73,6 @@
      padding-top: 0px;
    }
  }
-
 </style>
 
 

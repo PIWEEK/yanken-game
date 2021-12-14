@@ -78,6 +78,7 @@
   [players room]
   (a/go-loop [players (seq players)]
     (when-let [player (first players)]
+
       (when-let [output-ch (some-> player :connection :output)]
         (l/debug :fn "notify-room-update" :room (:id room) :player (:id player))
 
@@ -100,7 +101,7 @@
          room    (resolve-room state)
          players (->> (:players room)
                       (filter #(not= % session-id))
-                      (map (partial resolve-player state)))]
+                      (keep (partial resolve-player state)))]
 
      (a/<! (notify-room-update players room))
      {:room room})))
@@ -114,11 +115,11 @@
     (let [state   (swap! yst/state yst/prepare-round room-id round)
           room    (resolve-room state)
           players (->> (:players room)
-                       (map (partial resolve-player state)))]
+                       (keep (partial resolve-player state)))]
 
       (l/debug :action "game" :round 0 :status (:status room))
-      (println "============================")
-      (clojure.pprint/pprint room)
+      ;; (println "============================")
+      ;; (clojure.pprint/pprint room)
 
       (if (not= "ended" (:status room))
         (do

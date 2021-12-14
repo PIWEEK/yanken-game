@@ -92,7 +92,7 @@
   (aa/go-try
    (let [state (swap! yst/state yst/join-room ws message)]
      (a/<! (notify-room-update ws state))
-     (resolve-room state))))
+     {:room (resolve-room state)})))
 
 ;; (defmethod handler "startGame"
 ;;   [ws message]

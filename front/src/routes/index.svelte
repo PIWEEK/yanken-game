@@ -1,44 +1,39 @@
-<script lang="ts">
- import store from "$store";
- import type { State } from "$state";
- import { goto } from '$app/navigation';
- import { StartCounter } from "$events";
+<script>
+ import logo from "$lib/images/yanken.png" 
+ import background from "$lib/images/select-bg.png"
 
- const st = store.get<State>();
-
- // Global state
- const counter = st.select(state => state.counter);
-
- // Local state
- let clicked = false;
-
- function click() {
-   clicked = true;
-   st.emit(new StartCounter());
- }
-
- let roomId = "";
-
- function createGame() {
-   goto("/create-game");
- }
-
- function joinGame() {
-   goto(`/join-game/${roomId}`);
- }
-
+ let name = "Kidd";
+ 
 </script>
 
-<div>
-  <button on:click={createGame}>CREATE GAME</button>
-
-  <button on:click={joinGame} disabled={roomId === ""}>JOIN GAME</button>
-  <input type="text" placeholder="Room id" bind:value={roomId} />
-
-  <!--
-  <button on:click={click} disabled={clicked}>JOIN GAME</button>
-  -->
+<div class="main" style="--background-image: url({background})">
+  <div class="container">
+    <img class="logo" src={logo} alt="Yanken Game"/>
+    <div class="inputs">
+      <label for="name">Choose your name</label>
+      <input name="name" type="text" bind:value={name} />
+      <button>GO!</button>
+    </div>
+  </div>
 </div>
 
 <style lang="postcss">
+ @import "$styles/forms.css";
+ 
+ .main {
+   width: 100%;
+   height: 100%;
+   background-image: var(--background-image);
+   background-size: cover;
+   padding: 30px;
+ }
+
+ .logo {
+   width: 100%;
+ }
+
+ .inputs {
+   display: flex;
+   flex-direction: column;
+ }
 </style>

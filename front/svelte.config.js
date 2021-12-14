@@ -19,6 +19,7 @@ const config = {
           $store: resolve("./src/store.ts"),
           $events: resolve("./src/events"),
           $styles: resolve("./src/styles"),
+          $components: resolve("./src/components"),
         }
       }
     }

@@ -25,13 +25,12 @@
    background: black;
    display: flex;
    flex-direction: column;
+   color: white;
  }
 
  .content {
    flex: 1;
-   padding: 1rem;
    background: white;
-   border: 1px solid red;
    height: 100%;
 
    display: flex;
@@ -40,62 +39,62 @@
    flex-direction: row;
  }
 
- @media (orientation: portrait) {
-   .content {
-     flex-direction: column;
-   }
- }
-
- @media only screen and (min-width: 641px) and (orientation: landscape) {
-   .main {
-     align-items: center;
-     justify-content: center;
-   }
-
-   .content {
-     flex: initial;
-     width: 640px;
-     height: 320px;
-     transform: scale(2);
-   }
- }
-
- @media only screen and (min-width: 1440) and (orientation: landscape) {
-   .content {
-     transform: scale(2.25);
-   }
- }
-
- @media only screen and (min-width: 1600) and (orientation: landscape) {
-   .content {
-     transform: scale(2.5);
-   }
- }
-
- @media only screen and (min-width: 1760) and (orientation: landscape) {
-   .content {
-     transform: scale(2.75);
-   }
- }
-
- @media only screen and (min-width: 1920px) and (orientation: landscape) {
-   .content {
-     transform: scale(3);
-   }
- }
-
  /*
- @media only screen and (min-width: 2080px) and (orientation: landscape) {
-   .content {
-     transform: scale(3.25);
-   }
- }
+    @media (orientation: portrait) {
+    .content {
+    flex-direction: column;
+    }
+    }
 
- @media only screen and (min-width: 2240px) and (orientation: landscape) {
-   .content {
-     transform: scale(3.5);
-   }
- }
- */
+    @media only screen and (min-width: 641px) and (orientation: landscape) {
+    .main {
+    align-items: center;
+    justify-content: center;
+    }
+
+    .content {
+    flex: initial;
+    width: 640px;
+    height: 320px;
+    transform: scale(2);
+    }
+    }
+
+    @media only screen and (min-width: 1440) and (orientation: landscape) {
+    .content {
+    transform: scale(2.25);
+    }
+    }
+
+    @media only screen and (min-width: 1600) and (orientation: landscape) {
+    .content {
+    transform: scale(2.5);
+    }
+    }
+
+    @media only screen and (min-width: 1760) and (orientation: landscape) {
+    .content {
+    transform: scale(2.75);
+    }
+    }
+
+    @media only screen and (min-width: 1920px) and (orientation: landscape) {
+    .content {
+    transform: scale(3);
+    }
+    }
+
+    @media only screen and (min-width: 2080px) and (orientation: landscape) {
+    .content {
+    transform: scale(3.25);
+    }
+    }
+
+    @media only screen and (min-width: 2240px) and (orientation: landscape) {
+    .content {
+    transform: scale(3.5);
+    }
+    }
+  */
 
 </style>

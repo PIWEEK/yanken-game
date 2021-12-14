@@ -110,6 +110,12 @@
          send({
              "type": "request",
              "name": "startGame",
+             "options": {
+                 "botDefaultResponse": 1,
+                 /* "botAlwaysWinner": true, */
+                 "roundTimeout": 10000,
+                 "postRoundTimeout": 3000
+             }
          });
      });
 

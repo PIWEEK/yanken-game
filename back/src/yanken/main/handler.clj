@@ -117,35 +117,32 @@
   (a/go-loop [round 0]
     (let [state   (swap! yst/state yst/prepare-round room-id round)
           room    (resolve-room state)
+          opts    (:options room)
           players (->> (:players room)
                        (keep (partial resolve-player state)))]
 
       (l/debug :action "game" :round 0 :status (:status room))
-      ;; (println "============================")
-      ;; (clojure.pprint/pprint room)
-
       (if (not= "ended" (:status room))
         (do
           (a/<! (notify-room-update players room))
-          (a/<! (a/timeout round-timeout))
+          (a/<! (a/timeout (:round-timeout opts)))
           (let [state (swap! yst/state yst/finish-round room-id)
                 room  (resolve-room state)]
             (a/<! (notify-room-update players room))
-            (a/<! (a/timeout post-round-timeout))
+            (a/<! (a/timeout (:post-round-timeout opts)))
             (recur (inc round))))
-
         (do
           (a/<! (notify-room-update players room)))))))
 
 (defmethod handler ["request" "startGame"]
-  [{:keys [session-id] :as ws} message]
+  [{:keys [session-id] :as ws} {:keys [options] :as message}]
   (aa/go-try
    (when-not session-id
      (ex/raise :type :validation
                :code :session-not-initialized
                :hint "missing hello event"))
 
-   (let [state   (swap! yst/state yst/start-game session-id)
+   (let [state   (swap! yst/state yst/start-game session-id options)
          room-id (-> state :current-room :id)]
      (start-game! room-id)
      nil)))

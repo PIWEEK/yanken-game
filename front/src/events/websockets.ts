@@ -21,7 +21,7 @@ export class CreateGameRequest extends WebSocketRequest {
   }
 }
 
-export class JoinRequest extends WebSocketRequest {
+export class HelloRequest extends WebSocketRequest {
   private name: string;
 
   constructor(name: string, requestId: string) {
@@ -84,7 +84,7 @@ export class Action extends StoreEvent<State> {
   }
 }
 
-export class Join extends Action {
+export class Hello extends Action {
   private name: string;
   constructor(name: string) {
     super();
@@ -100,7 +100,7 @@ export class Join extends Action {
         return new Update(sessionId);
       })
     );
-    return merge(updateStream, of(new JoinRequest(this.name, this.requestId)));
+    return merge(updateStream, of(new HelloRequest(this.name, this.requestId)));
   }
 }
 

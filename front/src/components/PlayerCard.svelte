@@ -33,16 +33,15 @@
    yellow: sucYellow,
  }
 
- export let name: string;
- export let color: AvatarColor;
- export let cardType: "full" | "small";
+ export let name: string | null = null;
+ export let color: AvatarColor = "red";
+ export let cardType: "full" | "small" | null = null;
  export let flipx: boolean = false;
 
- export let pick: "rock" | "paper" | "scissors" | undefined;
- export let result: "win" | "loss" | "draw" | undefined;
+ export let pick: "rock" | "paper" | "scissors" | null = null;
+ export let result: "win" | "loss" | "draw" | null = null;
 
 </script>
-
 
 <div class="suc-data"
      class:flipx={flipx}
@@ -51,28 +50,40 @@
      class:dimmed={result === "loss"}
      style="--select-bg: url({selectBg})">
   <img class="avatar" alt={color} src={AVATARS[color]}/>
-  <div class="player-name">{name}</div>
+
+  {#if name}
+    <div class="player-name">{name}</div>
+  {/if}
 
   {#if cardType === "full"}
     <div class="last-plays-title">Last Plays</div>
     <div class="last-plays">
       <div class="last-play-item">
-        <img src={rock}/>
+        <img src={rock} alt="Rock" />
       </div>
       <div class="last-play-item">
-        <img src={paper}/>
+        <img src={paper} alt="Paper" />
       </div>
     </div>
   {/if}
   <div class="decoration">
     {#if result === "win"}
-      <img class="turn-result" src={victory}/>
+      <img class="turn-result" src={victory} alt="Victory" />
     {:else if result === "loss"}
-      <img class="turn-result" src={defeat}/>
+      <img class="turn-result" src={defeat} alt="Defeat" />
     {/if}
-    <div class="turn-pick">
-      <img src={paper}/>
-    </div>
+
+    {#if pick}
+      <div class="turn-pick">
+        {#if pick === "rock"}
+          <img src={rock} alt="Rock" />
+        {:else if pick === "paper"}
+          <img src={paper} alt="Paper" />
+        {:else if pick === "scissors"}
+          <img src={scissors} alt="Scissors" />
+        {/if}
+      </div>
+    {/if}
   </div>
 </div>
 

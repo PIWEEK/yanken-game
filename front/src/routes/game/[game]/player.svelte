@@ -1,11 +1,18 @@
-<script>
+<script lang="ts">
+ import { goto } from "$app/navigation";
  import logo from "$lib/images/yanken.png" 
  import background from "$lib/images/select-bg.png"
 
+ let room = "apothecary";
  let name = "Kidd";
+
+ function setupName() {
+   goto(`/game/${room}/avatar`);
+ }
  
 </script>
 
+<div class="room-name">Room {room}</div>
 <div class="main" style="--background-image: url({background})">
   <div class="container">
     <img class="logo" src={logo} alt="Yanken Game"/>
@@ -13,7 +20,7 @@
     <div class="chose-name">
       <label for="name">Choose your name</label>
       <input name="name" type="text" bind:value={name} />
-      <button>GO!</button>
+      <button disabled={!name} on:click={setupName}>GO!</button>
     </div>
   </div>
 </div>
@@ -27,6 +34,16 @@
    background-image: var(--background-image);
    background-size: cover;
    padding: 30px;
+ }
+
+ .room-name {
+   position: absolute;
+   width: 100%;
+   top: 0px;
+   color: #c27eca;
+   font-size: 14px;
+   text-align: center;
+   padding: 8px 0;
  }
 
  .container {
@@ -48,10 +65,11 @@
 
    & label[for=name] {
      text-align: center;
+     font-size: 24px;
    }
 
    & > * {
-     margin-bottom: 16px;
+     margin-bottom: 32px;
    }
  }
 </style>

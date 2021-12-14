@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
- import type { LoadInput } from '@sveltejs/kit';
+ // import { goto } from "$app/navigation";
 
  import rock from "$lib/images/rock.png";
  import paper from "$lib/images/paper.png";
@@ -11,13 +11,6 @@
 
  import MatchData from "$components/MatchData.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
-
- let gameId = "test";
-
- export async function load(data: LoadInput) {
-   gameId = data.page.params.game;
-   return true;
- }
 </script>
 
 <div class="game"
@@ -27,7 +20,7 @@
             --clock-icon: url({clockIcon})">
   <div class="turn-info">
     <div class="turn-display">Round 2</div>
-    <div class="clock">
+    <div class="clock" class:low={true}>
       <span>99</span>
     </div>
   </div>
@@ -144,6 +137,10 @@
      text-align: right;
      background-color: #222034;
      position: relative;
+
+     &.low {
+       background-color: #e03333;
+     }
 
      &::before {
        content: '';

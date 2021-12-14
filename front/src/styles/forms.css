@@ -31,6 +31,7 @@ input {
   color: var(--input-text);
   padding: 8px 23px;
   background-color: white;
+  font-size: 24px;
 
   &:focus {
     border: 2px solid var(--input-border-focus);

@@ -1,6 +1,3 @@
-import type { boolean } from "yup";
-import { string } from "yup/lib/locale";
-
 export interface State {
   counter: number;
   sessionId?: string;

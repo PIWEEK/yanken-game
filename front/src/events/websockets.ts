@@ -113,7 +113,7 @@ export class Action extends StoreEvent<State> {
     super();
     this.requestId = Date.now().toString();
   }
-  public watch(state: State, stream: Observable<StoreEvent<State>>) {
+  public watch(_state: State, stream: Observable<StoreEvent<State>>) {
     const requestId = this.requestId;
     const updateStream = stream.pipe(
       filter((ev: StoreEvent<State>) => ev instanceof MessageSocketEvent && ev.requestId === requestId),

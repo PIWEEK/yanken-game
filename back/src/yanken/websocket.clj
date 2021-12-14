@@ -29,8 +29,8 @@
       false)))
 
 (defn- start-input-loop
-  [ws]
-  (let [{:keys [handler input output]} @ws]
+  [ws handler]
+  (let [{:keys [input output]} @ws]
     (a/go
       (a/<! (handler @ws {:type "connect"}))
       (a/<! (a/go-loop []
@@ -65,58 +65,57 @@
       (a/<! (handler @ws {:type "disconnect"})))))
 
 (defn- start-output-loop
-  [{:keys [conn executor output]}]
-  (a/go-loop []
-    (let [val (a/<! output)]
-      (when (some? val)
-        (when (a/<! (aa/thread-call executor #(ws-send! conn (json/encode-str val))))
-          (recur))))))
-
+  [{:keys [conn output]}]
+  (let [executor (ForkJoinPool/commonPool)]
+    (a/go-loop []
+      (let [val (a/<! output)]
+        (when (some? val)
+          (when (a/<! (aa/thread-call executor #(ws-send! conn (json/encode-str val))))
+            (recur)))))))
 
 ;; TODO: PING/PONG control
 
 (defn wrap
   ([handler] (wrap handler {}))
-  ([handler {:keys [rcv-buff-size snd-buff-size] :or {snd-buff-size 32 rcv-buff-size 32}}]
+  ([handler {:keys [input-buff-size output-buff-size]
+             :or {input-buff-size 32
+                  output-buff-size 32}}]
    (fn [request]
-     (let [rcv-ch   (a/chan rcv-buff-size)
-           out-ch   (a/chan snd-buff-size)
-           executor (ForkJoinPool/commonPool)
+     (let [input-ch  (a/chan input-buff-size)
+           output-ch (a/chan output-buff-size)
 
            on-connect
            (fn [conn]
              (l/info :hint "on-connect" :client (jetty/remote-addr conn))
-             (let [ws (atom {:output out-ch
-                             :input rcv-ch
-                             :executor executor
-                             :handler handler
+             (let [ws (atom {:output output-ch
+                             :input input-ch
                              :conn conn
                              :id (uuid/next)})]
 
-               ;; Forward all messages from out-ch to the websocket
+               ;; Forward all messages from output-ch to the websocket
                ;; connection
                (start-output-loop @ws)
 
                ;; React on messages received from the client
-               (start-input-loop ws)))
+               (start-input-loop ws handler)))
 
            on-error
            (fn [conn err]
              (l/info :hint "on-error" :err (str err))
-             (a/close! out-ch)
-             (a/close! rcv-ch))
+             (a/close! output-ch)
+             (a/close! input-ch))
 
            on-close
            (fn [conn status reason]
              (l/info :hint "on-close" :status status :reason reason)
-             (a/close! out-ch)
-             (a/close! rcv-ch))
+             (a/close! output-ch)
+             (a/close! input-ch))
 
            on-message
            (fn [conn message]
              (let [message (json/decode-str message)]
                (l/info :hint "on-message" :message message)
-               (when-not (a/offer! rcv-ch message)
+               (when-not (a/offer! input-ch message)
                  (l/warn :msg "drop messages"))))
 
            on-ping

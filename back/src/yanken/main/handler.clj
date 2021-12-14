@@ -81,7 +81,6 @@
       (when-let [player (first players)]
         (when-let [connection (:connection player)]
           (let [output-ch (:yanken.websockets/output connection)]
-            (prn "notify-room-update" player)
             (a/>! output-ch {:type "notification"
                              :name "roomUpdate"
                              :room room})))
@@ -92,11 +91,8 @@
   [ws {:keys [room-id] :as message}]
   (aa/go-try
    (let [state (swap! yst/state yst/join-room ws message)]
-     (prn "KAKAKAK1" (:current-room state))
      (a/<! (notify-room-update ws state))
-     (prn "KAKAKAK2" (:current-room state))
-
-     (:current-room state))))
+     (resolve-room state))))
 
 ;; (defmethod handler "startGame"
 ;;   [ws message]

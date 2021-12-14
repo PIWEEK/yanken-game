@@ -31,7 +31,7 @@
     (if-let [session (get-in state [:sessions session-id])]
       (let [session (-> session
                         (assoc :connection-id id)
-                        (cond-> (string? name) (assoc :name name)))]
+                        (cond-> (string? player-name) (assoc :name player-name)))]
         (-> state
             (assoc :current-session-id session-id)
             (assoc :current-avatar-id (:avatar-id session))
@@ -42,7 +42,7 @@
       (let [avatar-id 0
             session   {:id session-id
                        :avatar-id avatar-id
-                       :name (or name (str (gensym "player")))
+                       :name (or player-name (str (gensym "player")))
                        :connection-id id}]
         (-> state
             (assoc :current-avatar-id avatar-id)

@@ -44,24 +44,24 @@
          }
 
          const data = JSON.stringify(msg);
-         console.log("ws send:", data);
+         console.log("ws(send):", data);
          ws.send(data);
      };
 
      ws.addEventListener("open", (event) => {
-         console.log("ws connected");
+         console.log("ws(connected)");
      });
 
      ws.addEventListener("error", (event) => {
-         console.log("ws error", event);
+         console.log("ws(error):", event);
      })
 
      ws.addEventListener("close", (event) => {
-         console.log("close", event);
+         console.log("ws(close)", event);
      });
 
      ws.addEventListener("message", (event) => {
-         console.log("ws received:", event.data);
+         console.log("ws(received):", event.data);
      });
 
      const echoBtn = document.getElementById("echo");

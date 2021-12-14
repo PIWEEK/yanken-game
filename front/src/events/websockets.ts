@@ -2,7 +2,7 @@ import type { State } from "$state";
 import { StoreEvent } from "$store";
 import { Observable, Subject, of, merge } from "rxjs";
 import { filter, take, map } from "rxjs/operators";
-import type { string } from "yup";
+import type { Room } from "$state";
 
 export class WebSocketRequest extends StoreEvent<State> {
   public requestId: string;
@@ -38,6 +38,23 @@ export class HelloRequest extends WebSocketRequest {
   }
 }
 
+export class JoinRequest extends WebSocketRequest {
+  private roomId: string;
+
+  constructor(roomId: string, requestId: string) {
+    super(requestId);
+    this.roomId = roomId;
+  }
+  public toJSON() {
+    return {
+      type: "request",
+      name: "joinRoom",
+      requestId: this.requestId,
+      roomId: this.roomId
+    };
+  }
+}
+
 export class SocketEvent extends StoreEvent<State> {
   public event: Event;
   constructor(event: Event) {
@@ -64,15 +81,23 @@ export class MessageSocketEvent extends SocketEvent {
 }
 
 export class Update extends StoreEvent<State> {
-  public sessionId: string;
-  constructor(sessionId: string) {
+  public sessionId?: string;
+  public room?: Room;
+  constructor(sessionId?: string, room?: Room) {
     super();
     this.sessionId = sessionId;
+    this.room = room;
   }
 
   public update(state: State) {
-    state.sessionId = this.sessionId;
-    console.log("Updating state, sessionId:", state.sessionId);
+    if (this.sessionId) {
+      state.sessionId = this.sessionId;
+      console.log("Updating sessionId:", this.sessionId);
+    }
+    if (this.room) {
+      state.room = this.room;
+      console.log("Updating room:", this.room);
+    }
   }
 }
 
@@ -81,6 +106,20 @@ export class Action extends StoreEvent<State> {
   constructor() {
     super();
     this.requestId = Date.now().toString();
+  }
+  public watch(state: State, stream: Observable<StoreEvent<State>>) {
+    const requestId = this.requestId;
+    const updateStream = stream.pipe(
+      filter((ev: StoreEvent<State>) => ev instanceof MessageSocketEvent && ev.requestId === requestId),
+      take(1),
+      map((e) => {
+        const data = JSON.parse(((e as MessageSocketEvent).event as MessageEvent).data);
+        const sessionId = data.sessionId;
+        const room = data.room;
+        return new Update(sessionId, room);
+      })
+    );
+    return updateStream;
   }
 }
 
@@ -91,16 +130,18 @@ export class Hello extends Action {
     this.name = name;
   }
   public watch(state: State, stream: Observable<StoreEvent<State>>) {
-    const requestId = this.requestId;
-    const updateStream = stream.pipe(
-      filter((ev: StoreEvent<State>) => ev instanceof MessageSocketEvent && ev.requestId === requestId),
-      take(1),
-      map((e) => {
-        const sessionId = JSON.parse(((e as MessageSocketEvent).event as MessageEvent).data).sessionId;
-        return new Update(sessionId);
-      })
-    );
-    return merge(updateStream, of(new HelloRequest(this.name, this.requestId)));
+    return merge(super.watch(state, stream), of(new HelloRequest(this.name, this.requestId)));
+  }
+}
+
+export class Join extends Action {
+  private roomId: string;
+  constructor(roomId: string) {
+    super();
+    this.roomId = roomId;
+  }
+  public watch(state: State, stream: Observable<StoreEvent<State>>) {
+    return merge(super.watch(state, stream), of(new JoinRequest(this.roomId, this.requestId)));
   }
 }
 

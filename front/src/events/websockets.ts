@@ -102,7 +102,7 @@ export class Update extends StoreEvent<State> {
     }
     if (this.room) {
       state.room = this.room;
-      console.log("Updating room:", this.room);
+      console.log("Updating room:", this.room.status, this.room.stage, this.room);
     }
   }
 }
@@ -169,7 +169,6 @@ export class StartWebsocket extends StoreEvent<State> {
     });
 
     ws.addEventListener("message", (event: Event) => {
-      console.log("MEEEEEEESAGE", event);
       socketEvents.next(new MessageSocketEvent(event));
     });
 
@@ -187,13 +186,15 @@ export class StartWebsocket extends StoreEvent<State> {
     });
 
     // Notifications
-    const notifications = stream.pipe(filter((ev: StoreEvent<State>) => ev instanceof MessageSocketEvent && ev.type === "notification"));
-    notifications.subscribe((e) => {
-      const data = JSON.parse(((e as MessageSocketEvent).event as MessageEvent).data);
-      const sessionId = data.sessionId;
-      const room = data.room;
-      return new Update(sessionId, room);
-    });
+    const notifications = stream.pipe(
+      filter((ev: StoreEvent<State>) => ev instanceof MessageSocketEvent && ev.type === "notification"),
+      map((e) => {
+        const data = JSON.parse(((e as MessageSocketEvent).event as MessageEvent).data);
+        const sessionId = data.sessionId;
+        const room = data.room;
+        return new Update(sessionId, room);
+      })
+    );
 
     // Errors
     const errors = stream.pipe(filter((ev: StoreEvent<State>) => ev instanceof MessageSocketEvent && ev.type === "error"));
@@ -201,6 +202,6 @@ export class StartWebsocket extends StoreEvent<State> {
       console.error("TODO: Error,  do something with this", e);
     });
 
-    return socketEvents;
+    return merge(notifications, socketEvents);
   }
 }

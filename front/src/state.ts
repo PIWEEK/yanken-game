@@ -1,4 +1,5 @@
 import type { boolean } from "yup";
+import { string } from "yup/lib/locale";
 
 export interface State {
   counter: number;
@@ -8,9 +9,17 @@ export interface State {
 
 export interface Room {
   id: string;
-  status: string;
-  players: string[];
+  createdAt: string;
+  status: "waiting" | "playing" | "ended";
+  stage?: "waitResponses" | "turnEnded";
+  round?: number;
   owner: string;
+  players: string[];
+  fights: Fight[];
+  livePlayers: string[];
+  deadPlayers: string[];
+  results: Fight[][];
+  lastResult?: Fight[];
   sessions: { [name: string]: Session };
 }
 
@@ -19,8 +28,13 @@ export interface Session {
   isBot: boolean;
   avatarId: number;
   name: string;
-  connectionId: string;
-  roomId: string;
+}
+
+export interface Fight {
+  id: string;
+  players: string[];
+  results: { [name: string]: 1 | 2 | 3 };
+  winner: string;
 }
 
 export const initialState = {

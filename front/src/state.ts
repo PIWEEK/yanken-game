@@ -1,3 +1,5 @@
+import type { boolean } from "yup";
+
 export interface State {
   counter: number;
   sessionId?: string;
@@ -9,11 +11,12 @@ export interface Room {
   status: string;
   players: string[];
   owner: string;
-  sessions: Session[];
+  sessions: { [name: string]: Session };
 }
 
 export interface Session {
   id: string;
+  isBot: boolean;
   avatarId: number;
   name: string;
   connectionId: string;

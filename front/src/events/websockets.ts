@@ -15,12 +15,6 @@ export class WebSocketRequest extends StoreEvent<State> {
   }
 }
 
-export class CreateGameRequest extends WebSocketRequest {
-  public toJSON() {
-    return { type: "EchoRequest", n: "HOLA" };
-  }
-}
-
 export class HelloRequest extends WebSocketRequest {
   private name: string;
 
@@ -55,6 +49,15 @@ export class JoinRequest extends WebSocketRequest {
   }
 }
 
+export class CreateGameRequest extends WebSocketRequest {
+  public toJSON() {
+    return {
+      type: "request",
+      name: "startGame"
+    };
+  }
+}
+
 export class SocketEvent extends StoreEvent<State> {
   public event: Event;
   constructor(event: Event) {
@@ -74,9 +77,12 @@ export class ErrorSocketEvent extends SocketEvent {}
 
 export class MessageSocketEvent extends SocketEvent {
   requestId: string;
+  type: string;
   constructor(event: Event) {
     super(event);
-    this.requestId = JSON.parse((event as MessageEvent).data).requestId;
+    const data = JSON.parse((event as MessageEvent).data);
+    this.requestId = data.requestId;
+    this.type = data.type;
   }
 }
 
@@ -146,8 +152,9 @@ export class Join extends Action {
 }
 
 export class StartGame extends Action {
-  public watch(_state: State, _stream: Observable<StoreEvent<State>>) {
-    return of(new CreateGameRequest(this.requestId));
+  public watch(state: State, stream: Observable<StoreEvent<State>>) {
+    console.log("StartGame", this.requestId);
+    return merge(super.watch(state, stream), of(new CreateGameRequest(this.requestId)));
   }
 }
 
@@ -162,6 +169,7 @@ export class StartWebsocket extends StoreEvent<State> {
     });
 
     ws.addEventListener("message", (event: Event) => {
+      console.log("MEEEEEEESAGE", event);
       socketEvents.next(new MessageSocketEvent(event));
     });
 
@@ -176,6 +184,21 @@ export class StartWebsocket extends StoreEvent<State> {
     const requests = stream.pipe(filter((ev: StoreEvent<State>) => ev instanceof WebSocketRequest));
     requests.subscribe((ev) => {
       ws.send(JSON.stringify((ev as WebSocketRequest).toJSON()));
+    });
+
+    // Notifications
+    const notifications = stream.pipe(filter((ev: StoreEvent<State>) => ev instanceof MessageSocketEvent && ev.type === "notification"));
+    notifications.subscribe((e) => {
+      const data = JSON.parse(((e as MessageSocketEvent).event as MessageEvent).data);
+      const sessionId = data.sessionId;
+      const room = data.room;
+      return new Update(sessionId, room);
+    });
+
+    // Errors
+    const errors = stream.pipe(filter((ev: StoreEvent<State>) => ev instanceof MessageSocketEvent && ev.type === "error"));
+    errors.subscribe((e) => {
+      console.error("TODO: Error,  do something with this", e);
     });
 
     return socketEvents;

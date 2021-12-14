@@ -5,25 +5,24 @@
 
  const st = store.get<State>();
 
- function startGame() {
-  st.emit(new StartGame());
- }
-
  function hello() {
   st.emit(new Hello("fulano"));
  }
 
  function join() {
-  st.emit(new Join("salax"));
+  st.emit(new Join(Date.now().toString()));
  }
 
+ function startGame() {
+  st.emit(new StartGame());
+ }
 
 </script>
 
 <div>
-  <button on:click={startGame}>START GAME</button>
   <button on:click={hello}>Hello</button>
   <button on:click={join}>Join</button>
+  <button on:click={startGame}>START GAME</button>
 </div>
 
 <style lang="postcss">

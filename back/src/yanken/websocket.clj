@@ -30,7 +30,7 @@
 
 (defn- start-input-loop
   [ws]
-  (let [{:keys [::handler ::input ::output]} @ws]
+  (let [{:keys [handler input output]} @ws]
     (a/go
       (a/<! (handler @ws {:type "connect"}))
       (a/<! (a/go-loop []
@@ -38,12 +38,12 @@
                 (let [response (a/<! (handler @ws request))]
                   (cond
                     (ex/ex-info? response)
-                    (a/>! output {:type "response"
+                    (a/>! output {:type "error"
                                   :request-id (:request-id request)
                                   :error (ex-data response)})
 
                     (ex/exception? response)
-                    (a/>! output {:type "response"
+                    (a/>! output {:type "error"
                                   :request-id (:request-id request)
                                   :error {:message (ex-message response)}})
 
@@ -53,12 +53,19 @@
                       (a/>! output (assoc response
                                           :type "response"
                                           :name (:name request)
-                                          :request-id (:request-id request)))))
-                (recur)))))
-    (a/<! (handler @ws {:type "disconnect"})))))
+                                          :request-id (:request-id request))))
+
+                    (nil? response)
+                    (when-let [request-id (:request-id request)]
+                      (a/>! output {:type "response"
+                                    :name (:name request)
+                                    :request-id request-id}))))
+
+                (recur))))
+      (a/<! (handler @ws {:type "disconnect"})))))
 
 (defn- start-output-loop
-  [{:keys [::conn ::executor ::output]}]
+  [{:keys [conn executor output]}]
   (a/go-loop []
     (let [val (a/<! output)]
       (when (some? val)
@@ -79,11 +86,11 @@
            on-connect
            (fn [conn]
              (l/info :hint "on-connect" :client (jetty/remote-addr conn))
-             (let [ws (atom {::output out-ch
-                             ::input rcv-ch
-                             ::executor executor
-                             ::handler handler
-                             ::conn conn
+             (let [ws (atom {:output out-ch
+                             :input rcv-ch
+                             :executor executor
+                             :handler handler
+                             :conn conn
                              :id (uuid/next)})]
 
                ;; Forward all messages from out-ch to the websocket

@@ -23,9 +23,18 @@
     </header>
     <main>
       <section class="buttons">
-        <button id="echo">CMD: echo</button>
-        <button id="join-room">CMD: join-room</button>
-        <button id="hello">CMD: hello</button>
+        <div class="row">
+          <button id="echo">CMD: echo</button>
+        </div>
+        <div class="row">
+          <button id="join-room">CMD: join-room</button>
+        </div>
+        <div class="row">
+          <button id="hello">CMD: hello</button>
+        </div>
+        <div class="row">
+          <button id="start-game">CMD: start-game</button>
+        </div>
       </section>
     </main>
     <script>
@@ -81,6 +90,16 @@
              "type": "request",
              "name": "joinRoom",
              "roomId": "test-room-id"
+         });
+     });
+
+
+     const startGame = document.getElementById("start-game");
+     startGame.addEventListener("click", (event) => {
+         console.log("btn(click): start-game");
+         send({
+             "type": "request",
+             "name": "startGame",
          });
      });
 

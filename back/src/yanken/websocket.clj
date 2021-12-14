@@ -106,8 +106,8 @@
 
            on-message
            (fn [conn message]
-             (l/info :hint "on-message" :message message)
              (let [message (json/decode-str message)]
+               (l/info :hint "on-message" :message message)
                (when-not (a/offer! rcv-ch message)
                  (l/warn :msg "drop messages"))))
 

@@ -39,7 +39,9 @@
      const ws = new WebSocket("ws://" + location.host);
 
      function send (msg) {
-         msg.requestId = getNextRequestId();
+         if (msg.type === "request") {
+             msg.requestId = getNextRequestId();
+         }
 
          const data = JSON.stringify(msg);
          console.log("ws send:", data);
@@ -66,7 +68,8 @@
      echoBtn.addEventListener("click", (event) => {
          console.log("btn(click): echo");
          send({
-             "type": "echo",
+             "type": "request",
+             "name": "echo",
              "n" : Date.now()
          });
      });
@@ -75,7 +78,8 @@
      joinRoomBtn.addEventListener("click", (event) => {
          console.log("btn(click): join-room");
          send({
-             "type": "joinRoom",
+             "type": "request",
+             "name": "joinRoom",
              "roomId": "test-room-id"
          });
      });
@@ -85,10 +89,11 @@
      helloBtn.addEventListener("click", (event) => {
          console.log("btn(click): hello");
          send({
-             "type": "hello",
+             "type": "request",
+             "name": "hello",
              "roomId": "test-room-id",
              "sessionId": "s1",
-             "name": "pepito"
+             "playerName": "pepito"
          });
      });
 

@@ -15,18 +15,6 @@
 
 ;; --- Helpers
 
-
-(defn get-current-session
-  [state {:keys [id] :as ws}]
-  (let [session-id (get-in state [:connections (:id ws) :session-id])]
-    ;; Session should be initialized if not, this means no "hello"
-    ;; message is received.
-    (when-not session-id
-      (ex/raise :type :validation
-                :code :session-not-initialized))
-
-    (get-in state [:sessions session-id])))
-
 ;; --- State transformations
 
 (defn connect
@@ -38,7 +26,7 @@
   (update state :connections dissoc id))
 
 (defn create-or-update-session
-  [state {:keys [id] :as ws} {:keys [session-id name]}]
+  [state {:keys [id] :as ws} {:keys [session-id player-name]}]
   (let [session-id (or session-id (uuid/next))]
     (if-let [session (get-in state [:sessions session-id])]
       (let [session (-> session
@@ -63,18 +51,6 @@
             (update :sessions assoc session-id session)
             (update :connections update id assoc :session-id session-id))))))
 
-(defn create-room
-  [state session-id]
-  (let [room-id (inc (:current-room-id state -1))
-        room    {:created-at (dt/now)
-                 :id room-id
-                 :players #{}
-                 :admin session-id}]
-    (-> state
-        (assoc :current-room-id room-id)
-        (update :rooms assoc room-id room))))
-
-
 ;; TODO: validate params
 
 (defn join-room
@@ -86,7 +62,8 @@
               :code :session-not-initialized
               :hint "missing hello event"))
 
-  (let [room-id (or room-id (uuid/next))]
+  (let [room-id (or room-id (uuid/next))
+        state   (update-in state [:sessions session-id] assoc :room-id room-id)]
     ;; if room is found in state this means the user tries to rejoin
     ;; the existing game.
     (if-let [room (get-in state [:rooms room-id])]
@@ -101,30 +78,57 @@
             (assoc :current-room-created false)
             (update-in [:rooms room-id :players] conj session-id)))
 
-      (let [room {:created-at (dt/now)
-                  :id room-id
+      (let [room {:id room-id
                   :status "waiting"
                   :players #{session-id}
-                  :admin session-id}]
+                  :owner session-id}]
         (-> state
             (assoc :current-room room)
             (assoc :current-room-created true)
             (update :rooms assoc room-id room))))))
 
-(defn start-game
-  [state {:keys [id] :as ws} {:keys [room-id]}]
-  (let [room    (get-in state [:rooms room-id])
-        session (get-current-session state ws)]
+(defn resolve-room
+  [state session-id]
+  (let [room-id (get-in state [:sessions session-id :room-id])
+        room    (get-in state [:rooms room-id])]
 
     (when-not room
       (ex/raise :type :validation
                 :code :room-does-not-exists))
 
-    (when (not= (:admin room) (:id session))
+    room))
+
+(defn start-game
+  [state {:keys [session-id] :as ws}]
+  (let [room (resolve-room state session-id)]
+    (when (not= (:owner room) session-id)
       (ex/raise :type :validation
                 :code :only-owners-can-start-the-game))
 
     (let [room (-> room
                    (assoc :status "playing")
-                   (assoc :round 0))]
-      (update state :rooms assoc room-id room))))
+                   (assoc :results [])
+                   (assoc :live-players (into #{} (:players room)))
+                   (assoc :dead-players #{}))]
+      (-> state
+          (update :rooms assoc (:id room) room)
+          (assoc :current-room room)))))
+
+(defn prepare-round
+  [state {:keys [session-id] :as ws} round]
+  (let [room    (resolve-room state session-id)
+        fights  (->> (:live-players room)
+                     (shuffle)
+                     (partition-all 2)
+                     (map (fn [pair]
+                            (cond-> (vec pair)
+                              (< (count pair) 2)
+                              (conj uuid/zero)))))
+
+        room    (-> room
+                    (assoc :round round)
+                    (assoc :fights fights))]
+
+    (-> state
+        (update :rooms assoc (:id room) room)
+        (assoc :current-room room))))

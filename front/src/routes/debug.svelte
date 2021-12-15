@@ -4,11 +4,11 @@
  import { StartGame, Hello, Join, SendTurn } from "$events";
 
  const st = store.get<State>();
- const sessionId = st.select(state => state.sessionId);
+ const session = st.select(state => state.session);
  const room = st.select(state => state.room);
 
  function hello() {
-  st.emit(new Hello("fulano"));
+  st.emit(new Hello("fulano", "avatar"));
  }
 
  function join() {
@@ -33,7 +33,7 @@
   <button on:click={() => sendTurn(2)}>PAPEL</button>
   <button on:click={() => sendTurn(3)}>TIJERA</button>
 
-  <div>Session: {$sessionId}</div>
+  <div>Session: {$session && $session.id}</div>
 
   {#if $room}
     <div>Round {$room.round}</div>

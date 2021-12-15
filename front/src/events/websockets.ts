@@ -2,7 +2,7 @@ import type { State } from "$state";
 import { StoreEvent } from "$store";
 import { Observable, Subject, of, merge } from "rxjs";
 import { filter, take, map } from "rxjs/operators";
-import type { Room } from "$state";
+import type { Room, Session } from "$state";
 
 export class WebSocketRequest extends StoreEvent<State> {
   public requestId: string;
@@ -17,17 +17,23 @@ export class WebSocketRequest extends StoreEvent<State> {
 
 export class HelloRequest extends WebSocketRequest {
   private name: string;
+  private avatar: string;
+  private sessionId?: string;
 
-  constructor(name: string, requestId: string) {
+  constructor(name: string, avatar: string, requestId: string, sessionId?: string) {
     super(requestId);
     this.name = name;
+    this.avatar = avatar;
+    this.sessionId = sessionId;
   }
   public toJSON() {
     return {
       type: "request",
       name: "hello",
       requestId: this.requestId,
-      playerName: this.name
+      sessionId: this.sessionId,
+      playerName: this.name,
+      playerAvatar: this.avatar
     };
   }
 }
@@ -108,18 +114,18 @@ export class MessageSocketEvent extends SocketEvent {
 }
 
 export class Update extends StoreEvent<State> {
-  public sessionId?: string;
+  public session?: Session;
   public room?: Room;
-  constructor(sessionId?: string, room?: Room) {
+  constructor(session?: Session, room?: Room) {
     super();
-    this.sessionId = sessionId;
+    this.session = session;
     this.room = room;
   }
 
   public update(state: State) {
-    if (this.sessionId) {
-      state.sessionId = this.sessionId;
-      console.log("Updating sessionId:", this.sessionId);
+    if (this.session) {
+      state.session = this.session;
+      console.log("Updating session:", this.session);
     }
     if (this.room) {
       state.room = this.room;
@@ -141,9 +147,9 @@ export class Action extends StoreEvent<State> {
       take(1),
       map((e) => {
         const data = JSON.parse(((e as MessageSocketEvent).event as MessageEvent).data);
-        const sessionId = data.sessionId;
+        const session = data.session;
         const room = data.room;
-        return new Update(sessionId, room);
+        return new Update(session, room);
       })
     );
     return updateStream;
@@ -152,12 +158,16 @@ export class Action extends StoreEvent<State> {
 
 export class Hello extends Action {
   private name: string;
-  constructor(name: string) {
+  private avatar: string;
+  private sessionId?: string;
+  constructor(name: string, avatar: string, sessionId?: string) {
     super();
     this.name = name;
+    this.avatar = avatar;
+    this.sessionId = sessionId;
   }
   public watch(state: State, stream: Observable<StoreEvent<State>>) {
-    return merge(super.watch(state, stream), of(new HelloRequest(this.name, this.requestId)));
+    return merge(super.watch(state, stream), of(new HelloRequest(this.name, this.avatar, this.requestId, this.sessionId)));
   }
 }
 
@@ -174,7 +184,6 @@ export class Join extends Action {
 
 export class StartGame extends Action {
   public watch(state: State, stream: Observable<StoreEvent<State>>) {
-    console.log("StartGame", this.requestId);
     return merge(super.watch(state, stream), of(new CreateGameRequest(this.requestId)));
   }
 }
@@ -223,9 +232,9 @@ export class StartWebsocket extends StoreEvent<State> {
       filter((ev: StoreEvent<State>) => ev instanceof MessageSocketEvent && ev.type === "notification"),
       map((e) => {
         const data = JSON.parse(((e as MessageSocketEvent).event as MessageEvent).data);
-        const sessionId = data.sessionId;
+        const session = data.session;
         const room = data.room;
-        return new Update(sessionId, room);
+        return new Update(session, room);
       })
     );
 

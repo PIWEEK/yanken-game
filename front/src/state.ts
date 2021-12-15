@@ -2,7 +2,7 @@ import type { number } from "yup";
 
 export interface State {
   counter: number;
-  sessionId?: string;
+  session?: Session;
   room?: Room;
 }
 
@@ -39,6 +39,6 @@ export interface Fight {
 
 export const initialState = {
   counter: 0,
-  sessionId: undefined,
+  session: undefined,
   room: undefined
 };

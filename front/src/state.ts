@@ -1,5 +1,3 @@
-import type { number } from "yup";
-
 export interface State {
   counter: number;
   session?: Session;
@@ -39,6 +37,6 @@ export interface Fight {
 
 export const initialState = {
   counter: 0,
-  session: undefined,
+  session: JSON.parse(localStorage.getItem("session") || "{}"),
   room: undefined
 };

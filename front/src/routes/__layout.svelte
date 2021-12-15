@@ -9,6 +9,12 @@
  const st = store.get<State>();
  st.emit(new StartWebsocket());
 
+ const session = st.select(state => state.session);
+ session.subscribe(value => {
+  if (value) {
+    localStorage.setItem("session", JSON.stringify(value));
+  }
+ });
 </script>
 
 <div class="main">

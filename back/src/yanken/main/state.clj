@@ -14,8 +14,10 @@
 
 (defonce state (atom {}))
 
-(def ^:const round-timeout 10000)
-(def ^:const post-round-timeout 3000)
+(def ^:const pairing-screen-timeout 3000)
+(def ^:const game-screen-timeout 5000)
+(def ^:const game-end-screen-timeout 3000)
+(def ^:const result-screen-timeout 3000)
 
 (def bot-id uuid/zero)
 
@@ -94,21 +96,28 @@
           (update :sessions assoc session-id session)
           (update :connections update connection-id assoc :session-id session-id)))))
 
+(def default-room-options
+  {:pairing-screen-timeout pairing-screen-timeout
+   :game-screen-timeout game-screen-timeout
+   :game-end-screen-timeout game-end-screen-timeout
+   :result-screen-timeout result-screen-timeout})
+
 (defn join-room
   "Handles the association of session to a specific room. If room does
   not exists, creates it and associates the session with it."
   [state session-id room-id]
   (let [room-id (or room-id (uuid/next))
         state   (update-in state [:sessions session-id] assoc :room-id room-id)
+
+
         {:keys [status] :as room} (get-in state [:rooms room-id])]
     (cond
       (or (= "ended" status)
           (nil? room))
       (let [room {:id room-id
                   :status "waiting"
+                  :options default-room-options
                   :players #{session-id}
-                  :options {:round-timeout round-timeout
-                            :post-round-timeout post-round-timeout}
                   :owner session-id}]
         (set-room state room))
 
@@ -144,6 +153,13 @@
                       (update :options merge options))]
       (set-room state room))))
 
+(defn update-room-stage
+  "Simply change the room stage to other value."
+  [state room-id stage]
+  (let [room (get-room state room-id)]
+    (->> (assoc room :stage stage)
+         (set-room state))))
+
 (defn prepare-round
   "State transformation function that parepares the room (specified with
   room-id) for the (next) round. If no next round is posible it will
@@ -163,7 +179,7 @@
                                        (map make-fight-object))))
             room   (-> room
                        (assoc :round round)
-                       (assoc :stage "waitingResponses")
+                       (assoc :stage "pairing")
                        (assoc :fights fights))]
         (set-room state room)))))
 
@@ -226,7 +242,7 @@
             dead      (set/difference (:live-players room) alive)
             room      (-> (dissoc room :fights)
                           (assoc :live-players alive)
-                          (assoc :stage "turnEnded")
+                          (assoc :stage "gameEnd")
                           (update :results conj fights)
                           (update :dead-players into dead))]
         (set-room state room)))))

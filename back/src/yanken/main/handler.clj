@@ -114,7 +114,7 @@
 (def ^:const round-timeout 10000)
 (def ^:const post-round-timeout 3000)
 
-(defn- start-game!
+(defn- start-game-loop
   [room-id]
   (a/go-loop [round 1]
     (let [state   (swap! yst/state yst/prepare-round room-id round)
@@ -123,18 +123,34 @@
           players (->> (:players room)
                        (keep (partial resolve-player state)))]
 
-      (l/debug :action "game" :round 0 :status (:status room))
+      (l/debug :action "start-game-loop" :round round :status (:status room) :options opts)
+
       (if (not= "ended" (:status room))
         (do
+          ;; Pairing stage
           (a/<! (notify-room-update players room))
-          (a/<! (a/timeout (:round-timeout opts)))
+          (a/<! (a/timeout (:pairing-screen-timeout opts)))
+
+          ;; Game Stage
+          (let [state (swap! yst/state yst/update-room-stage room-id :game)
+                room  (resolve-room state)]
+            (a/<! (notify-room-update players room))
+            (a/<! (a/timeout (:game-screen-timeout opts))))
+
+          ;; Game End Timeout
           (let [state (swap! yst/state yst/finish-round room-id)
                 room  (resolve-room state)]
             (a/<! (notify-room-update players room))
-            (a/<! (a/timeout (:post-round-timeout opts)))
-            (recur (inc round))))
-        (do
-          (a/<! (notify-room-update players room)))))))
+            (a/<! (a/timeout (:game-end-screen-timeout opts))))
+
+          ;; Result
+          (let [state (swap! yst/state yst/update-room-stage room-id :result)
+                room  (resolve-room state)]
+            (a/<! (notify-room-update players room))
+            (a/<! (a/timeout (:result-screen-timeout opts))))
+
+          (recur (inc round)))
+        (a/<! (notify-room-update players room))))))
 
 (yh/defmethod handler ["request" "startGame"]
   [{:keys [session-id] :as ws} {:keys [options] :as message}]
@@ -145,7 +161,7 @@
 
   (let [state   (swap! yst/state yst/start-game session-id options)
         room-id (-> state :current-room :id)]
-    (start-game! room-id)
+    (start-game-loop room-id)
     nil))
 
 (yh/defmethod handler ["request" "sendTurn"]

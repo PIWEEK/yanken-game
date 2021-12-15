@@ -52,12 +52,19 @@
       (update :sessions assoc id session)
       (assoc :current-session session)))
 
-(defn- make-fight-object
+(defn- make-fight
   [pair]
   {:id (uuid/next)
    :players (into #{} pair)
    :winner nil
    :responses {}})
+
+(defn make-session
+  [name avatar]
+  {:id (str (uuid/next))
+   :avatar avatar
+   :is-bot false
+   :name (or name (str (gensym "player")))})
 
 (defn make-bot
   [id]
@@ -98,24 +105,23 @@
                       (cond-> (string? player-name) (assoc :name player-name)))
           room    (get-in state [:rooms (:room-id session)])]
       (-> state
+          (set-session session)
           (assoc :current-session session)
-          (assoc :current-session-created false)
           (cond-> (some? room) (assoc :current-room room))
-          (update :sessions assoc session-id session)
           (update :connections update connection-id assoc :session-id session-id)))
 
     (let [avatar-id  0
           session-id (str (uuid/next))
-          session    {:id session-id
-                      :avatar player-avatar
-                      :is-bot false
-                      :name (or player-name (str (gensym "player")))
-                      :connection-id connection-id}]
+          session    (-> (make-session player-name player-avatar)
+                         (assoc :connection-id connection-id))]
       (-> state
-          (assoc :current-session session)
+          (set-session session)
           (assoc :current-session-created true)
-          (update :sessions assoc session-id session)
           (update :connections update connection-id assoc :session-id session-id)))))
+
+(defn add-bot-session
+  [state i]
+  (set-session state (make-bot i)))
 
 (defn join-room
   "Handles the association of session to a specific room. If room does
@@ -123,8 +129,6 @@
   [state session-id room-id]
   (let [room-id (or room-id (uuid/next))
         state   (update-in state [:sessions session-id] assoc :room-id room-id)
-
-
         {:keys [status] :as room} (get-in state [:rooms room-id])]
     (cond
       (or (= "ended" status)
@@ -141,10 +145,8 @@
                 :code :cant-join-ongoing-game)
 
       :else
-      (-> state
-          (assoc :current-room room)
-          (assoc :current-room-created false)
-          (update-in [:rooms room-id :players] conj session-id)))))
+      (let [room (update room :players conj session-id)]
+        (set-room state room)))))
 
 (defn join-room-with-bot
   [state room-id i]
@@ -208,7 +210,7 @@
 
       (let [fights (->> (shuffle (:live-players room))
                         (into [] (comp (partition-all 2)
-                                       (map make-fight-object))))
+                                       (map make-fight))))
             room   (-> room
                        (assoc :round round)
                        (assoc :stage "pairing")

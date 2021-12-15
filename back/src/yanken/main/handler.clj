@@ -43,20 +43,6 @@
   [{:keys [out-ch]} message]
   message)
 
-;; (defn- resolve-room
-;;   [state]
-;;   (when-let [room (:current-room state)]
-;;     (let [lookup   #(get-in state [:sessions %])
-;;           real-sessions (sequence (comp (keep #(get-in state [:sessions %]))
-;;                                         (map #(dissoc % :connection-id :room-id)))
-;;                                   (:players room))
-;;           bots-sessions (sequence (comp (filter yst/is-bot?)
-;;                                         (map make-bot))
-;;                                   (:players room))]
-
-;;       (assoc room :sessions (->> (concat real-sessions bots-sessions)
-;;                                  (d/index-by :id))))))
-
 (defn- resolve-room
   [state]
   (when-let [room (:current-room state)]
@@ -106,8 +92,36 @@
                          :room room}))
       (recur (rest players)))))
 
+(yh/defmethod handler ["notification" "joinBots"]
+  [{:keys [session-id] :as ws} {:keys [room-id bot-num bot-join-timeout] :as message}]
+
+  ;; Session ID is mandatory for join-room
+  (when-not session-id
+    (ex/raise :type :validation
+              :code :session-not-initialized
+              :hint "missing hello event"))
+
+  (let [total   (if (and (integer? bot-num)
+                         (pos? bot-num))
+                   bot-num
+                   3)
+        timeout (or bot-join-timeout 1000)]
+    (loop [i total]
+      (when (> i 0)
+        (let [state   (swap! yst/state yst/add-bot-session i)
+              session (:current-session state)
+              state   (swap! yst/state yst/join-room (:id session) room-id)
+              room    (resolve-room state)
+              players (->> (:players room)
+                           (keep (partial resolve-player state)))]
+
+          (a/<! (notify-room-update players room))
+          (a/<! (a/timeout timeout))
+
+          (recur (dec i)))))))
+
 (yh/defmethod handler ["request" "joinRoom"]
-  [{:keys [session-id] :as ws} {:keys [room-id with-bots bot-join-timeout] :as message}]
+  [{:keys [session-id] :as ws} {:keys [room-id] :as message}]
 
   ;; Session ID is mandatory for join-room
   (when-not session-id
@@ -122,20 +136,6 @@
                      (keep (partial resolve-player state)))]
 
     (a/<! (notify-room-update players room))
-
-    (when (and (integer? with-bots)
-               (pos? with-bots))
-      (let [bot-join-timeout (rand-int (or bot-join-timeout 1000))]
-        (aa/go-try
-         (loop [i with-bots]
-           (when (> i 0)
-             (let [state   (swap! yst/state yst/join-room-with-bot room-id i)
-                   room    (resolve-room state)
-                   players (keep (partial resolve-player state) (:players room))]
-               (a/<! (notify-room-update players room))
-               (a/<! (a/timeout bot-join-timeout))
-               (recur (dec i))))))))
-
     {:room room}))
 
 (defn- start-game-loop

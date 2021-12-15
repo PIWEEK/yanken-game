@@ -37,6 +37,7 @@
         </div>
         <div class="row">
           <button id="join-room">CMD: join-room</button>
+          <button id="join-bots">CMD: join-bots</button>
         </div>
         <div class="row">
           <button id="start-game">CMD: start-game</button>
@@ -118,6 +119,18 @@
              "roomId": "test-room-id"
              /* "withBots": 20, */
              /* "botJoinTimeout": 2000 */
+         });
+     });
+
+     const joinBotsBtn = document.getElementById("join-bots");
+     joinBotsBtn.addEventListener("click", (event) => {
+         console.log("btn(click): join-bots");
+         send({
+             "type": "notification",
+             "name": "joinBots",
+             "roomId": "test-room-id",
+             "botNum": 3,
+             "botJoinTimeout": 2000
          });
      });
 

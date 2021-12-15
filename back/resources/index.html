@@ -30,6 +30,7 @@
       <section class="buttons">
         <div class="row">
           <button id="echo">CMD: echo</button>
+          <button id="clear">CMD: clear</button>
         </div>
         <div class="row">
           <button id="hello">CMD: hello</button>
@@ -48,7 +49,8 @@
       </section>
     </main>
     <script>
-     let sessionId = "s1";
+
+     let sessionId = localStorage.getItem("sessionId") || null;
      let currentRequestId = 0;
 
      function getNextRequestId() {
@@ -80,7 +82,15 @@
      });
 
      ws.addEventListener("message", (event) => {
-         console.log("ws(received):", JSON.stringify(JSON.parse(event.data), null, 2));
+         const data = JSON.parse(event.data);
+         console.log("ws(received):", JSON.stringify(data, null, 2));
+
+         if (data.type === "response"
+             && data.name === "hello") {
+             localStorage.setItem("sessionId",data.session.id)
+             sessionId = data.session.id;
+         }
+
      });
 
      const echoBtn = document.getElementById("echo");
@@ -91,6 +101,12 @@
              "name": "echo",
              "n" : Date.now()
          });
+     });
+
+     const clearBtn = document.getElementById("clear");
+     clearBtn.addEventListener("click", (event) => {
+         console.log("btn(click): clear");
+         localStorage.clear();
      });
 
      const joinRoomBtn = document.getElementById("join-room");
@@ -126,9 +142,9 @@
          send({
              "type": "request",
              "name": "hello",
-             "sessionId": "s1",
+             "sessionId": sessionId,
              "playerAvatar": "avatar-1",
-             "playerName": "pepito"
+             "playerName": "Pepito"
          });
      });
 

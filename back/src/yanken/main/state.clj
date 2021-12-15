@@ -69,30 +69,30 @@
   "Creates or updates the current session associated with the specified
   connection."
   [state connection-id session-id player-name player-avatar]
-  (let [session-id (or session-id (uuid/next))]
-    (if-let [session (get-in state [:sessions session-id])]
-      (let [session (-> session
-                        (assoc :connection-id connection-id)
-                        (cond-> (string? player-name) (assoc :name player-name)))
-            room    (get-in state [:rooms (:room-id session)])]
-        (-> state
-            (assoc :current-session session)
-            (assoc :current-session-created false)
-            (cond-> (some? room) (assoc :current-room room))
-            (update :sessions assoc session-id session)
-            (update :connections update connection-id assoc :session-id session-id)))
+  (if-let [session (get-in state [:sessions session-id])]
+    (let [session (-> session
+                      (assoc :connection-id connection-id)
+                      (cond-> (string? player-name) (assoc :name player-name)))
+          room    (get-in state [:rooms (:room-id session)])]
+      (-> state
+          (assoc :current-session session)
+          (assoc :current-session-created false)
+          (cond-> (some? room) (assoc :current-room room))
+          (update :sessions assoc session-id session)
+          (update :connections update connection-id assoc :session-id session-id)))
 
-      (let [avatar-id 0
-            session   {:id session-id
-                       :avatar player-avatar
-                       :is-bot false
-                       :name (or player-name (str (gensym "player")))
-                       :connection-id connection-id}]
-        (-> state
-            (assoc :current-session session)
-            (assoc :current-session-created true)
-            (update :sessions assoc session-id session)
-            (update :connections update connection-id assoc :session-id session-id))))))
+    (let [avatar-id  0
+          session-id (str (uuid/next))
+          session    {:id session-id
+                      :avatar player-avatar
+                      :is-bot false
+                      :name (or player-name (str (gensym "player")))
+                      :connection-id connection-id}]
+      (-> state
+          (assoc :current-session session)
+          (assoc :current-session-created true)
+          (update :sessions assoc session-id session)
+          (update :connections update connection-id assoc :session-id session-id)))))
 
 (defn join-room
   "Handles the association of session to a specific room. If room does

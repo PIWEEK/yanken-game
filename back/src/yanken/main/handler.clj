@@ -43,14 +43,27 @@
   [{:keys [out-ch]} message]
   message)
 
+;; (defn- resolve-room
+;;   [state]
+;;   (when-let [room (:current-room state)]
+;;     (let [lookup   #(get-in state [:sessions %])
+;;           real-sessions (sequence (comp (keep #(get-in state [:sessions %]))
+;;                                         (map #(dissoc % :connection-id :room-id)))
+;;                                   (:players room))
+;;           bots-sessions (sequence (comp (filter yst/is-bot?)
+;;                                         (map make-bot))
+;;                                   (:players room))]
+
+;;       (assoc room :sessions (->> (concat real-sessions bots-sessions)
+;;                                  (d/index-by :id))))))
+
 (defn- resolve-room
   [state]
   (when-let [room (:current-room state)]
-    (let [lookup   #(get-in state [:sessions %])
-          sessions (sequence (comp (keep #(get-in state [:sessions %]))
-                                   (map #(dissoc % :connection-id :room-id)))
-                             (:players room))]
-      (assoc room :sessions (d/index-by :id (cons yst/bot-session sessions))))))
+    (let [sessions-xf (comp (keep #(get-in state [:sessions %]))
+                            (map #(dissoc % :connection-id :room-id)))
+          sessions    (sequence sessions-xf (:players room))]
+      (assoc room :sessions (d/index-by :id sessions)))))
 
 (yh/defmethod handler ["request" "hello"]
   [{:keys [local] :as ws} {:keys [session-id player-name player-avatar]}]
@@ -94,7 +107,7 @@
       (recur (rest players)))))
 
 (yh/defmethod handler ["request" "joinRoom"]
-  [{:keys [session-id] :as ws} {:keys [room-id] :as message}]
+  [{:keys [session-id] :as ws} {:keys [room-id with-bots bot-join-timeout] :as message}]
 
   ;; Session ID is mandatory for join-room
   (when-not session-id
@@ -109,6 +122,20 @@
                      (keep (partial resolve-player state)))]
 
     (a/<! (notify-room-update players room))
+
+    (when (and (integer? with-bots)
+               (pos? with-bots))
+      (let [bot-join-timeout (rand-int (or bot-join-timeout 1000))]
+        (aa/go-try
+         (loop [i with-bots]
+           (when (> i 0)
+             (let [state   (swap! yst/state yst/join-room-with-bot room-id i)
+                   room    (resolve-room state)
+                   players (keep (partial resolve-player state) (:players room))]
+               (a/<! (notify-room-update players room))
+               (a/<! (a/timeout bot-join-timeout))
+               (recur (dec i))))))))
+
     {:room room}))
 
 (defn- start-game-loop

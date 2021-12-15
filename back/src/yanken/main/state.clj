@@ -291,7 +291,7 @@
               (contains? players session-id)
               (update :responses assoc session-id response)))]
 
-    (let [room   (get-room-for-session state session-id)]
+    (let [room (get-room-for-session state session-id)]
       (when (not= (:stage room) "game")
         (ex/raise :type :validation
                   :code :response-out-of-time))

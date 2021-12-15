@@ -152,7 +152,7 @@
             (a/<! (a/timeout (:pairing-screen-timeout opts)))
 
             ;; Game Stage
-            (let [state (swap! yst/state yst/update-room-stage room-id :game)
+            (let [state (swap! yst/state yst/update-room-stage room-id "game")
                   room  (resolve-room state)]
               (a/<! (notify-room-update players room))
               (a/<! (a/timeout (:game-screen-timeout opts))))
@@ -164,7 +164,7 @@
               (a/<! (a/timeout (:game-end-screen-timeout opts))))
 
             ;; Result
-            (let [state (swap! yst/state yst/update-room-stage room-id :result)
+            (let [state (swap! yst/state yst/update-room-stage room-id "result")
                   room  (resolve-room state)]
               (a/<! (notify-room-update players room))
               (a/<! (a/timeout (:result-screen-timeout opts))))

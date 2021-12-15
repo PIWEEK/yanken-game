@@ -47,15 +47,21 @@
 
  .logo {
    width: 100%;
+   max-width: 760px;
  }
 
  .input-data {
    align-self: start;
    display: flex;
    flex-direction: column;
+   align-items: center;
  }
 
  button {
-   margin-bottom: 16px;
+  margin-bottom: 16px;
+  width: 300px;
+ }
+ input {
+  max-width: 300px;
  }
 </style>

@@ -95,6 +95,20 @@
      padding-top: 0px;
    }
  }
+
+ @media only screen and (min-width: 900px) {
+
+  label[for=name] {
+    font-size: 36px;
+    margin-bottom: 16px;
+  }
+
+  .clock {
+    margin-bottom: 16px;
+    & img {
+      width: 36px;
+    }
+  }
+
+ }
 </style>
-
-

@@ -33,4 +33,11 @@
    top: 0px;
    width: 100%;
  }
+
+ @media only screen and (min-width: 900px) {
+   .room-name {
+     font-size: 24px;
+     padding: 12px 0;
+   }
+ }
 </style>

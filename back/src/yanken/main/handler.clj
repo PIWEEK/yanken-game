@@ -53,10 +53,10 @@
       (assoc room :sessions (d/index-by :id (cons yst/bot-session sessions))))))
 
 (yh/defmethod handler ["request" "hello"]
-  [{:keys [local] :as ws} {:keys [session-id player-name]}]
-  (let [state  (swap! yst/state yst/update-session (:id ws) session-id player-name)
-        result  {:avatar-id (:current-avatar-id state)
-                 :session-id (:current-session-id state)
+  [{:keys [local] :as ws} {:keys [session-id player-name player-avatar]}]
+  (let [state  (swap! yst/state yst/update-session (:id ws)
+                      session-id player-name player-avatar)
+        result  {:session-id (:current-session-id state)
                  :room (resolve-room state)}]
 
     (-> (d/without-nils result)

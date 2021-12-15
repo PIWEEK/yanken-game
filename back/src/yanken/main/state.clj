@@ -18,12 +18,12 @@
 (def ^:const post-round-timeout 3000)
 
 (def bot-id uuid/zero)
+
 (def bot-session
   {:id bot-id
    :is-bot true
-   :name "Bot"
-   :avatar-id 0})
-
+   :avatar "bot"
+   :name "Bot"})
 
 ;; --- Helpers
 
@@ -68,7 +68,7 @@
 (defn update-session
   "Creates or updates the current session associated with the specified
   connection."
-  [state connection-id session-id player-name]
+  [state connection-id session-id player-name player-avatar]
   (let [session-id (or session-id (uuid/next))]
     (if-let [session (get-in state [:sessions session-id])]
       (let [session (-> session
@@ -77,19 +77,17 @@
             room    (get-in state [:rooms (:room-id session)])]
         (-> state
             (assoc :current-session-id session-id)
-            (assoc :current-avatar-id (:avatar-id session))
             (cond-> (some? room) (assoc :current-room room))
             (update :sessions assoc session-id session)
             (update :connections update connection-id assoc :session-id session-id)))
 
       (let [avatar-id 0
             session   {:id session-id
-                       :avatar-id avatar-id
+                       :avatar player-avatar
                        :is-bot false
                        :name (or player-name (str (gensym "player")))
                        :connection-id connection-id}]
         (-> state
-            (assoc :current-avatar-id avatar-id)
             (assoc :current-session-id session-id)
             (update :sessions assoc session-id session)
             (update :connections update connection-id assoc :session-id session-id))))))

@@ -1,5 +1,5 @@
 <script lang="ts">
- import store from "$store"; 
+ import store from "$store";
  import type { State } from "$state";
  import { initialState } from "$state";
  import { StartWebsocket } from "$events";
@@ -15,6 +15,14 @@
     localStorage.setItem("session", JSON.stringify(value));
   }
  });
+
+ const room = st.select(state => state.room);
+ room.subscribe(value => {
+  if (value) {
+    localStorage.setItem("room", JSON.stringify(value));
+  }
+ });
+
 </script>
 
 <div class="main">

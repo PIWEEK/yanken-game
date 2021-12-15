@@ -25,7 +25,8 @@ export class Store<State> {
         rx.catchError((err) => {
           console.error("Error", err);
           return this.state$;
-        })
+        }),
+        rx.shareReplay(1)
       )
     );
 
@@ -52,7 +53,10 @@ export class Store<State> {
 
   // Retrieves a stream with the values
   select<T>(selector: (st: State) => T): Observable<T> {
-    return this.state$.pipe(rx.map(selector), rx.distinct(), rx.shareReplay(1));
+    return this.state$.pipe(
+      rx.map(selector),
+      rx.distinct()
+    );
   }
 }
 

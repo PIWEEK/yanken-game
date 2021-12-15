@@ -200,13 +200,18 @@ export class SendTurn extends Action {
 }
 
 export class StartWebsocket extends StoreEvent<State> {
-  public watch(_state: State, stream: Observable<StoreEvent<State>>) {
+  public watch(state: State, stream: Observable<StoreEvent<State>>) {
     const ws = new WebSocket(import.meta.env.VITE_BASE_URL);
 
     const socketEvents = new Subject<SocketEvent>();
 
+    const extraEvents = new Subject<StoreEvent<State>>();
+
     ws.addEventListener("open", (event: Event) => {
       socketEvents.next(new OpenSocketEvent(event));
+      if (state.session) {
+        extraEvents.next(new HelloRequest(state.session.name, state.session.avatar, Date.now().toString(), state.session.id));
+      }
     });
 
     ws.addEventListener("message", (event: Event) => {
@@ -240,9 +245,9 @@ export class StartWebsocket extends StoreEvent<State> {
     // Errors
     const errors = stream.pipe(filter((ev: StoreEvent<State>) => ev instanceof MessageSocketEvent && ev.type === "error"));
     errors.subscribe((e) => {
-      console.error("TODO: Error,  do something with this", JSON.parse(((e as MessageSocketEvent).event as MessageEvent).data).error.hint);
+      console.error("TODO: Error,  do something with this", JSON.parse(((e as MessageSocketEvent).event as MessageEvent).data).error);
     });
 
-    return merge(notifications, socketEvents);
+    return merge(notifications, socketEvents, extraEvents);
   }
 }

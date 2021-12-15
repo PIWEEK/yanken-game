@@ -10,10 +10,9 @@
 
  let color = "red";
  const st = store.get<State>();
- 
+
  function startGame() {
-   console.log("data", {color});
-   const name = $page.params.name;
+   const name = $page.query.get('name')
    st.emit(new Hello(name, color));
    goto(`/join-room`);
  }

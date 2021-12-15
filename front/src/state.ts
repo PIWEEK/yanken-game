@@ -23,7 +23,7 @@ export interface Room {
 export interface Session {
   id: string;
   isBot: boolean;
-  avatarId: number;
+  avatar: string;
   name: string;
 }
 
@@ -38,5 +38,5 @@ export interface Fight {
 export const initialState = {
   counter: 0,
   session: JSON.parse(localStorage.getItem("session") || "{}"),
-  room: undefined
+  room: JSON.parse(localStorage.getItem("room") || "{}")
 };

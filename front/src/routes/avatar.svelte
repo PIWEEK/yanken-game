@@ -1,6 +1,5 @@
 <script lang="ts">
  import { goto } from "$app/navigation";
- import { page } from '$app/stores';
 
  import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
@@ -10,8 +9,7 @@
 
  function startGame() {
    console.log("data", {color});
-   const room = $page.params.game;
-   goto(`/game/${room}/wait-players`);
+   goto(`/join-room`);
  }
 
  function changeColor(event: CustomEvent<string>) {

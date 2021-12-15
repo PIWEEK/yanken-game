@@ -1,14 +1,12 @@
 <script lang="ts">
  import { goto } from "$app/navigation";
- import { page } from '$app/stores';
  import logo from "$lib/images/yanken.png";
  import MenuContainer from "$components/MenuContainer.svelte";
 
  let name = "Kidd";
 
  function setupName() {
-   const room = $page.params.game;
-   goto(`/game/${room}/avatar`);
+   goto(`/avatar`);
  }
 </script>
 

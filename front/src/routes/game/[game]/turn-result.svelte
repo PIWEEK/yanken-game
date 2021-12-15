@@ -16,7 +16,7 @@
   <div class="container">
     <div class="round">Round 1</div>
     <div class="message">Ready to fight?</div>
-    <ProgressBar/>
+    <ProgressBar progress={100} />
     
     <div class="matches-list">
       {#each matches as _match}

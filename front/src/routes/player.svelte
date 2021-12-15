@@ -3,10 +3,10 @@
  import logo from "$lib/images/yanken.png";
  import MenuContainer from "$components/MenuContainer.svelte";
 
- let name = "Kidd";
+ let name = "";
 
  function setupName() {
-   goto(`/avatar`);
+   goto(`/avatar?name=${name}`);
  }
 </script>
 

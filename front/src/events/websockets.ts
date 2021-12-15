@@ -195,7 +195,6 @@ export class SendTurn extends Action {
     this.turn = turn;
   }
   public watch(state: State, stream: Observable<StoreEvent<State>>) {
-    console.log("SendTurn", this.requestId);
     return merge(super.watch(state, stream), of(new SendTurnRequest(this.turn, this.requestId)));
   }
 }
@@ -241,7 +240,7 @@ export class StartWebsocket extends StoreEvent<State> {
     // Errors
     const errors = stream.pipe(filter((ev: StoreEvent<State>) => ev instanceof MessageSocketEvent && ev.type === "error"));
     errors.subscribe((e) => {
-      console.error("TODO: Error,  do something with this", e);
+      console.error("TODO: Error,  do something with this", JSON.parse(((e as MessageSocketEvent).event as MessageEvent).data).error.hint);
     });
 
     return merge(notifications, socketEvents);

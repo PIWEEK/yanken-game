@@ -7,7 +7,7 @@
  const session = st.select(state => state.session);
 
  if ($session && $session.id) {
-  goto(`/join-room`); 
+  goto(`/join-room`);
  } else {
   goto(`/player`);
  }

@@ -1,14 +1,20 @@
 <script lang="ts">
  import { goto } from "$app/navigation";
-
+ import type { State } from "$state";
+ import { Hello } from "$events";
+ import store from "$store";
+ import { page } from '$app/stores';
  import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
  import ColorPicker from "$components/ColorPicker.svelte";
 
  let color = "red";
-
+ const st = store.get<State>();
+ 
  function startGame() {
    console.log("data", {color});
+   const name = $page.params.name;
+   st.emit(new Hello(name, color));
    goto(`/join-room`);
  }
 

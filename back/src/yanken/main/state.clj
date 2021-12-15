@@ -19,13 +19,11 @@
 (def ^:const game-end-screen-timeout 3000)
 (def ^:const result-screen-timeout 3000)
 
-(def bot-id uuid/zero)
-
-(def bot-session
-  {:id bot-id
-   :is-bot true
-   :avatar "bot"
-   :name "Bot"})
+(def default-room-options
+  {:pairing-screen-timeout pairing-screen-timeout
+   :game-screen-timeout game-screen-timeout
+   :game-end-screen-timeout game-end-screen-timeout
+   :result-screen-timeout result-screen-timeout})
 
 ;; --- Helpers
 
@@ -48,12 +46,35 @@
       (update :rooms assoc id room)
       (assoc :current-room room)))
 
+(defn- set-session
+  [state {:keys [id] :as session}]
+  (-> state
+      (update :sessions assoc id session)
+      (assoc :current-session session)))
+
 (defn- make-fight-object
   [pair]
   {:id (uuid/next)
    :players (into #{} pair)
    :winner nil
    :responses {}})
+
+(defn make-bot
+  [id]
+  (let [id (if (uuid? id) id (uuid/custom 100 id))]
+    {:id id
+     :is-bot true
+     :name "bot"
+     :avatar "bot"}))
+
+(defn make-bot-id
+  [i]
+  (uuid/custom 100 i))
+
+(defn is-bot?
+  [u]
+  (when (uuid? u)
+    (= (uuid/get-word-high u) 100)))
 
 ;; --- State transformations
 
@@ -96,12 +117,6 @@
           (update :sessions assoc session-id session)
           (update :connections update connection-id assoc :session-id session-id)))))
 
-(def default-room-options
-  {:pairing-screen-timeout pairing-screen-timeout
-   :game-screen-timeout game-screen-timeout
-   :game-end-screen-timeout game-end-screen-timeout
-   :result-screen-timeout result-screen-timeout})
-
 (defn join-room
   "Handles the association of session to a specific room. If room does
   not exists, creates it and associates the session with it."
@@ -131,6 +146,19 @@
           (assoc :current-room-created false)
           (update-in [:rooms room-id :players] conj session-id)))))
 
+(defn join-room-with-bot
+  [state room-id i]
+  (let [{:keys [status] :as room} (get-in state [:rooms room-id])]
+    (when (not= status "waiting")
+      (ex/raise :type :validation
+                :code :unable-join-bots))
+    (let [session (-> (make-bot i)
+                      (assoc :room-id room-id))
+          room    (update room :players conj (:id session))]
+      (-> state
+          (set-session session)
+          (set-room room)))))
+
 (defn start-game
   "Marks the room object as `playing`. Only the owner of the room can do it."
   [state session-id options]
@@ -143,15 +171,19 @@
       (ex/raise :type :validation
                 :code :game-is-already-running))
 
-    (let [players (cond-> players
-                    (odd? (count players)) (conj (:id bot-session)))
-          room    (-> room
-                      (assoc :status "playing")
-                      (assoc :players players)
-                      (assoc :live-players players)
-                      (assoc :dead-players #{})
-                      (update :options merge options))]
-      (set-room state room))))
+    (let [bot       (make-bot -1)
+          need-bot? (odd? (count players))
+          players   (cond-> players need-bot? (conj (:id bot)))
+          room      (-> room
+                        (assoc :status "playing")
+                        (assoc :players players)
+                        (assoc :live-players players)
+                        (assoc :dead-players #{})
+                        (update :options merge options))]
+      (-> state
+          (set-room room)
+          (cond-> need-bot? (update :sessions assoc (:id bot) bot))))))
+
 
 (defn update-room-stage
   "Simply change the room stage to other value."
@@ -200,7 +232,7 @@
 
                 (:bot-always-winner options)
                 (let [id  (->> players
-                               (remove #{(:id bot-session)})
+                               (remove is-bot?)
                                (first))
                       res (get responses id)]
                   (cond
@@ -213,9 +245,12 @@
                 (inc (rand-int 3))))
 
             (resolve-bot-response [{:keys [players responses] :as fight}]
-              (cond-> fight
-                (contains? players bot-id)
-                (assoc-in [:responses bot-id] (get-bot-response responses players))))
+              (reduce (fn [fight player-id]
+                        (cond-> fight
+                          (is-bot? player-id)
+                          (assoc-in [:responses player-id] (get-bot-response responses players))))
+                      fight
+                      players))
 
             (get-winner [responses]
               (cond

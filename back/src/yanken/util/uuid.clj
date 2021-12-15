@@ -29,3 +29,16 @@
   "Parse string uuid representation into proper UUID instance."
   [s]
   (UUID/fromString s))
+
+(defn custom
+  ([a] (UUID. 0 a))
+  ([b a] (UUID. b a)))
+
+(defn get-word-high
+  [u]
+  (impl/get-word-high u))
+
+(defn get-data
+  [u]
+  [(impl/get-word-high u)
+   (impl/get-word-low u)])

@@ -76,7 +76,8 @@
                         (cond-> (string? player-name) (assoc :name player-name)))
             room    (get-in state [:rooms (:room-id session)])]
         (-> state
-            (assoc :current-session-id session-id)
+            (assoc :current-session session)
+            (assoc :current-session-created false)
             (cond-> (some? room) (assoc :current-room room))
             (update :sessions assoc session-id session)
             (update :connections update connection-id assoc :session-id session-id)))
@@ -88,7 +89,8 @@
                        :name (or player-name (str (gensym "player")))
                        :connection-id connection-id}]
         (-> state
-            (assoc :current-session-id session-id)
+            (assoc :current-session session)
+            (assoc :current-session-created true)
             (update :sessions assoc session-id session)
             (update :connections update connection-id assoc :session-id session-id))))))
 

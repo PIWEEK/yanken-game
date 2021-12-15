@@ -54,9 +54,13 @@
 
 (yh/defmethod handler ["request" "hello"]
   [{:keys [local] :as ws} {:keys [session-id player-name player-avatar]}]
-  (let [state  (swap! yst/state yst/update-session (:id ws)
-                      session-id player-name player-avatar)
-        result  {:session-id (:current-session-id state)
+  (let [state   (swap! yst/state yst/update-session (:id ws)
+                       session-id player-name player-avatar)
+        session (-> (:current-session state)
+                    (dissoc :connection-id))
+
+        result  {:session session
+                 :session-created (:current-session-created state)
                  :room (resolve-room state)}]
 
     (-> (d/without-nils result)

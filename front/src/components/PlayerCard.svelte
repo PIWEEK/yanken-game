@@ -19,7 +19,7 @@
 
  type AvatarColor =
    "black" | "blue" | "green" | "orange" |
-   "pink" | "purple" | "red" | "white" | "yellow"; 
+   "pink" | "purple" | "red" | "white" | "yellow";
 
  export const AVATARS: Record<AvatarColor, string> = {
    black: sucBlack,
@@ -90,7 +90,7 @@
 <style lang="postcss">
  .suc-data {
    position: relative;
-   
+
    & .player-name {
      overflow: hidden;
      text-overflow: ellipsis;
@@ -105,7 +105,7 @@
    &.dimmed .avatar {
      opacity: 50%;
    }
-   
+
    &.flipx .avatar {
      transform: scale(-1, 1);
    }
@@ -174,14 +174,14 @@
    text-align: center;
    color: #de8eee;
  }
- 
+
  .last-plays {
    display: flex;
    flex-direction: row;
    padding: 3px;
    margin: 4px;
    justify-content: center;
-   
+
    & .last-play-item {
      height: 25px;
      width: 25px;
@@ -193,6 +193,60 @@
      & img {
        width: 100%;
      }
+   }
+ }
+
+ @media only screen and (min-width: 900px) {
+   .suc-data {
+
+    &.small {
+      width: 120px;
+
+      & .player-name {
+        font-size:16px;
+        width: 100%;
+      }
+
+      & .avatar {
+        border: 4px solid #8e489c;
+      }
+    }
+
+    &.full {
+      width: 280px;
+
+      & .player-name {
+        font-size:26px;
+      }
+
+      & .last-plays-title {
+        font-size: 16px;
+      }
+
+      & .last-play-item {
+        width: 50px;
+        height: 50px;
+        padding: 8px;
+      }
+
+      & .avatar {
+        border: 8px solid #8e489c;
+      }
+    }
+   }
+   .turn-result {
+    width: 100px;
+    height: 100px;
+    top: -50px;
+    right: -50px;
+   }
+   .flipx .turn-result {
+     right: initial;
+     left: -50px;
+   }
+   .flipx .turn-pick {
+     right: initial;
+     left: -50px;
    }
  }
 </style>

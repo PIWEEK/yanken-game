@@ -14,7 +14,7 @@
 </script>
 
 <div class="game"
-     style="--background-image: url({background}); 
+     style="--background-image: url({background});
             --background-hands: url({handsBg});
             --background-select: url({selectBg});
             --clock-icon: url({clockIcon})">
@@ -35,36 +35,35 @@
     <MatchData/>
   </div>
 
-  <div class="play-area">
-    <div class="message">You Lose!</div>
-    <div class="player-left">
-      <PlayerCard name="Nombrelargodelcarajo"
-                  color="green"
-                  cardType="full"
-                  result="win"
-                  flipx={true}/>
-    </div>
 
-    <div class="player-right">
-      <PlayerCard name="Cletus"
-                  color="red"
-                  result="loss"
-                  cardType="full"/>
+    <div class="play-area">
+      <div class="message">You Lose!</div>
+      <div class="player-left">
+        <PlayerCard name="Nombrelargodelcarajo"
+                    color="green"
+                    cardType="full"
+                    result="win"
+                    flipx={true}/>
+      </div>
+      <div class="player-right">
+        <PlayerCard name="Cletus"
+                    color="red"
+                    result="loss"
+                    cardType="full"/>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="action rock" class:selected={true}>
+        <img alt="Rock" src={rock}/>
+      </button>
+      <button class="action paper" class:selected={true}>
+        <img alt="Paper"src={paper}/>
+      </button>
+      <button class="action scissors" class:selected={true}>
+        <img alt="Scissors" src={scissors}/>
+      </button>
     </div>
   </div>
-
-  <div class="actions">
-    <button class="action rock" class:selected={true}>
-      <img alt="Rock" src={rock}/>
-    </button>
-    <button class="action paper" class:selected={true}>
-      <img alt="Paper"src={paper}/>
-    </button>
-    <button class="action scissors" class:selected={true}>
-      <img alt="Scissors" src={scissors}/>
-    </button>
-  </div>
-</div>
 
 <style lang="postcss">
  .game {
@@ -198,7 +197,7 @@
      justify-content: center;
    }
  }
- 
+
  .actions {
    grid-area: buttons;
    border-top: 2px dashed #8e489c;
@@ -208,6 +207,7 @@
    grid-template-columns: repeat(3, 70px);
    grid-template-rows: 114px;
    grid-gap: 50px;
+   justify-content: space-evenly;
 
    & .action {
      padding: 0;
@@ -232,5 +232,92 @@
      }
    }
  }
- 
+
+ @media only screen and (min-width: 900px) {
+   .game {
+     grid-template-areas:
+       "turn-info turn-info"
+       "players-info play-area"
+       "players-info actions";
+
+     grid-template-columns: initial;
+     grid-template-rows: auto 1fr 0fr auto;
+     grid-template-columns: 1fr 1fr;
+
+   }
+
+   .turn-info {
+     font-size: 32px;
+     padding: 3rem;
+
+     & .clock {
+       width: 90px;
+       padding: 4px 8px;
+
+       &::before {
+         width: 20px;
+         height: 30px;
+         top: 7px;
+       }
+     }
+   }
+   .play-area {
+     & .message {
+      font-size: 56px;
+     }
+
+     & .player-left {
+       justify-content: flex-end;
+       padding-right: 40px;
+     }
+
+     & .player-right {
+       justify-content: flex-start;
+       padding-right: 40px;
+     }
+   }
+
+   .players-info {
+     flex-direction: row;
+     margin: 4rem;
+     overflow-x: auto;
+     align-content: center;
+     justify-content: center;
+
+     & > :global(*) {
+       width: 240px;
+       margin-top: 3rem;
+       margin-right: 3rem;
+     }
+   }
+   .actions {
+     justify-content: center;
+     margin: 0 3rem 1rem 3rem;
+     display: grid;
+     grid-template-columns: repeat(3, 100px);
+     grid-template-rows: 180px;
+     grid-column-gap: 140px;
+
+     & .action {
+
+       &.selected::before {
+         content: '';
+         width: 160px;
+         height: 160px;
+         position: absolute;
+         left: -30px;
+         top: -2px;
+         z-index: -1;
+         background-image: var(--background-select);
+         background-size: cover;
+       }
+
+       & img {
+         width: 100%;
+       }
+     }
+   }
+
+ }
+
 </style>

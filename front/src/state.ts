@@ -1,3 +1,5 @@
+import type { number } from "yup";
+
 export interface State {
   counter: number;
   sessionId?: string;
@@ -30,7 +32,8 @@ export interface Session {
 export interface Fight {
   id: string;
   players: string[];
-  results: { [name: string]: 1 | 2 | 3 };
+  responses: { [name: string]: 1 | 2 | 3 };
+  round: number;
   winner: string;
 }
 

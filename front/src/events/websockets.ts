@@ -53,7 +53,28 @@ export class CreateGameRequest extends WebSocketRequest {
   public toJSON() {
     return {
       type: "request",
-      name: "startGame"
+      name: "startGame",
+      options: {
+        // botDefaultResponse: 1,
+        roundTimeout: 10000,
+        postRoundTimeout: 3000
+      }
+    };
+  }
+}
+
+export class SendTurnRequest extends WebSocketRequest {
+  private turn: number;
+
+  constructor(turn: number, requestId: string) {
+    super(requestId);
+    this.turn = turn;
+  }
+  public toJSON() {
+    return {
+      type: "request",
+      name: "sendTurn",
+      result: this.turn
     };
   }
 }
@@ -155,6 +176,18 @@ export class StartGame extends Action {
   public watch(state: State, stream: Observable<StoreEvent<State>>) {
     console.log("StartGame", this.requestId);
     return merge(super.watch(state, stream), of(new CreateGameRequest(this.requestId)));
+  }
+}
+
+export class SendTurn extends Action {
+  private turn: number;
+  constructor(turn: number) {
+    super();
+    this.turn = turn;
+  }
+  public watch(state: State, stream: Observable<StoreEvent<State>>) {
+    console.log("SendTurn", this.requestId);
+    return merge(super.watch(state, stream), of(new SendTurnRequest(this.turn, this.requestId)));
   }
 }
 

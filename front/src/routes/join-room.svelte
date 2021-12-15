@@ -1,13 +1,12 @@
 <script lang="ts">
  import { goto } from "$app/navigation";
  import type { State } from "$state";
- import { Join, Hello } from "$events";
+ import { Join } from "$events";
  import store from "$store";
  import logo from "$lib/images/yanken.png";
  import MenuContainer from "$components/MenuContainer.svelte";
 
  const st = store.get<State>();
- const session = st.select(state => state.session);
  let room: string;
 
  function joinRoom() {

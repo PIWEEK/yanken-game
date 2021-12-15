@@ -2,7 +2,7 @@
  import { goto } from "$app/navigation";
  import { page } from '$app/stores';
  import store from "$store";
- import type { State } from "$state";
+ import type { State, Room, Session } from "$state";
  import PlayerCard from "$components/PlayerCard.svelte";
  import MenuContainer from "$components/MenuContainer.svelte";
  import clockIcon from "$lib/images/timer.png"
@@ -11,6 +11,16 @@
  const st = store.get<State>();
  const session = st.select(state => state.session);
  const room = st.select(state => state.room);
+
+ let roomValue: Room | undefined = undefined;
+ room.subscribe((v) => {
+  roomValue = v;
+ });
+
+ let sessionValue: Session | undefined = undefined;
+ session.subscribe((v) => {
+  sessionValue = v;
+ });
 
  function startGame() {
    st.emit(new StartGame());
@@ -28,14 +38,14 @@
   <div class="container">
     <label for="name">Wait until the game starts...</label>
     <div class="clock"><img alt="Timer" src={clockIcon}/></div>
-    {#if $room && $room.players}
+    {#if roomValue && roomValue.players}
     <div class="player-list">
-      {#each $room.players as player}
-	      <PlayerCard name={$room.sessions[player].name} color={$room.sessions[player].avatar || "red"} flipx={true} />
+      {#each roomValue.players as player}
+	      <PlayerCard name={roomValue.sessions[player].name} color={roomValue.sessions[player].avatar || "red"} flipx={true} />
       {/each}
     </div>
     {/if}
-    {#if $room && $session && $room.owner && $session.id && $room.owner == $session.id}
+    {#if roomValue && sessionValue && roomValue.owner && sessionValue.id && roomValue.owner == sessionValue.id}
     <button on:click={startGame}>GO!</button>
     {/if}
   </div>

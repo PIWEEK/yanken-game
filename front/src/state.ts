@@ -10,7 +10,7 @@ export interface Room {
   id: string;
   createdAt: string;
   status: "waiting" | "playing" | "ended";
-  stage?: "waitResponses" | "turnEnded";
+  stage?: "pairing" | "game" | "gameEnd" | "result";
   round?: number;
   owner: string;
   players: string[];

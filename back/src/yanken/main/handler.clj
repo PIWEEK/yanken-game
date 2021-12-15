@@ -64,7 +64,7 @@
                  :room (resolve-room state)}]
 
     (-> (d/without-nils result)
-        (with-meta {:session-id (:session-id result)}))))
+        (with-meta {:session-id (:id session)}))))
 
 ;; --- JOIN ROOM
 

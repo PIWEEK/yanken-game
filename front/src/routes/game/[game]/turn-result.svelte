@@ -17,7 +17,7 @@
     <div class="round">Round 1</div>
     <div class="message">Ready to fight?</div>
     <ProgressBar progress={100} />
-    
+
     <div class="matches-list">
       {#each matches as _match}
         <MatchData />
@@ -50,9 +50,9 @@
  .message {
    font-size: 24px;
  }
- 
+
  .matches-list {
-   overflow-y: scroll;
+   overflow-y: auto;
    height: 100%;
    display: grid;
    grid-template-columns: 1fr 1fr;
@@ -62,7 +62,20 @@
    justify-self: stretch;
  }
 
+ @media only screen and (min-width: 900px) {
+
+   .message {
+     font-size: 56px;
+   }
+
+   .matches-list {
+     display: flex;
+     flex-direction: row;
+     flex-wrap: wrap;
+     justify-content: center;
+     padding: 40px 40px 0;
+   }
+
+ }
 
 </style>
-
-

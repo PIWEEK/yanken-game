@@ -5,7 +5,7 @@
 
  let lighted = Math.floor(totalBullets * progress / 100);
  let notLighted = totalBullets - lighted;
- 
+
  let progressBullets = [
    ...(new Array(lighted).fill(true)),
    ...(new Array(notLighted).fill(false))
@@ -34,4 +34,16 @@
  .bullet.filled {
    opacity: 40%;
  }
+
+  @media only screen and (min-width: 900px) {
+
+   .progress {
+     grid-gap: 8px;
+   }
+  .bullet {
+    width: 16px;
+    height: 16px;
+  }
+
+}
 </style>

@@ -139,6 +139,12 @@
    filter: drop-shadow(6px 6px 0px rgba(0, 0, 0, 40%));
  }
 
+ .suc-data:not(.small) .turn-result {
+   top: 0;
+   left: 0;
+   right: initial;
+ }
+
  .turn-pick {
    align-items: center;
    background-image: var(--select-bg);
@@ -241,11 +247,18 @@
     }
    }
    .turn-result {
-    width: 100px;
-    height: 100px;
-    top: -50px;
-    right: -50px;
+     width: 100px;
+     height: 100px;
+     top: -50px;
+     right: -50px;
    }
+
+   .suc-data:not(.small) .turn-result {
+     top: 33px;
+     left: 66px; 
+     right: initial;
+   }
+
    .flipx .turn-result {
      right: initial;
      left: -50px;

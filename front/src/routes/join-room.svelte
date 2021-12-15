@@ -7,7 +7,7 @@
  import MenuContainer from "$components/MenuContainer.svelte";
 
  const st = store.get<State>();
- let room: string;
+ let room: string = "" + new Date().getTime();
 
  function joinRoom() {
    st.emit(new Join(room));

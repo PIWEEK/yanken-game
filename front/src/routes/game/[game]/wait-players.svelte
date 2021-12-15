@@ -1,6 +1,4 @@
 <script lang="ts">
- import { goto } from "$app/navigation";
- import { page } from '$app/stores';
  import store from "$store";
  import type { State } from "$state";
  import PlayerCard from "$components/PlayerCard.svelte";
@@ -14,19 +12,12 @@
 
  function startGame() {
    st.emit(new StartGame());
-   room.subscribe(value => {
-    if (value && value.status == "playing") {
-      const roomParam = $page.params.game;
-      goto(`/game/${roomParam}/turn`);
-    }
-   });
  }
-
 </script>
 
 <MenuContainer>
   <div class="container">
-    <label for="name">Wait until the game starts...</label>
+    <div class="message">Wait until the game starts...</div>
     <div class="clock"><img alt="Timer" src={clockIcon}/></div>
     {#if $room?.players}
     <div class="player-list">
@@ -50,7 +41,7 @@
    grid-template-rows: 115px auto 1fr 100px;
  }
 
- label[for=name] {
+ .message {
    text-align: center;
    font-size: 24px;
    align-self: end;
@@ -88,7 +79,7 @@
 
  @media only screen and (min-width: 900px) {
 
-  label[for=name] {
+  .message {
     font-size: 36px;
     margin-bottom: 16px;
   }

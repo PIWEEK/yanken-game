@@ -1,5 +1,4 @@
 <script lang="ts">
- // import { goto } from "$app/navigation";
  import store from "$store";
  import type { Room, Session, Fight, State } from "$state";
  import { SendTurn } from "$events";
@@ -121,10 +120,11 @@
    let myPick: ResultType['myPick']
    let rivalPick: ResultType['rivalPick'];
 
+   console.log(result);
    if (result.winner === "both") {
      myResult = "win";
      rivalResult = "win";
-   } if (result.winner === "nobody") {
+   } else if (result.winner === "nobody") {
      myResult = "loss";
      rivalResult = "loss";
    } else if (result.winner === observeId) {

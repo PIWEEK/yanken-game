@@ -1,28 +1,33 @@
 <script lang="ts">
- import MatchData from "$components/MatchData.svelte";
+ import type { State } from "$state";
+
+ import store from "$store";
+
+ import PlayerCard from "$components/PlayerCard.svelte";
  import MenuContainer from "$components/MenuContainer.svelte";
- import ProgressBar from "$components/ProgressBar.svelte";
 
- let matches = new Array(20).fill(
-   {
-     player1: {name: "Uno", color: "red"},
-     player2: {name: "Dos", color: "green"}
-   }
- );
+ const st = store.get<State>();
 
+ const room = st.select(state => state.room);
+ const playersLeft = st.select(state => state.room?.livePlayers?.length);
+
+ const deadPlayers = st.select(state => new Set(state.room?.deadPlayers));
 </script>
 
-<MenuContainer hideRoom>
+<MenuContainer>
   <div class="container">
-    <div class="round">Round 1</div>
-    <div class="message">Ready to fight?</div>
-    <ProgressBar progress={100} />
+    <div class="message">Only {$playersLeft} Yankens left!</div>
 
-    <div class="matches-list">
-      {#each matches as _match}
-        <MatchData />
-      {/each}
-    </div>
+    {#if $room?.players}
+      <div class="player-list">
+        {#each $room.players as player}
+	        <PlayerCard name={$room.sessions[player].name}
+                      avatar={$room.sessions[player].avatar || "red"}
+                      result={$deadPlayers.has(player) ? "loss" : null}
+                      flipx={true} />
+        {/each}
+      </div>
+    {/if}
   </div>
 </MenuContainer>
 
@@ -31,51 +36,42 @@
    height: 100%;
    display: grid;
    justify-content: center;
-   justify-items: center;
    align-items: center;
-   grid-template-rows: 50px auto 75px 1fr;
-   grid-template-columns: 1fr;
-   padding-bottom: 30px;
-
-   & :global(.progress) {
-     margin-bottom: 25px;
-   }
- }
-
- .round {
-   color: #c27eca;
-   font-size: 36px;
+   grid-template-rows: 115px auto 1fr 100px;
  }
 
  .message {
+   text-align: center;
    font-size: 24px;
+   align-self: end;
+   margin-bottom: 8px;
  }
 
- .matches-list {
-   overflow-y: auto;
+ .player-list {
+   align-content: baseline;
+   align-items: start;
    height: 100%;
+   overflow-y: scroll;
+   width: 100%;
    display: grid;
-   grid-template-columns: 1fr 1fr;
-   grid-gap: 16px;
-   justify-items: center;
+   grid-template-columns: repeat(4, 25%);
    align-items: center;
-   justify-self: stretch;
+   justify-content: center;
+
+   & > :global(*) {
+     margin: 8px;
+   }
+
+   & :global(.player-name) {
+     font-size: 10px;
+     padding-top: 0px;
+   }
  }
 
  @media only screen and (min-width: 900px) {
-
    .message {
-     font-size: 56px;
+     font-size: 36px;
+     margin-bottom: 16px;
    }
-
-   .matches-list {
-     display: flex;
-     flex-direction: row;
-     flex-wrap: wrap;
-     justify-content: center;
-     padding: 40px 40px 0;
-   }
-
  }
-
 </style>

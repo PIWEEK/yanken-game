@@ -3,7 +3,7 @@
  import logo from "$lib/images/yanken.png";
  import MenuContainer from "$components/MenuContainer.svelte";
 
- let name = "";
+ let name = "Kidd";
 
  function setupName() {
    goto(`/avatar?name=${name}`);
@@ -16,7 +16,7 @@
 
     <div class="chose-name">
       <label for="name">Choose your name</label>
-      <div><input name="name" type="text" bind:value={name} /></div>
+      <div><input name="name" type="text" bind:value={name} autoComplete="off"/></div>
       <div><button disabled={!name} on:click={setupName}>GO!</button></div>
     </div>
   </div>

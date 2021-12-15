@@ -104,10 +104,11 @@
                       (assoc :connection-id connection-id)
                       (cond-> (string? player-name) (assoc :name player-name)))
           room    (get-in state [:rooms (:room-id session)])]
+
       (-> state
           (set-session session)
-          (assoc :current-session session)
-          (cond-> (some? room) (assoc :current-room room))
+          (assoc :current-session-created false)
+          (assoc :current-room room)
           (update :connections update connection-id assoc :session-id session-id)))
 
     (let [avatar-id  0
@@ -117,6 +118,7 @@
       (-> state
           (set-session session)
           (assoc :current-session-created true)
+          (dissoc :current-room)
           (update :connections update connection-id assoc :session-id session-id)))))
 
 (defn add-bot-session

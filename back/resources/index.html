@@ -51,8 +51,11 @@
     </main>
     <script>
 
-     let sessionId = localStorage.getItem("sessionId") || null;
+     let sessionId = sessionStorage.getItem("sessionId") || null;
      let currentRequestId = 0;
+
+     console.log("initializing with sesion", sessionId);
+
 
      function getNextRequestId() {
          return currentRequestId++;
@@ -88,7 +91,7 @@
 
          if (data.type === "response"
              && data.name === "hello") {
-             localStorage.setItem("sessionId",data.session.id)
+             sessionStorage.setItem("sessionId",data.session.id)
              sessionId = data.session.id;
          }
 
@@ -107,7 +110,7 @@
      const clearBtn = document.getElementById("clear");
      clearBtn.addEventListener("click", (event) => {
          console.log("btn(click): clear");
-         localStorage.clear();
+         sessionStorage.clear();
      });
 
      const joinRoomBtn = document.getElementById("join-room");

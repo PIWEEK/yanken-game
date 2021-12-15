@@ -22,6 +22,7 @@ export class Store<State> {
       of(initialState),
       this.event$.pipe(
         rx.scan((state, e) => produce(state, e.update.bind(e)), initialState),
+        rx.tap((state) => (window as any).state = state),
         rx.catchError((err) => {
           console.error("Error", err);
           return this.state$;

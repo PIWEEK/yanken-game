@@ -34,12 +34,13 @@
  }
 
  export let name: string | null = null;
- export let color: AvatarColor = "red";
+ export let avatar: AvatarColor = "red";
  export let cardType: "full" | "small" | null = null;
  export let flipx: boolean = false;
 
  export let pick: "rock" | "paper" | "scissors" | null = null;
  export let result: "win" | "loss" | "draw" | null = null;
+ export let lastPlays: string[] = [];
 
 </script>
 
@@ -49,21 +50,26 @@
      class:full={cardType === "full"}
      class:dimmed={result === "loss"}
      style="--select-bg: url({selectBg})">
-  <img class="avatar" alt={color} src={AVATARS[color]}/>
+  <img class="avatar" alt={avatar} src={AVATARS[avatar] || sucYellow}/>
 
   {#if name}
     <div class="player-name">{name}</div>
   {/if}
 
-  {#if cardType === "full"}
+  {#if cardType === "full" && lastPlays && lastPlays.length > 0}
     <div class="last-plays-title">Last Plays</div>
     <div class="last-plays">
-      <div class="last-play-item">
-        <img src={rock} alt="Rock" />
-      </div>
-      <div class="last-play-item">
-        <img src={paper} alt="Paper" />
-      </div>
+      {#each lastPlays as pick}
+        <div class="last-play-item">
+          {#if pick === "rock"}
+            <img src={rock} alt="Rock" />
+          {:else if pick === "paper"}
+            <img src={paper} alt="Paper" />
+          {:else if pick === "scissors"}
+            <img src={scissors} alt="Scissors" />
+          {/if}
+        </div>
+      {/each}
     </div>
   {/if}
   <div class="decoration">

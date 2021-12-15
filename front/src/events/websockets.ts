@@ -51,8 +51,25 @@ export class JoinRequest extends WebSocketRequest {
       name: "joinRoom",
       requestId: this.requestId,
       roomId: this.roomId
-      // withBots: 20,
-      // botJoinTimeout: 2000
+    };
+  }
+}
+
+export class JoinBotsRequest extends WebSocketRequest {
+  private roomId: string;
+
+  constructor(roomId: string, requestId: string) {
+    super(requestId);
+    this.roomId = roomId;
+  }
+  public toJSON() {
+    return {
+      type: "notification",
+      name: "joinBots",
+      requestId: this.requestId,
+      roomId: this.roomId,
+      botNum: 5,
+      botJoinTimeout: 100
     };
   }
 }
@@ -201,9 +218,20 @@ export class SendTurn extends Action {
   }
 }
 
+export class JoinBots extends Action {
+  private roomId: string;
+  constructor(roomId: string) {
+    super();
+    this.roomId = roomId;
+  }
+  public watch(state: State, stream: Observable<StoreEvent<State>>) {
+    return merge(super.watch(state, stream), of(new JoinBotsRequest(this.roomId, this.requestId)));
+  }
+}
+
 export class StartWebsocket extends StoreEvent<State> {
   public watch(state: State, stream: Observable<StoreEvent<State>>) {
-    const ws = new WebSocket(import.meta.env.VITE_BASE_URL);
+    const ws = new WebSocket(import.meta.env.VITE_BASE_URL || "ws://localhost:11010");
 
     const socketEvents = new Subject<SocketEvent>();
 
@@ -217,6 +245,7 @@ export class StartWebsocket extends StoreEvent<State> {
     });
 
     ws.addEventListener("message", (event: Event) => {
+      console.log("[WS]<<", JSON.parse((event as any).data));
       socketEvents.next(new MessageSocketEvent(event));
     });
 
@@ -230,7 +259,9 @@ export class StartWebsocket extends StoreEvent<State> {
 
     const requests = stream.pipe(filter((ev: StoreEvent<State>) => ev instanceof WebSocketRequest));
     requests.subscribe((ev) => {
-      ws.send(JSON.stringify((ev as WebSocketRequest).toJSON()));
+      const data = (ev as WebSocketRequest).toJSON()
+      console.log("[WS]>>", data);
+      ws.send(JSON.stringify(data));
     });
 
     // Notifications

@@ -12,7 +12,7 @@
  }
 
  function join() {
-  st.emit(new Join("test"));
+  st.emit(new Join("test5"));
  }
 
  function startGame() {

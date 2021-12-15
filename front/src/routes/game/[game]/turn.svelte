@@ -1,5 +1,9 @@
-<script context="module" lang="ts">
+<script lang="ts">
  // import { goto } from "$app/navigation";
+ import store from "$store";
+ import type { Room, Session, Fight, State } from "$state";
+ import { SendTurn } from "$events";
+ import * as rx from "rxjs/operators";
 
  import rock from "$lib/images/rock.png";
  import paper from "$lib/images/paper.png";
@@ -7,63 +11,260 @@
  import background from "$lib/images/play-bg.png";
  import handsBg from "$lib/images/hands-bg.png";
  import selectBg from "$lib/images/select.png";
- import clockIcon from "$lib/images/timer.svg";
 
  import MatchData from "$components/MatchData.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
+ import Timer from "$components/Timer.svelte"
+
+ const RESPONSES = {
+   1: "rock",
+   2: "paper",
+   3: "scissors",
+ };
+
+ const TURNS = {
+   "rock": 1,
+   "paper": 2,
+   "scissors": 3,
+ };
+
+ function isMyFight(fight: Fight, currentSessionId?: string): boolean {
+   return !!currentSessionId && fight.players.includes(currentSessionId);
+ }
+
+ function getPairings(room?: Room): Fight[] {
+   return room?.fights || (room?.results && room.results[0]) || [];
+ }
+
+ function isPlayerDead(room?: Room, currentSessionId?: string) {
+   return currentSessionId && room?.deadPlayers?.includes(currentSessionId);
+ }
+ 
+ function getRivalSessionId(room?: Room, currentSessionId?: string): string | undefined {
+   const pairings = getPairings(room);
+   const observeId = isPlayerDead(room) ? (room?.livePlayers && room.livePlayers[0]) : currentSessionId;
+   const currentFight = pairings.find((f) => isMyFight(f, observeId));
+   const otherSessionId = currentFight?.players.find((id) => id !== observeId);
+   return otherSessionId;
+ }
+
+ function getOthersPairings(room?: Room, currentSessionId?: string): Session[][] {
+   const sessions = room?.sessions;
+
+   if (!sessions) {
+     return [];
+   }
+   
+   const pairings = getPairings(room);
+   const observeId = isPlayerDead(room) ? (room?.livePlayers && room.livePlayers[0]) : currentSessionId;
+
+   return pairings
+   .filter((f) => !isMyFight(f, observeId))
+   .map((f) => f.players.map((p) => sessions[p]));
+ }
+
+ function getLastPlays(room?: Room): Record<string, string[]> {
+   let newLastPlays = {} as Record<string, string[]>;
+
+   // We skip the first result if the game has ended
+   const fromIdx = (room?.stage === "gameEnd") ? 1 : 0;
+   room?.results?.slice(fromIdx).forEach((round) =>{
+     round.forEach((fight) => {
+       fight.players.forEach((player) => {
+         const r = fight.responses[player];
+         if (r) {
+           if (!newLastPlays[player]) {
+             newLastPlays[player] = [];
+           }
+           newLastPlays[player].push(RESPONSES[r]);
+           newLastPlays[player] = newLastPlays[player].slice(0, 2);
+         }
+       });
+     })
+   });
+
+   return newLastPlays;
+ }
+
+ interface ResultType {
+   myResult?: "win" | "loss";
+   myPick?: "rock" | "paper" | "scissors";
+   rivalResult?: "win" | "loss";
+   rivalPick?: "rock" | "paper" | "scissors";
+ }
+ 
+ function getResults(room?: Room, currentSessionId?: string): ResultType {
+   // Save current round
+   if (room?.stage !== "gameEnd") {
+     return {};
+   }
+
+   const observeId = isPlayerDead(room, currentSessionId) ? (room?.livePlayers && room.livePlayers[0]) : currentSessionId;
+   const rivalSessionId = getRivalSessionId(room, observeId);
+
+   if (!observeId || !rivalSessionId) {
+     return {};
+   }
+
+   let result: Fight | undefined;
+   if (room.results[0]) {
+     result = room.results[0].find((f: Fight) => isMyFight(f, observeId));
+   }
+   
+
+   if (!result) {
+     return {};
+   }
+
+   let myResult: ResultType['myResult'];
+   let rivalResult: ResultType['rivalResult'];
+   let myPick: ResultType['myPick']
+   let rivalPick: ResultType['rivalPick'];
+
+   if (result.winner === "both") {
+     myResult = "win";
+     rivalResult = "win";
+   } if (result.winner === "nobody") {
+     myResult = "loss";
+     rivalResult = "loss";
+   } else if (result.winner === observeId) {
+     myResult = "win";
+     rivalResult = "loss";
+   } else {
+     myResult = "loss";
+     rivalResult = "win";
+   }
+
+   const observeResponse = result.responses[observeId] as 1 | 2 | 3 | undefined;
+   if (observeResponse) {
+     myPick = RESPONSES[observeResponse] as ResultType['myPick'];
+   }
+
+   const rivalResponse = result.responses[rivalSessionId] as 1 | 2 | 3 | undefined;
+   if (rivalResponse) {
+     rivalPick = RESPONSES[rivalResponse] as ResultType['rivalPick'];
+   }
+
+   return {
+     myResult,
+     myPick,
+     rivalResult,
+     rivalPick
+   };
+ }
+
+ const st = store.get<State>();
+ const session = st.select(state => state.session);
+ const room = st.select(state => state.room);
+
+ const roomSession = room.pipe(rx.withLatestFrom(session));
+
+ const otherPairings = roomSession.pipe(
+   rx.map(([room, session]) => getOthersPairings(room, session?.id))
+ );
+
+ const rival = roomSession.pipe(
+   rx.map(([room, session]) => {
+     const id = getRivalSessionId(room, session?.id)
+
+     if (!id) {
+       return undefined;
+     }
+     return room?.sessions[id];
+   })
+ );
+
+ const results = roomSession.pipe(
+   rx.map(([room, session]) => getResults(room, session?.id))
+ );
+
+ const playerDead = roomSession.pipe(rx.map(([room, session]) => isPlayerDead(room, session?.id)));
+ const lastPlays = room.pipe(rx.map(getLastPlays));
+ const observingPlayer = room.pipe(
+   rx.map(room => {
+     const id = room?.livePlayers && room.livePlayers[0];
+     return id && room.sessions[id];
+   })
+ );
+
+ let selectedPick: string | null = null;
+ 
+ function pick(value: "rock" | "paper" | "scissors") {
+   selectedPick = value;
+   st.emit(new SendTurn(TURNS[value]))
+ }
+
 </script>
 
 <div class="game"
      style="--background-image: url({background});
             --background-hands: url({handsBg});
-            --background-select: url({selectBg});
-            --clock-icon: url({clockIcon})">
+            --background-select: url({selectBg});">
   <div class="turn-info">
-    <div class="turn-display">Round 2</div>
-    <div class="clock" class:low={true}>
-      <span>99</span>
+    <div class="turn-display">Round {$room?.round}</div>
+    <Timer/>
+  </div>
+
+  {#if $otherPairings}
+    <div class="players-info">
+      {#each $otherPairings as pairing}
+        <MatchData player1={pairing[0]} player2={pairing[1]} />
+      {/each}
     </div>
-  </div>
-
-  <div class="players-info">
-    <MatchData/>
-    <MatchData/>
-    <MatchData/>
-    <MatchData/>
-    <MatchData/>
-    <MatchData/>
-    <MatchData/>
-  </div>
+  {/if}
 
 
-    <div class="play-area">
+  <div class="play-area">
+    {#if $playerDead && $observingPlayer}
+      <div class="message">Observing {$observingPlayer.name}</div>
+    {:else if $results?.myResult === "loss"}
       <div class="message">You Lose!</div>
-      <div class="player-left">
-        <PlayerCard name="Nombrelargodelcarajo"
-                    color="green"
-                    cardType="full"
-                    result="win"
-                    flipx={true}/>
-      </div>
-      <div class="player-right">
-        <PlayerCard name="Cletus"
-                    color="red"
-                    result="loss"
-                    cardType="full"/>
-      </div>
+    {:else if $results?.myResult === "win"}
+      <div class="message">You Win!</div>
+    {/if}
+
+    <div class="player-left">
+      <PlayerCard cardType="full"
+                  name={$session?.name}
+                  avatar={$session?.avatar}
+                  result={$results?.myResult}
+                  pick={$results?.myPick}
+                  flipx={true}
+                  lastPlays={$lastPlays && $session?.id && $lastPlays[$session.id]}/>
     </div>
+    <div class="player-right">
+      <PlayerCard cardType="full"
+                  name={$rival?.name}
+                  avatar={$rival?.avatar}
+                  result={$results?.rivalResult}
+                  pick={$results?.rivalPick}
+                  lastPlays={$lastPlays && $rival?.id && $lastPlays[$rival.id]}/>
+    </div>
+  </div>
+
+  {#if !$playerDead && $room?.stage === "game"}
     <div class="actions">
-      <button class="action rock" class:selected={true}>
+      <button class="action rock"
+              on:click={() => pick("rock")}
+              class:selected={selectedPick === "rock"}
+              disabled={!!$results?.myResult}>
         <img alt="Rock" src={rock}/>
       </button>
-      <button class="action paper" class:selected={true}>
+      <button class="action paper"
+              on:click={() => pick("paper")}
+              class:selected={selectedPick === "paper"}
+              disabled={!!$results?.myResult}>
         <img alt="Paper"src={paper}/>
       </button>
-      <button class="action scissors" class:selected={true}>
+      <button class="action scissors"
+              on:click={() => pick("scissors")}
+              class:selected={selectedPick === "scissors"}
+              disabled={!!$results?.myResult}>
         <img alt="Scissors" src={scissors}/>
       </button>
     </div>
-  </div>
+  {/if}
+</div>
 
 <style lang="postcss">
  .game {
@@ -128,29 +329,6 @@
    & .turn-display {
      padding: 4px 8px;
      background-color: #222034;
-   }
-
-   & .clock {
-     width: 50px;
-     padding: 4px 8px;
-     text-align: right;
-     background-color: #222034;
-     position: relative;
-
-     &.low {
-       background-color: #e03333;
-     }
-
-     &::before {
-       content: '';
-       width: 10px;
-       height: 15px;
-       position: absolute;
-       left: 10px;
-       top: 5px;
-       background-image: var(--clock-icon);
-       background-size: cover;
-     }
    }
  }
 
@@ -249,21 +427,11 @@
    .turn-info {
      font-size: 32px;
      padding: 3rem;
-
-     & .clock {
-       width: 90px;
-       padding: 4px 8px;
-
-       &::before {
-         width: 20px;
-         height: 30px;
-         top: 7px;
-       }
-     }
    }
+
    .play-area {
      & .message {
-      font-size: 56px;
+       font-size: 56px;
      }
 
      & .player-left {

@@ -1,15 +1,22 @@
-<script>
+<script lang="ts">
  import PlayerCard from "$components/PlayerCard.svelte";
+
+ interface Player {
+   name: string;
+   avatar: string;
+ }
+ export let player1: Player;
+ export let player2: Player;
 </script>
 
 <div class="match-info">
-  <PlayerCard name="Nombrelargodelcarajo"
-              color="green"
+  <PlayerCard name={player1?.name}
+              avatar={player1?.avatar}
               cardType="small"
               flipx={true}/>
 
-  <PlayerCard name="Cletus"
-              color="red"
+  <PlayerCard name={player2?.name}
+              avatar={player2?.avatar}
               cardType="small"/>
 
 </div>

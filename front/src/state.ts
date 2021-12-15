@@ -35,8 +35,16 @@ export interface Fight {
   winner: string;
 }
 
+function getLocalStorage(key: string) {
+  if (localStorage) {
+    return localStorage.getItem(key);
+  }
+  return null;
+}
+
 export const initialState = {
   counter: 0,
-  session: JSON.parse(localStorage.getItem("session") || "{}"),
-  room: JSON.parse(localStorage.getItem("room") || "{}")
+  session: JSON.parse(getLocalStorage("session") || "{}"),
+  room: JSON.parse(getLocalStorage("room") || "{}")
 };
+

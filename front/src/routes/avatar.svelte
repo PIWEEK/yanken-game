@@ -13,7 +13,9 @@
 
  function startGame() {
    const name = $page.query.get('name')
-   st.emit(new Hello(name, color));
+   if (name) {
+     st.emit(new Hello(name, color));
+   }
    goto(`/join-room`);
  }
 
@@ -25,7 +27,7 @@
 <MenuContainer>
   <div class="container">
     <label for="name">Choose your color</label>
-    <PlayerCard color={color} flipx={true} />
+    <PlayerCard avatar={color} flipx={true} />
     <ColorPicker on:change={changeColor} />
     <button on:click={startGame}>GO!</button>
   </div>

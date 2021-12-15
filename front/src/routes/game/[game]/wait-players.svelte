@@ -31,7 +31,7 @@
     {#if $room?.players}
     <div class="player-list">
       {#each $room.players as player}
-	      <PlayerCard name={$room.sessions[player].name} color={$room.sessions[player].avatar || "red"} flipx={true} />
+	      <PlayerCard name={$room.sessions[player].name} avatar={$room.sessions[player].avatar || "red"} flipx={true} />
       {/each}
     </div>
     {/if}

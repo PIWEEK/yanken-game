@@ -1,7 +1,7 @@
 <script lang="ts">
  import { goto } from "$app/navigation";
  import type { State } from "$state";
- import { Join } from "$events";
+ import { Join, JoinBots } from "$events";
  import store from "$store";
  import logo from "$lib/images/yanken.png";
  import MenuContainer from "$components/MenuContainer.svelte";
@@ -11,6 +11,7 @@
 
  function joinRoom() {
    st.emit(new Join(room));
+   st.emit(new JoinBots(room));
    goto(`/game/${room}/wait-players`);
  }
 </script>
@@ -28,7 +29,7 @@
         name="name"
         placeholder="Type room name..."
         type="text"
-        pattern="[0-9]+"
+        autocomplete="off" 
         bind:value={room} />
     </div>
   </div>

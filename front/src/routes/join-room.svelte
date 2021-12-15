@@ -11,7 +11,6 @@
  let room: string;
 
  function joinRoom() {
-  //  st.emit(new Hello($session.name, $session.avatarId));
    st.emit(new Join(room));
    goto(`/game/${room}/wait-players`);
  }

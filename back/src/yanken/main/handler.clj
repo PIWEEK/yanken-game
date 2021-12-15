@@ -112,7 +112,7 @@
 
 (defn- start-game!
   [room-id]
-  (a/go-loop [round 0]
+  (a/go-loop [round 1]
     (let [state   (swap! yst/state yst/prepare-round room-id round)
           room    (resolve-room state)
           opts    (:options room)

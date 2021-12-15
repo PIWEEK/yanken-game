@@ -17,15 +17,17 @@
 (def ^:const round-timeout 10000)
 (def ^:const post-round-timeout 3000)
 
+(def bot-id uuid/zero)
 (def bot-session
-  {:id uuid/zero
+  {:id bot-id
    :is-bot true
    :name "Bot"
    :avatar-id 0})
 
+
 ;; --- Helpers
 
-(defn get-room
+(defn- get-room
   [state room-id]
   (let [room (get-in state [:rooms room-id])]
     (when-not room
@@ -33,28 +35,39 @@
                 :code :room-does-not-exists))
     room))
 
-(defn get-room-for-session
+(defn- get-room-for-session
   [state session-id]
   (let [room-id (get-in state [:sessions session-id :room-id])]
     (get-room state room-id)))
 
-(defn set-room
+(defn- set-room
   [state {:keys [id] :as room}]
   (-> state
       (update :rooms assoc id room)
       (assoc :current-room room)))
 
+(defn- make-fight-object
+  [pair]
+  {:id (uuid/next)
+   :players (into #{} pair)
+   :winner nil
+   :responses {}})
+
 ;; --- State transformations
 
 (defn connect
+  "Associates the connection to the state."
   [state {:keys [id] :as ws}]
   (update state :connections assoc id ws))
 
 (defn disconnect
+  "Dissociates the connection from state."
   [state {:keys [id] :as ws}]
   (update state :connections dissoc id))
 
 (defn update-session
+  "Creates or updates the current session associated with the specified
+  connection."
   [state connection-id session-id player-name]
   (let [session-id (or session-id (uuid/next))]
     (if-let [session (get-in state [:sessions session-id])]
@@ -82,6 +95,8 @@
             (update :connections update connection-id assoc :session-id session-id))))))
 
 (defn join-room
+  "Handles the association of session to a specific room. If room does
+  not exists, creates it and associates the session with it."
   [state session-id room-id]
   (let [room-id (or room-id (uuid/next))
         state   (update-in state [:sessions session-id] assoc :room-id room-id)
@@ -108,6 +123,7 @@
           (update-in [:rooms room-id :players] conj session-id)))))
 
 (defn start-game
+  "Marks the room object as `playing`. Only the owner of the room can do it."
   [state session-id options]
   (let [{:keys [players owner status] :as room} (get-room-for-session state session-id)]
     (when (not= owner session-id)
@@ -129,53 +145,66 @@
       (set-room state room))))
 
 (defn prepare-round
+  "State transformation function that parepares the room (specified with
+  room-id) for the (next) round. If no next round is posible it will
+  return the state with room with ended status."
   [state room-id round]
-  (letfn [(make-fight-object [pair]
-            {:id (uuid/next)
-             :players (into #{} pair)
-             :winner nil
-             :responses {}})]
+  (let [room    (get-room state room-id)
+        players (:live-players room)]
 
-    (let [room    (get-room state room-id)
-          players (:live-players room)]
+    (if (or (empty? players) (= 1 (count players)))
+      (let [room (-> room
+                     (assoc :status "ended")
+                     (dissoc :stage))]
+        (set-room state room))
 
-      (if (= (count players) 1)
-        (let [room (-> room
-                       (assoc :status "ended")
-                       (dissoc :stage))]
-          (set-room state room))
-
-
-        ;; if we still have players, lets continue to the next round.
-        (let [fights (->> (:live-players room)
-                          (shuffle)
-                          (partition-all 2)
-                          (map make-fight-object))
-
-              room   (-> room
-                         (assoc :round round)
-                         (assoc :stage "waitingResponses")
-                         (assoc :fights (vec fights)))]
-
-          (set-room state room))))))
+      (let [fights (->> (shuffle (:live-players room))
+                        (into [] (comp (partition-all 2)
+                                       (map make-fight-object))))
+            room   (-> room
+                       (assoc :round round)
+                       (assoc :stage "waitingResponses")
+                       (assoc :fights fights))]
+        (set-room state room)))))
 
 (defn finish-round
+  "Function that handles the resolution of the ongoing turn."
   [state room-id]
   (let [{:keys [options] :as room} (get-room state room-id)]
     (letfn [(get-alive-players [{:keys [winner] :as fight}]
               (cond
                 (= :nobody winner) []
                 (= :both winner)   (:players fight)
-                :else [winner]))
+                :else              [winner]))
 
-            (calculate-winner [responses]
+            (get-bot-response [responses players]
               (cond
-                (empty? responses)
-                :nobody
+                (contains? options :bot-default-response)
+                (:bot-default-response options)
 
-                (= 1 (count responses))
-                (ffirst responses)
+                (:bot-always-winner options)
+                (let [id  (->> players
+                               (remove #{(:id bot-session)})
+                               (first))
+                      res (get responses id)]
+                  (cond
+                    (nil? res) 1
+                    (= res 1) 2
+                    (= res 2) 3
+                    (= res 3) 1))
 
+                :else
+                (inc (rand-int 3))))
+
+            (resolve-bot-response [{:keys [players responses] :as fight}]
+              (cond-> fight
+                (contains? players bot-id)
+                (assoc-in [:responses bot-id] (get-bot-response responses players))))
+
+            (get-winner [responses]
+              (cond
+                (empty? responses)      :nobody
+                (= 1 (count responses)) (ffirst responses)
                 :else
                 (let [[[p1 r1] [p2 r2]] (seq responses)]
                   (cond
@@ -184,31 +213,11 @@
                     (= r1 2)  (if (= r2 1) p1 p2)
                     (= r1 3)  (if (= r2 2) p1 p2)))))
 
-            (resolve-winner [{:keys [responses players] :as fight}]
-              (let [responses (cond-> responses
-                                (contains? players (:id bot-session))
-                                (assoc (:id bot-session)
-                                       (cond
-                                         (contains? options :bot-default-response)
-                                         (:bot-default-response options)
+            (resolve-winner [{:keys [responses] :as fight}]
+              (assoc fight :winner (get-winner responses)))]
 
-                                         (:bot-always-winner options)
-                                         (let [id  (->> players
-                                                        (remove #{(:id bot-session)})
-                                                        (first))
-                                               res (get responses id)]
-                                           (cond
-                                             (nil? res) 1
-                                             (= res 1) 2
-                                             (= res 2) 3
-                                             (= res 3) 1))
-
-                                         :else
-                                         (inc (rand-int 3)))))]
-                (-> fight
-                    (assoc :winner (calculate-winner responses))
-                    (assoc :responses responses))))]
-      (let [fights-xf (comp (map resolve-winner)
+      (let [fights-xf (comp (map resolve-bot-response)
+                            (map resolve-winner)
                             (map #(assoc % :round (:round room))))
 
             fights    (into [] fights-xf (:fights room))

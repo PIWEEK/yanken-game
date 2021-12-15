@@ -12,7 +12,7 @@
  }
 
  function join() {
-  st.emit(new Join(Date.now().toString()));
+  st.emit(new Join("test"));
  }
 
  function startGame() {

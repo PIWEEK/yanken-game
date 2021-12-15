@@ -51,6 +51,8 @@ export class JoinRequest extends WebSocketRequest {
       name: "joinRoom",
       requestId: this.requestId,
       roomId: this.roomId
+      // withBots: 20,
+      // botJoinTimeout: 2000
     };
   }
 }

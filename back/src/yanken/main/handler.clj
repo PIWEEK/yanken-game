@@ -50,8 +50,6 @@
     (when-let [player (first players)]
 
       (when-let [output-ch (some-> player :connection :output)]
-        (l/debug :fn "notify-room-update" :room (:id room) :player (:id player))
-
         (a/>! output-ch {:type "notification"
                          :name "roomUpdate"
                          :room room}))

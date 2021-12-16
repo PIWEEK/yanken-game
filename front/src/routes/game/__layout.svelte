@@ -17,7 +17,7 @@
        return;
      }
 
-     const prefix = `${base}/game/${room.id}`;
+     const prefix = `${base}/game`;
 
      let state: string = room.status;
      if (state === "playing") {

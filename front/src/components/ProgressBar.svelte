@@ -3,10 +3,10 @@
 
  const totalBullets = 14;
 
- let lighted = Math.floor(totalBullets * progress / 100);
- let notLighted = totalBullets - lighted;
+ $: lighted = Math.floor(totalBullets * progress / 100);
+ $: notLighted = totalBullets - lighted;
 
- let progressBullets = [
+ $: progressBullets = [
    ...(new Array(lighted).fill(true)),
    ...(new Array(notLighted).fill(false))
  ];

@@ -18,6 +18,14 @@ export interface Room {
   results: Fight[][];
   lastResult?: Fight[];
   sessions: { [name: string]: Session };
+  options: {
+    gameEndScreenTimeout: number;
+    gameScreenTimeout: number;
+    pairingScreenTimeout: number;
+    postRoundTimeout: number;
+    resultScreenTimeout: number;
+    roundTimeout: number;
+  };
 }
 
 export interface Session {
@@ -47,4 +55,3 @@ export const initialState = {
   session: JSON.parse(getLocalStorage("session") || "{}"),
   room: JSON.parse(getLocalStorage("room") || "{}")
 };
-

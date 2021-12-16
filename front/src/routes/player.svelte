@@ -1,7 +1,7 @@
 <script lang="ts">
  import { goto } from "$app/navigation";
  import { base } from '$app/paths';
- import logo from "$lib/images/yanken.png";
+ import logo from "$lib/images/yanken-live.gif";
  import MenuContainer from "$components/MenuContainer.svelte";
  import type { State } from "$state";
  import store from "$store";

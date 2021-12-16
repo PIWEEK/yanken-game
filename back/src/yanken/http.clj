@@ -10,17 +10,15 @@
    [clojure.spec.alpha :as s]
    [clojure.string :as str]
    [integrant.core :as ig]
-   [ring.adapter.jetty9 :as jetty]
    [yanken.http.middleware :as mw]
    [yanken.main :as main]
    [yanken.util.data :as d]
    [yanken.util.exceptions :as ex]
    [yanken.util.logging :as l]
    [yanken.util.spec :as us]
-   [yanken.websocket :as ws])
-  (:import
-   org.eclipse.jetty.server.Server
-   org.eclipse.jetty.server.handler.ErrorHandler))
+   [yanken.websocket :as ws]
+   [yetti.adapter :as yt]
+   [yetti.websocket :as yws]))
 
 ;; --- SERVER
 
@@ -36,27 +34,19 @@
 (defmethod ig/init-key ::server
   [_ {:keys [handler router ws port host name metrics] :as opts}]
   (l/info :msg "starting http server" :port port :host host)
-  (let [pre-start (fn [^Server server]
-                    (let [handler (doto (ErrorHandler.)
-                                    (.setShowStacks true)
-                                    (.setServer server))]
-                      (.setErrorHandler server ^ErrorHandler handler)
-                      server))
-
-        options   {:port port
-                   :host host
-                   :h2c? true
-                   :join? false
-                   :allow-null-path-info true
-                   :configurator pre-start}
-
-        server    (jetty/run-jetty handler options)]
+  (let [options {:port port
+                 :host host
+                 :join? false
+                 :h2c? true}
+        server  (-> handler
+                    (yt/server options)
+                    (yt/start! options))]
     (assoc opts :server server)))
 
 (defmethod ig/halt-key! ::server
-  [_ {:keys [server port] :as opts}]
-  (l/info :msg "stoping http server" :port port)
-  (jetty/stop-server server))
+  [_ {:keys [server host port] :as opts}]
+  (l/info :msg "stoping http server" :host host :port port)
+  (yt/stop! server))
 
 ;; --- HANDLER
 
@@ -66,20 +56,11 @@
    :headers {"content-type" "text/html"}
    :body (io/input-stream (io/resource "index.html"))})
 
-(defn ws-upgrade-request?
-  [{:keys [headers]}]
-  (let [upgrade    (get headers "upgrade")
-        connection (get headers "connection")]
-    (and upgrade
-         connection
-         (str/includes? (str/lower-case upgrade) "websocket")
-         (str/includes? (str/lower-case connection) "upgrade"))))
-
 (defn handler
   [request]
-  (if (ws-upgrade-request? request)
-    (let [ws-handler (ws/wrap main/handler)]
-      (jetty/ws-upgrade-response ws-handler))
+  (if (yws/upgrade-request? request)
+    (let [handler (ws/wrap main/handler)]
+      (yws/upgrade request handler))
     (serve-test-page request)))
 
 (defmethod ig/init-key ::handler

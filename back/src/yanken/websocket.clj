@@ -3,53 +3,38 @@
 ;; file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ;;
 ;; Copyright (c) Andrey Antukh <niwi@niwi.nz>
-
 (ns yanken.websocket
   "General purpose websockets interface."
   (:require
    [clojure.core.async :as a]
-   [ring.adapter.jetty9 :as jetty]
    [yanken.config :as cf]
    [yanken.util.async :as aa]
    [yanken.util.exceptions :as ex]
    [yanken.util.json :as json]
    [yanken.util.logging :as l]
    [yanken.util.time :as dt]
-   [yanken.util.uuid :as uuid])
+   [yanken.util.uuid :as uuid]
+   [yetti.websocket :as yws])
   (:import
-   java.nio.ByteBuffer
-   org.eclipse.jetty.websocket.api.WebSocketAdapter
-   org.eclipse.jetty.websocket.api.RemoteEndpoint
-   org.eclipse.jetty.websocket.api.WriteCallback))
-
-(defn- wrap-callback
-  [ch]
-  (reify WriteCallback
-    (writeFailed [_ throwable]
-      (a/offer! ch throwable)
-      (a/close! ch))
-    (writeSuccess [_]
-      (a/close! ch))))
+   java.nio.ByteBuffer))
 
 (defn- ws-send!
   "Fully asynchronous websocket send operation."
   [ws s]
-  (let [ch  (a/chan 1)
-        wcb (wrap-callback ch)]
-    (-> ^WebSocketAdapter ws
-        (.getRemote)
-        (.sendString ^String s ^WriteCallback wcb))
+  (let [ch (a/chan 1)]
+    (yws/send! ws s (fn [e]
+                      (when e (a/offer! ch e))
+                      (a/close! ch)))
     ch))
 
 (defn- ws-ping!
-  [ws]
-  (let [ch  (a/chan 1)
-        wcb (wrap-callback ch)
-        bfr (ByteBuffer/allocate 0)]
-    (-> ^WebSocketAdapter ws
-        (.getRemote)
-        (.sendPing ^ByteBuffer bfr ^WriteCallback wcb))
-    ch))
+  ([ws] (ws-ping! ws (ByteBuffer/allocate 0)))
+  ([ws s]
+   (let [ch (a/chan 1)]
+     (yws/ping! ws s (fn [e]
+                       (when e (a/offer! ch e))
+                       (a/close! ch)))
+     ch)))
 
 (defn- start-input-loop
   [ws handler]
@@ -99,7 +84,7 @@
   [{:keys [conn output input close on-close pong]}]
   (a/go-loop []
     (let [[val port] (a/alts! [close (a/timeout 2500)])]
-      (when (and (jetty/connected? conn) (not= port close))
+      (when (and (yws/connected? conn) (not= port close))
         (a/<! (ws-ping! conn))
         (recur))))
 
@@ -140,14 +125,14 @@
 
            on-connect
            (fn [conn]
-             (l/debug :hint "on-connect" :client (jetty/remote-addr conn))
+             (l/debug :hint "on-connect" :client (yws/remote-addr conn))
              (let [ws (atom {:output output-ch
                              :input input-ch
                              :conn conn
                              :id (uuid/next)})]
 
                ;; Properly handle keepalive
-               (jetty/idle-timeout! conn (dt/duration 10000))
+               (yws/idle-timeout! conn (dt/duration 10000))
                (-> @ws
                    (assoc :close close-ch)
                    (assoc :pong pong-ch)

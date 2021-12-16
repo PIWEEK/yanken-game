@@ -165,18 +165,19 @@
               (a/<! (a/timeout (:game-screen-timeout opts))))
 
             ;; Game End Timeout
-            (let [state (swap! yst/state yst/finish-round room-id)
+            (let [state (swap! yst/state yst/finish-current-round room-id)
                   room  (resolve-room state)]
               (a/<! (notify-room-update players room))
-              (a/<! (a/timeout (:game-end-screen-timeout opts))))
-
-            ;; Result
-            (let [state (swap! yst/state yst/update-room-stage room-id "result")
-                  room  (resolve-room state)]
-              (a/<! (notify-room-update players room))
-              (a/<! (a/timeout (:result-screen-timeout opts))))
-
-            (recur (inc round)))
+              (a/<! (a/timeout (:game-end-screen-timeout opts)))
+              (if (yst/is-last-round? room)
+                (let [state (swap! yst/state yst/end-room room-id)
+                      room  (resolve-room state)]
+                  (a/<! (notify-room-update players room)))
+                (let [state (swap! yst/state yst/update-room-stage room-id "result")
+                      room  (resolve-room state)]
+                  (a/<! (notify-room-update players room))
+                  (a/<! (a/timeout (:result-screen-timeout opts)))
+                  (recur (inc round))))))
 
           (a/<! (notify-room-update players room)))))))
 

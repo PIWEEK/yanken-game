@@ -22,7 +22,7 @@
     {#if $room?.players}
     <div class="player-list">
       {#each $room.players as player}
-	      <PlayerCard name={$room.sessions[player].name} avatar={$room.sessions[player].avatar || "red"} flipx={true} />
+	      <PlayerCard name={$room.sessions[player].name} avatar={$room.sessions[player].avatar || "red"} flipx={false} />
       {/each}
     </div>
     {/if}
@@ -60,7 +60,7 @@
    align-content: baseline;
    align-items: start;
    height: 100%;
-   overflow-y: auto;
+   overflow-y: scroll;
    width: 100%;
    display: grid;
    grid-template-columns: repeat(4, 25%);
@@ -88,21 +88,6 @@
     margin-bottom: 16px;
     & img {
       width: 36px;
-    }
-  }
-
-  :global(button) {
-    width: 300px;
-    justify-self: center;
-  }
-
-  .player-list {
-    grid-template-columns: repeat(6, 16%);
-    max-width: 1200px;
-    margin-top: 100px;
-
-    & :global(.player-name) {
-      font-size: 24px;
     }
   }
 

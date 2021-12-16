@@ -30,7 +30,8 @@
       "$store": ["src/store"],
       "$events": ["src/events"],
       "$events/*": ["src/events/*"],
-      "$components/*": ["src/compoonents/*"]
+      "$components/*": ["src/components/*"],
+      "$screens/*": ["src/screens/*"]
 		}
 	},
 

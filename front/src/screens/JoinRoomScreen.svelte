@@ -1,10 +1,7 @@
 <script lang="ts">
- import { goto } from "$app/navigation";
- import { base } from '$app/paths';
  import type { State } from "$state";
- import { Join, JoinBots } from "$events";
+ import { Join, ChangeScreen } from "$events";
  import store from "$store";
- import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
 
  const st = store.get<State>();
@@ -13,37 +10,37 @@
 
  function joinRoom() {
    st.emit(new Join(room));
-   st.emit(new JoinBots(room));
-   goto(`${base}/game/wait-players`);
+   st.emit(new ChangeScreen("game"));
  }
 
  function editPlayer() {
-   goto(`${base}/player`);
+   st.emit(new ChangeScreen("player"));
+   // goto(`${base}/player`);
  }
 </script>
 
-<MenuContainer>
-  <div class="container">
-    <!--img class="logo" src={logo} alt="Yanken Game"/-->
-    <div class="input-data">
-      <label for="name">ENTERING GAME AS...</label>
-      <PlayerCard avatar={$session?.avatar} flipx={false} />
-      <label for="name">{$session?.name}</label>
-      <button class="no-background" on:click={editPlayer}>
-        EDIT
-      </button>
-      <input
-        name="name"
-        placeholder="Type room name..."
-        type="text"
-        autocomplete="off"
-        bind:value={room} />
+<div class="container">
+  <!--img class="logo" src={logo} alt="Yanken Game"/-->
+  <div class="input-data">
+    <label for="name">ENTERING GAME AS...</label>
+    <PlayerCard avatar={$session?.avatar} flipx={false} />
+    <label for="name">{$session?.name}</label>
+    <button class="no-background" on:click={editPlayer}>
+      EDIT
+    </button>
+    <input
+      name="name"
+      placeholder="Type room name..."
+      type="text"
+      autocomplete="off"
+      bind:value={room} />
+    <div>
       <button class="join" disabled={!room} on:click={joinRoom}>
         JOIN GAME
       </button>
     </div>
   </div>
-</MenuContainer>
+</div>
 
 <style lang="postcss">
  label[for=name] {
@@ -63,13 +60,13 @@
  }
 
  .join {
-  margin-top: 16px;
-  width: 300px;
+   margin-top: 16px;
+   width: 300px;
  }
 
  input {
-  max-width: 300px;
-  margin-top: 32px;
+   max-width: 300px;
+   margin-top: 32px;
  }
 
  button {
@@ -83,7 +80,6 @@
    label[for=name] {
      font-size: 32px;
    }
-
  }
 
 </style>

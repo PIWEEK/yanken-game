@@ -1,12 +1,15 @@
 <script lang="ts">
- import { page } from '$app/stores';
+ import type { State } from "$state";
+ import store from "$store";
+
  import background from "$lib/images/select-bg.png";
 
- export let hideRoom = false;
+ const st = store.get<State>();
+ const room = st.select(state => state.room);
 </script>
 
-{#if !hideRoom && $page.params.game}
-  <div class="room-name">Room {$page.params.game}</div>
+{#if $room?.id}
+  <div class="room-name">Room {$room?.id}</div>
 {/if}
 
 <div class="main" style="--background-image: url({background})">

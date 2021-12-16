@@ -24,6 +24,7 @@ const config = {
           $events: resolve("./src/events"),
           $styles: resolve("./src/styles"),
           $components: resolve("./src/components"),
+          $screens: resolve("./src/screens"),
         }
       }
     }

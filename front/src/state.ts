@@ -1,5 +1,5 @@
 export interface State {
-  counter: number;
+  screen?: string;
   session?: Session;
   room?: Room;
 }
@@ -29,10 +29,10 @@ export interface Room {
 }
 
 export interface Session {
-  id: string;
-  isBot: boolean;
-  avatar: string;
-  name: string;
+  id?: string;
+  isBot?: boolean;
+  avatar?: string;
+  name?: string;
 }
 
 export interface Fight {
@@ -50,8 +50,7 @@ function getLocalStorage(key: string) {
   return null;
 }
 
-export const initialState = {
-  counter: 0,
+export const initialState: State = {
   session: JSON.parse(getLocalStorage("session") || "{}"),
   room: JSON.parse(getLocalStorage("room") || "{}")
 };

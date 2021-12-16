@@ -81,8 +81,8 @@
    const pairings = getPairings(room);
 
    return pairings
-     .filter((f) => !isObservedFight(f, sessionId))
-     .map((f) => f.players.map((p) => sessions[p]));
+   .filter((f) => !isObservedFight(f, sessionId))
+   .map((f) => f.players.map((p) => sessions[p]));
  }
 
  function getLastPlays(room?: Room): Record<string, string[]> {
@@ -190,7 +190,7 @@
  const st = store.get<State>();
  // const session = st.select(state => state.session);
  const room = st.select(state => state.room);
-//  const roomSession = room.pipe(rx.withLatestFrom(session));
+ //  const roomSession = room.pipe(rx.withLatestFrom(session));
 
  const otherPairings = st.select(state => getOthersPairings(state.room, getObserveId(state)));
 
@@ -256,11 +256,11 @@
     <div class="player-left">
       <PlayerCard cardType="full"
                   name={$player?.name}
-                  avatar={$player?.avatar}
+                            avatar={$player?.avatar}
                   result={$results?.myResult}
-                  pick={$results?.myPick}
+                            pick={$results?.myPick}
                   flipx={true}
-                  lastPlays={$lastPlays && $player?.id && $lastPlays[$player.id] || []}/>
+                            lastPlays={$lastPlays && $player?.id && $lastPlays[$player.id] || []}/>
     </div>
     <div class="vs">
       <img src={vsLetters} alt="VS" />
@@ -268,9 +268,9 @@
     <div class="player-right">
       <PlayerCard cardType="full"
                   name={$rival?.name || "MR. nobody"}
-                  avatar={$rival?.avatar || "bot"}
+                            avatar={$rival?.avatar || "bot"}
                   result={$results?.rivalResult}
-                  pick={$results?.rivalPick}
+                            pick={$results?.rivalPick}
                   lastPlays={$lastPlays && $rival?.id && $lastPlays[$rival.id] || []}/>
     </div>
   </div>

@@ -1,11 +1,8 @@
 <script lang="ts">
- import { goto } from "$app/navigation";
- import { base } from '$app/paths';
  import type { State, Session } from "$state";
- import { Join, JoinBots } from "$events";
+ import { Join, ChangeScreen } from "$events";
  import store from "$store";
 
- import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
 
  import dropDecoration from "$lib/images/drop.png";
@@ -80,41 +77,38 @@
    }
 
    st.emit(new Join(roomId));
-   st.emit(new JoinBots(roomId));
-   goto(`${base}/game/wait-players`);
+   st.emit(new ChangeScreen("game"));
  }
 </script>
 
-<MenuContainer>
-  <div class="container">
-    <div class="results">
-      <div class="message">Winner</div>
-      <div class="winner">
-        <img src={winnerDecoration} alt="champion" />
-        <PlayerCard cardType="full"
-                    name={$winner?.name}
-                              avatar={$winner?.avatar}/>
-      </div>
-      <div class="message">Not winner</div>
-      <div class="second">
-        <img src={dropDecoration} alt="drop" />
-        <PlayerCard cardType="full"
-                    name={$second?.name}
-                              avatar={$second?.avatar}/>
-      </div>
-
-      <div class="message">Bunch of losers</div>
-      <div class="players">
-        {#each $others as player}
-          <PlayerCard cardType="small"
-                      name={player?.name}
-                      avatar={player?.avatar}/>
-        {/each}
-      </div>
+<div class="container">
+  <div class="results">
+    <div class="message">Winner</div>
+    <div class="winner">
+      <img src={winnerDecoration} alt="champion" />
+      <PlayerCard cardType="full"
+                  name={$winner?.name}
+                            avatar={$winner?.avatar}/>
     </div>
-    <button on:click={goBack}>Play again</button>
+    <div class="message">Not winner</div>
+    <div class="second">
+      <img src={dropDecoration} alt="drop" />
+      <PlayerCard cardType="full"
+                  name={$second?.name}
+                            avatar={$second?.avatar}/>
+    </div>
+
+    <div class="message">Bunch of losers</div>
+    <div class="players">
+      {#each $others as player}
+        <PlayerCard cardType="small"
+                    name={player?.name}
+                              avatar={player?.avatar}/>
+      {/each}
+    </div>
   </div>
-</MenuContainer>
+  <button on:click={goBack}>Play again</button>
+</div>
 
 <style lang="postcss">
  .container {
@@ -144,6 +138,7 @@
 
  .players {
    display: flex;
+   flex-wrap: wrap;
  }
 
  .winner {

@@ -17,6 +17,10 @@
  import paper from "$lib/images/paper.png";
  import scissors from "$lib/images/scissors.png";
 
+ import sucRock from "$lib/images/sucubus-rock.png";
+ import sucPaper from "$lib/images/sucubus-paper.png";
+ import sucScissors from "$lib/images/sucubus-scissors.png";
+
  type AvatarColor =
    "black" | "blue" | "green" | "orange" |
    "pink" | "purple" | "red" | "white" | "yellow";
@@ -33,14 +37,27 @@
    yellow: sucYellow,
  }
 
+ type Hand = "rock" | "paper" | "scissors";
+ export const HANDS: Record<Hand, string> = {
+   rock: sucRock,
+   paper: sucPaper,
+   scissors: sucScissors
+ }
+
  export let name: string | null = null;
- export let avatar: AvatarColor = "red";
+ export let avatar: string = "red-stone";
  export let cardType: "full" | "small" | null = null;
  export let flipx: boolean = false;
 
  export let pick: "rock" | "paper" | "scissors" | null = null;
  export let result: "win" | "loss" | "draw" | null = null;
  export let lastPlays: string[] = [];
+
+ let color: AvatarColor = "red";
+ let hand: Hand = "rock";
+
+ $: color = (avatar.split("-")[0] as AvatarColor);
+ $: hand = (avatar.split("-")[1] as Hand);
 
 </script>
 
@@ -50,7 +67,8 @@
      class:full={cardType === "full"}
      class:dimmed={result === "loss"}
      style="--select-bg: url({selectBg})">
-  <img class="avatar" alt={avatar} src={AVATARS[avatar] || sucYellow}/>
+  <img class="avatar" alt={color} src={AVATARS[color] || sucYellow}/>
+  <img class="hand" alt={hand} src={HANDS[hand] || rock}/>
 
   {#if name}
     <div class="player-name">{name}</div>
@@ -103,16 +121,23 @@
      text-align: center;
    }
 
-   & .avatar {
+   & .avatar, & .hand {
      width: 100%;
      border: 2px solid #8e489c;
    }
 
-   &.dimmed .avatar {
+   & .hand {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+   }
+
+   &.dimmed .avatar, &.dimmed .hand  {
      opacity: 50%;
    }
 
-   &.flipx .avatar {
+   &.flipx .avatar, &.flipx .hand {
      transform: scale(-1, 1);
    }
 

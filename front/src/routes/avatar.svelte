@@ -7,27 +7,38 @@
  import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
  import ColorPicker from "$components/ColorPicker.svelte";
-
- let color = "red";
+ import HandPicker  from "$components/HandPicker.svelte";
  const st = store.get<State>();
+ const session = st.select(state => state.session);
+
+ let avatar = $session?.avatar || "red-rock";
+ let color = avatar.split("-")[0];
+ let hand = avatar.split("-")[1];
 
  function startGame() {
    const name = $page.query.get('name')
    if (name) {
-     st.emit(new Hello(name, color));
+     st.emit(new Hello(name, avatar));
    }
    goto(`/join-room`);
  }
 
+ function changeHand(event: CustomEvent<string>) {
+   hand = event.detail;
+   avatar = `${color}-${hand}`;
+ }
+
  function changeColor(event: CustomEvent<string>) {
    color = event.detail;
+   avatar = `${color}-${hand}`;
  }
 </script>
 
 <MenuContainer>
   <div class="container">
     <label for="name">Choose your color</label>
-    <PlayerCard avatar={color} flipx={true} />
+    <PlayerCard avatar={avatar} flipx={true} />
+    <HandPicker on:change={changeHand} />
     <ColorPicker on:change={changeColor} />
     <button on:click={startGame}>GO!</button>
   </div>

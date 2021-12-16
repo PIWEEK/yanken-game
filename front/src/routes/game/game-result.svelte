@@ -1,7 +1,7 @@
 <script lang="ts">
  import { goto } from "$app/navigation";
  import { base } from '$app/paths';
- import type { State } from "$state";
+ import type { State, Session } from "$state";
  import { Join, JoinBots } from "$events";
  import store from "$store";
 
@@ -17,14 +17,18 @@
  const second = st.select(getSecond);
  const others = st.select(getOthers);
 
-
  function getWinner(state: State) {
    const room = state.room;
    const sessions = room?.sessions;
+
+   if (!room || !sessions || !room.results || !room.results[0] || !room.results[0][0]) {
+     return null;
+   }
+
    const lastFight = room?.results[0][0];
    const winnerId = lastFight?.winner;
 
-   if (!winnerId || !sessions) {
+   if (!winnerId) {
      return null;
    }
    
@@ -34,24 +38,30 @@
  function getSecond(state: State) {
    const room = state.room;
    const sessions = room?.sessions;
+
+   if (!room || !sessions || !room.results || !room.results[0] || !room.results[0][0]) {
+     return null;
+   }
+   
    const lastFight = room?.results[0][0];
    const winnerId = lastFight?.winner;
    const secondId = lastFight?.players?.find(id => id !== winnerId);
 
-   if (!sessions || !secondId) {
+   if (!secondId) {
      return null;
    }
    return sessions[secondId];
  }
 
- function getOthers(state: State) {
+ function getOthers(state: State): Session[] {
    const room = state.room;
-   if (!room) {
+   const sessions = room?.sessions;
+
+   if (!room || !sessions || !room.results || !room.results[0] || !room.results[0][0]) {
      return [];
    }
-   const sessions = room.sessions;
-   const lastFight = room.results[0][0]
-
+   
+   const lastFight = room.results[0][0];
    const winnerId = lastFight.winner;
    const secondId = lastFight.players.find(id => id !== winnerId);
 
@@ -141,8 +151,8 @@
    & > img {
      position: absolute;
      top: -10%;
-     left: -15%;
-     width: 130%;
+     left: -10%;
+     width: 120%;
      z-index: 200;
    }
  }

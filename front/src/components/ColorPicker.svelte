@@ -36,11 +36,6 @@
    grid-gap: 12px;
  }
 
-:global(.suc-data) {
-  max-width: 74%;
-  justify-self: center;
-}
-
  button {
    background-color: var(--button-color);
    border: 2px solid black;

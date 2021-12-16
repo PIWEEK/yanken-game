@@ -10,8 +10,8 @@
  import sucYellow from "$lib/images/sucubus-yellow.png";
 
  import selectBg from "$lib/images/gr-bg.png";
- import defeat from "$lib/images/death.png"
- import victory from "$lib/images/victory.png"
+ import defeat from "$lib/images/death-live.gif"
+ import victory from "$lib/images/victory-live.gif"
 
  import rock from "$lib/images/rock.png";
  import paper from "$lib/images/paper.png";

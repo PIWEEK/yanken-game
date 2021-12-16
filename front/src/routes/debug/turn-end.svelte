@@ -1,6 +1,6 @@
 <script lang="ts">
  import store from "$store"
- import Turn from "../game/game-result.svelte"
+ import Turn from "../game/turn-result.svelte"
 
  store.start({
    session: {

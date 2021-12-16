@@ -16,11 +16,10 @@
 (def system-config
   {:yanken.http/server
    {:port (cf/get :http-server-port)
-    :host "0.0.0.0"
+    :host (cf/get :http-server-host "localhost")
     :handler (ig/ref :yanken.http/handler)}
 
-   :yanken.http/handler
-   {}})
+   :yanken.http/handler {}})
 
 (def system nil)
 

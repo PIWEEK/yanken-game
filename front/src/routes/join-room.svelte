@@ -6,8 +6,7 @@
  import logo from "$lib/images/yanken.png";
  import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
- import { goto } from "$app/navigation";
-
+ 
  const st = store.get<State>();
  const session = st.select(state => state.session);
  let room: string;

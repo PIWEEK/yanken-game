@@ -61,6 +61,8 @@
  $: color = (avatar.split("-")[0] as AvatarColor);
  $: hand = (avatar.split("-")[1] as Hand);
 
+ $: nameValue = name ? ([...name].reduce((a,b) => a + b.charCodeAt(0), 0)) % Object.values(AVATARS).length : 0;
+
 </script>
 
 <div class="suc-data"
@@ -69,7 +71,7 @@
      class:full={cardType === "full"}
      class:dimmed={result === "loss"}
      style="--select-bg: url({selectBg})">
-  <img class="avatar" alt={color} src={AVATARS[color] || Object.values(AVATARS)[Math.floor(Math.random() * Object.values(AVATARS).length)]}/>
+  <img class="avatar" alt={color} src={AVATARS[color] || Object.values(AVATARS)[nameValue]}/>
   <img class="hand" alt={hand} src={HANDS[hand] || sucBot}/>
 
   {#if name}

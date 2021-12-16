@@ -68,11 +68,10 @@
 
 (defn make-bot
   [id]
-  (let [name (str "bot-" id)
-        id (if (uuid? id) id (uuid/custom 100 id))]
+  (let [id (if (uuid? id) id (uuid/custom 100 id))]
     {:id id
      :is-bot true
-     :name name
+     :name "bot"
      :avatar "bot"}))
 
 (defn make-bot-id

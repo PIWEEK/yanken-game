@@ -111,19 +111,17 @@
                    bot-num
                    3)
         timeout (or bot-join-timeout 1000)]
-    (loop [i total]
-      (when (> i 0)
-        (let [state   (swap! yst/state yst/add-bot-session i)
-              session (:current-session state)
-              state   (swap! yst/state yst/join-room (:id session) room-id)
-              room    (resolve-room state)
-              players (->> (:players room)
-                           (keep (partial resolve-player state)))]
 
-          (a/<! (notify-room-update players room))
-          (a/<! (a/timeout timeout))
+    (dotimes [_ total]
+      (let [state   (swap! yst/state yst/add-bot-session (rand-int 10000))
+            session (:current-session state)
+            state   (swap! yst/state yst/join-room (:id session) room-id)
+            room    (resolve-room state)
+            players (->> (:players room)
+                         (keep (partial resolve-player state)))]
 
-          (recur (dec i)))))))
+        (a/<! (notify-room-update players room))
+        (a/<! (a/timeout timeout))))))
 
 (yh/defmethod handler ["request" "joinRoom"]
   [{:keys [session-id] :as ws} {:keys [room-id] :as message}]

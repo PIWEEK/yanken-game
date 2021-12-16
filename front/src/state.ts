@@ -1,5 +1,5 @@
 export interface State {
-  counter: number;
+  screen?: string;
   session?: Session;
   room?: Room;
 }
@@ -51,7 +51,6 @@ function getLocalStorage(key: string) {
 }
 
 export const initialState = {
-  counter: 0,
   session: JSON.parse(getLocalStorage("session") || "{}"),
   room: JSON.parse(getLocalStorage("room") || "{}")
 };

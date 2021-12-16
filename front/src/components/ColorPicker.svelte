@@ -5,13 +5,15 @@
 
  const colors = [
    { value: "white", hex: "#ffffff"},
-   { value: "blue", hex: "#5fcde4"},
-   { value: "green", hex: "#65d380"},
+   { value: "black", hex: "#000000"},
+   { value: "yellow", hex: "#fbf236"},
    { value: "red", hex: "#d95763"},
    { value: "orange", hex: "#df7126"},
-   { value: "yellow", hex: "#fbf236"},
-   { value: "purple", hex: "#c27eca"},
-   { value: "pink", hex: "#e997cf"},
+   { value: "green", hex: "#65d380"},
+   { value: "blue", hex: "#5fcde4"},
+   { value: "aqua", hex: "#4bffbc"},
+   { value: "pink", hex: "#d957d6"},
+   { value: "purple", hex: "#7800af"},
  ];
 
  function clickColor(color: string) {
@@ -32,7 +34,7 @@
  .color-picker {
    width: 100%;
    display: grid;
-   grid-template-columns: repeat(4, 1fr);
+   grid-template-columns: repeat(5, 1fr);
    grid-gap: 12px;
  }
 

@@ -1,10 +1,12 @@
 <script lang="ts">
- import { goto } from "$app/navigation";
- import { base } from '$app/paths';
- import logo from "$lib/images/yanken-live.gif";
- import MenuContainer from "$components/MenuContainer.svelte";
+ // import { goto } from "$app/navigation";
+ // import { base } from '$app/paths';
  import type { State } from "$state";
  import store from "$store";
+ import { SetSessionName, ChangeScreen } from "$events";
+
+ import logo from "$lib/images/yanken-live.gif";
+ import MenuContainer from "$components/MenuContainer.svelte";
 
  const st = store.get<State>();
  const session = st.select(state => state.session);
@@ -12,21 +14,20 @@
  let name = $session?.name;
 
  function setupName() {
-   goto(`${base}/avatar?name=${name}`);
+   st.emit(new SetSessionName(name));
+   st.emit(new ChangeScreen("avatar"));
  }
 </script>
 
-<MenuContainer>
-  <div class="container">
-    <img class="logo" src={logo} alt="Yanken Game"/>
+<div class="container">
+  <img class="logo" src={logo} alt="Yanken Game"/>
 
-    <div class="chose-name">
-      <label for="name">Choose your name</label>
-      <div><input name="name" type="text" bind:value={name} autoComplete="off"/></div>
-      <div><button disabled={!name} on:click={setupName}>GO!</button></div>
-    </div>
+  <div class="chose-name">
+    <label for="name">Choose your name</label>
+    <div><input name="name" type="text" bind:value={name} autoComplete="off"/></div>
+    <div><button disabled={!name} on:click={setupName}>GO!</button></div>
   </div>
-</MenuContainer>
+</div>
 
 <style lang="postcss">
  .container {

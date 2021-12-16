@@ -8,6 +8,7 @@
  import sucRed from "$lib/images/sucubus-red.png";
  import sucWhite from "$lib/images/sucubus-white.png";
  import sucYellow from "$lib/images/sucubus-yellow.png";
+ import sucAqua from "$lib/images/sucubus-aqua.png";
 
  import selectBg from "$lib/images/gr-bg.png";
  import defeat from "$lib/images/death-live.gif"
@@ -24,8 +25,8 @@
 
 
  type AvatarColor =
-   "black" | "blue" | "green" | "orange" |
-   "pink" | "purple" | "red" | "white" | "yellow";
+   "black" | "blue" | "green" | "orange" | "pink" |
+   "purple" | "red" | "white" | "yellow" | "aqua";
 
  const AVATARS: Record<AvatarColor, string> = {
    black: sucBlack,
@@ -37,6 +38,7 @@
    red: sucRed,
    white: sucWhite,
    yellow: sucYellow,
+   aqua: sucAqua,
  }
 
  type Hand = "rock" | "paper" | "scissors";
@@ -45,6 +47,18 @@
    rock: sucRock,
    paper: sucPaper,
    scissors: sucScissors
+ }
+
+ function colorFromName(name: string) {
+   // Generate hash
+   let hash = 0, i = 0, len = name.length;
+   while ( i < len ) {
+     hash  = ((hash << 5) - hash + name.charCodeAt(i++)) << 0;
+   }
+
+   // Hash module colors
+   const colors = Object.keys(AVATARS);
+   return hash % colors.length;
  }
 
  export let name: string | null = null;
@@ -62,7 +76,8 @@
  $: color = (avatar.split("-")[0] as AvatarColor);
  $: hand = (avatar.split("-")[1] as Hand);
 
- $: nameValue = name ? ([...name].reduce((a,b) => a + b.charCodeAt(0), 0)) % Object.values(AVATARS).length : 0;
+ // $: nameValue = name ? ([...name].reduce((a,b) => a + b.charCodeAt(0), 0)) % Object.values(AVATARS).length : 0;
+ $: nameValue = name ? colorFromName(name) : 0;
 
 </script>
 

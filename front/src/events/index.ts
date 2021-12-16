@@ -1,22 +1,27 @@
-import { interval } from "rxjs";
-import * as rx from "rxjs/operators";
 import { StoreEvent } from "$store";
 import type { State } from "$state";
 
-export class AddValue extends StoreEvent<State> {
-  constructor(private value: number) {
+export * from "./websockets";
+
+export class ChangeScreen extends StoreEvent<State> {
+  constructor(private screen: string) {
     super();
   }
 
   public update(state: State) {
-    state.counter += this.value;
+    state.screen = this.screen;
   }
 }
 
-export class StartCounter extends StoreEvent<State> {
-  public watch() {
-    return interval(1000).pipe(rx.map(() => new AddValue(1)));
+export class SetSessionName extends StoreEvent<State> {
+  constructor(private name: string) {
+    super();
+  }
+
+  public update(state: State) {
+    if (!state.session) {
+      state.session = {};
+    }
+    state.session.name = this.name;
   }
 }
-
-export * from "./websockets";

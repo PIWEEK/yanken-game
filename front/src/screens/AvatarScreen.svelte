@@ -1,14 +1,13 @@
 <script lang="ts">
- import { goto } from "$app/navigation";
- import { base } from '$app/paths';
  import type { State } from "$state";
- import { Hello } from "$events";
+ import { Hello, ChangeScreen } from "$events";
  import store from "$store";
- import { page } from '$app/stores';
+
  import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
  import ColorPicker from "$components/ColorPicker.svelte";
  import HandPicker  from "$components/HandPicker.svelte";
+
  const st = store.get<State>();
  const session = st.select(state => state.session);
 
@@ -17,11 +16,10 @@
  let hand = avatar.split("-")[1];
 
  function startGame() {
-   const name = $page.query.get('name')
-   if (name) {
-     st.emit(new Hello(name, avatar));
+   if ($session.name) {
+     st.emit(new Hello($session.name, avatar));
+     st.emit(new ChangeScreen("join-room"));
    }
-   goto(`${base}/join-room`);
  }
 
  function changeHand(event: CustomEvent<string>) {
@@ -35,15 +33,13 @@
  }
 </script>
 
-<MenuContainer>
-  <div class="container">
-    <label for="name">Get pretty!</label>
-    <PlayerCard avatar={avatar} flipx={false} />
-    <HandPicker on:change={changeHand} />
-    <ColorPicker on:change={changeColor} />
-    <button on:click={startGame}>GO!</button>
-  </div>
-</MenuContainer>
+<div class="container">
+  <label for="name">Get pretty!</label>
+  <PlayerCard avatar={avatar} flipx={false} />
+  <HandPicker on:change={changeHand} />
+  <ColorPicker on:change={changeColor} />
+  <button on:click={startGame}>GO!</button>
+</div>
 
 <style lang="postcss">
  .container {

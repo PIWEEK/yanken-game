@@ -61,8 +61,10 @@ export class Store<State> {
   }
 }
 
-export function start<State>(initialState: State) {
-  setContext(STORE_CONTEXT_KEY, new Store(initialState));
+export function start<State>(initialState: State): Store<State> {
+  const store = new Store(initialState)
+  setContext(STORE_CONTEXT_KEY, store);
+  return store;
 }
 
 export function get<State>(): Store<State> {

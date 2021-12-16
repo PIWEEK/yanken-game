@@ -4,7 +4,7 @@
  import PlayerCard from "$components/PlayerCard.svelte";
  import MenuContainer from "$components/MenuContainer.svelte";
  import clockIcon from "$lib/images/timer.png"
- import { StartGame } from "$events";
+ import { StartGame, JoinBots } from "$events";
 
  const st = store.get<State>();
  const session = st.select(state => state.session);
@@ -13,24 +13,29 @@
  function startGame() {
    st.emit(new StartGame());
  }
+
+ function addBot() {
+   if ($room?.id) {
+     st.emit(new JoinBots($room.id));
+   }
+ }
 </script>
 
-<MenuContainer>
-  <div class="container">
-    <div class="message">Wait until the game starts...</div>
-    <div class="clock"><img alt="Timer" src={clockIcon}/></div>
-    {#if $room?.players}
-      <div class="player-list">
-        {#each $room.players as player}
-	        <PlayerCard name={$room.sessions[player].name} avatar={$room.sessions[player].avatar || "red"} flipx={true} />
-        {/each}
-      </div>
-    {/if}
-    {#if $room?.owner && $session?.id && $room.owner == $session.id}
-      <button on:click={startGame}>GO!</button>
-    {/if}
-  </div>
-</MenuContainer>
+<div class="container">
+  <div class="message">Wait until the game starts...</div>
+  <div class="clock"><img alt="Timer" src={clockIcon}/></div>
+  {#if $room?.players}
+    <div class="player-list">
+      {#each $room.players as player}
+	      <PlayerCard name={$room.sessions[player].name} avatar={$room.sessions[player].avatar || "red"} flipx={true} />
+      {/each}
+    </div>
+  {/if}
+  {#if $room?.owner && $session?.id && $room.owner == $session.id}
+    <button on:click={startGame}>GO!</button>
+    <button on:click={addBot}>+BOT</button>
+  {/if}
+</div>
 
 <style lang="postcss">
  .container {

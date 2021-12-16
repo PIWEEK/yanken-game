@@ -37,19 +37,17 @@
  });
 </script>
 
-<MenuContainer hideRoom>
-  <div class="container">
-    <div class="round">Round {$room?.round}</div>
-    <div class="message">Ready to fight?</div>
-    <ProgressBar progress={progress} />
+<div class="container">
+  <div class="round">Round {$room?.round}</div>
+  <div class="message">Ready to fight?</div>
+  <ProgressBar progress={progress} />
 
-    <div class="matches-list">
-      {#each $pairings as pairing}
-        <MatchData player1={pairing[0]} player2={pairing[1]} />
-      {/each}
-    </div>
+  <div class="matches-list">
+    {#each $pairings as pairing}
+      <MatchData player1={pairing[0]} player2={pairing[1]} />
+    {/each}
   </div>
-</MenuContainer>
+</div>
 
 <style lang="postcss">
  .container {

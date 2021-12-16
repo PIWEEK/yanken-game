@@ -14,22 +14,20 @@
  const deadPlayers = st.select(state => new Set(state.room?.deadPlayers));
 </script>
 
-<MenuContainer>
-  <div class="container">
-    <div class="message">Only {$playersLeft} Yankens left!</div>
+<div class="container">
+  <div class="message">Only {$playersLeft} Yankens left!</div>
 
-    {#if $room?.players}
-      <div class="player-list">
-        {#each $room.players as player}
-	        <PlayerCard name={$room.sessions[player].name}
-                           avatar={$room.sessions[player].avatar || "red"}
-                      result={$deadPlayers.has(player) ? "loss" : null}
-                           flipx={true} />
-        {/each}
-      </div>
-    {/if}
-  </div>
-</MenuContainer>
+  {#if $room?.players}
+    <div class="player-list">
+      {#each $room.players as player}
+	      <PlayerCard name={$room.sessions[player].name}
+                         avatar={$room.sessions[player].avatar || "red"}
+                    result={$deadPlayers.has(player) ? "loss" : null}
+                         flipx={true} />
+      {/each}
+    </div>
+  {/if}
+</div>
 
 <style lang="postcss">
  .container {

@@ -68,7 +68,7 @@ export class JoinBotsRequest extends WebSocketRequest {
       name: "joinBots",
       requestId: this.requestId,
       roomId: this.roomId,
-      botNum: 5,
+      botNum: 1,
       botJoinTimeout: 100
     };
   }

@@ -10,6 +10,7 @@
    [clojure.set :as set]
    [yanken.util.exceptions :as ex]
    [yanken.util.time :as dt]
+   [yanken.util.data :as d]
    [yanken.util.uuid :as uuid]))
 
 (defonce state (atom {}))
@@ -93,10 +94,38 @@
 
 (defn disconnect
   "Dissociates the connection from state."
-  [state {:keys [id] :as ws}]
-  (update state :connections dissoc id))
+  [state {:keys [id session-id] :as ws}]
+  (let [session    (get-in state [:sessions session-id])
+        room-id    (get-in state [:sessions session-id :room-id])
+        room       (get-in state [:rooms room-id])]
 
-(defn update-session
+    (cond-> state
+      :always
+      (-> (dissoc :current-room)
+          (update :connections dissoc id))
+
+      (and (= "waiting" (:status room))
+           (= session-id (:owner room))
+           (= 1 (count (:players room))))
+      (-> (update :rooms dissoc room-id)
+          (update-in [:sessions session-id] dissoc :room-id))
+
+      (and (= "waiting" (:status room))
+           (= session-id (:owner room))
+           (> (count (:players room)) 1))
+      (as-> $ (let [room  (get-in $ [:rooms room-id])
+                    owner (-> (:players room) (disj session-id) first)
+                    room  (-> room
+                              (update :players disj session-id)
+                              (assoc :owner owner))]
+                (set-room $ room)))
+      (and (= "waiting" (:status room))
+           (not= session-id (:owner room)))
+      (as-> $ (let [room (-> (get-in $ [:rooms room-id])
+                             (update :players disj session-id))]
+                (set-room $ room))))))
+
+(defn authenticate
   "Creates or updates the current session associated with the specified
   connection."
   [state connection-id session-id player-name player-avatar]
@@ -113,14 +142,15 @@
           (update :connections update connection-id assoc :session-id session-id)))
 
     (let [avatar-id  0
-          session-id (str (uuid/next))
           session    (-> (make-session player-name player-avatar)
                          (assoc :connection-id connection-id))]
+
+
       (-> state
           (set-session session)
           (assoc :current-session-created true)
           (dissoc :current-room)
-          (update :connections update connection-id assoc :session-id session-id)))))
+          (update-in [:connections connection-id] assoc :session-id (:id session))))))
 
 (defn add-bot-session
   [state i]
@@ -209,7 +239,14 @@
       (let [room (-> room
                      (assoc :status "ended")
                      (dissoc :stage))]
-        (set-room state room))
+        (as-> state $
+          (set-room $ room)
+          (reduce (fn [state player-id]
+                    (d/update-in-when [:sessions player-id] (fn [session]
+                                                              (cond-> session
+                                                                (= room-id (:room-id session))
+                                                                (dissoc :room-id)))))
+                  $ (:players room))))
 
       (let [fights (->> (shuffle (:live-players room))
                         (into [] (comp (partition-all 2)

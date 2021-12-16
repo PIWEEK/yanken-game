@@ -31,6 +31,7 @@
         <div class="row">
           <button id="echo">CMD: echo</button>
           <button id="clear">CMD: clear</button>
+          <button id="disconnect">CMD: disconnect</button>
         </div>
         <div class="row">
           <button id="hello">CMD: hello</button>
@@ -111,6 +112,12 @@
      clearBtn.addEventListener("click", (event) => {
          console.log("btn(click): clear");
          sessionStorage.clear();
+     });
+
+     const disconnectBtn = document.getElementById("disconnect");
+     disconnectBtn.addEventListener("click", (event) => {
+         console.log("btn(click): disconnect");
+         ws.close();
      });
 
      const joinRoomBtn = document.getElementById("join-room");

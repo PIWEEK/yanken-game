@@ -19,6 +19,9 @@ button {
     background-color: transparent;
     color: var(--button-border);
   }
+  &.no-background:hover {
+    color: white;
+  }
 
   &:hover {
     border: 2px solid var(--button-color);

@@ -442,6 +442,7 @@
      border: none;
      background: none;
      position: relative;
+     width: 100%;
 
      &.selected::before {
        content: '';

@@ -51,7 +51,7 @@
    align-content: baseline;
    align-items: start;
    height: 100%;
-   overflow-y: scroll;
+   overflow-y: auto;
    width: 100%;
    display: grid;
    grid-template-columns: repeat(4, 25%);
@@ -66,12 +66,26 @@
      font-size: 10px;
      padding-top: 0px;
    }
+
+   & :global(.decoration .turn-result) {
+    left: -21px;
+    top: -12px;
+   }
  }
 
  @media only screen and (min-width: 900px) {
    .message {
      font-size: 36px;
      margin-bottom: 16px;
+   }
+   .player-list {
+     grid-template-columns: repeat(6, 16%);
+     max-width: 1200px;
+     margin-top: 100px;
+
+     & :global(.player-name) {
+       font-size: 24px;
+     }
    }
  }
 </style>

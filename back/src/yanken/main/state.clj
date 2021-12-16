@@ -160,8 +160,7 @@
   "Handles the association of session to a specific room. If room does
   not exists, creates it and associates the session with it."
   [state session-id room-id]
-  (let [room-id (or room-id (uuid/next))
-        state   (update-in state [:sessions session-id] assoc :room-id room-id)
+  (let [state (update-in state [:sessions session-id] assoc :room-id room-id)
         {:keys [status] :as room} (get-in state [:rooms room-id])]
     (cond
       (or (= "ended" status)

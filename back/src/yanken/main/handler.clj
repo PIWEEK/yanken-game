@@ -7,6 +7,7 @@
 (ns yanken.main.handler
   (:require
    [clojure.core.async :as a]
+   [cuerdas.core :as str]
    [yanken.config :as cf]
    [yanken.main.state :as yst]
    [yanken.main.helpers :as yh]
@@ -115,7 +116,7 @@
     (dotimes [_ total]
       (let [state   (swap! yst/state yst/add-bot-session (rand-int 10000))
             session (:current-session state)
-            state   (swap! yst/state yst/join-room (:id session) room-id)
+            state   (swap! yst/state yst/join-room (:id session) (str/lower room-id))
             room    (resolve-room state)
             players (->> (:players room)
                          (keep (partial resolve-player state)))]
@@ -132,7 +133,7 @@
               :code :session-not-initialized
               :hint "missing hello event"))
 
-  (let [state   (swap! yst/state yst/join-room session-id room-id)
+  (let [state   (swap! yst/state yst/join-room session-id (str/lower room-id))
         room    (resolve-room state)
         players (->> (:players room)
                      (filter #(not= % session-id))

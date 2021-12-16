@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="description" content="" />
+
+    <meta name="viewport" content="width=360, user-scalable=no" />
+
+		<link rel="icon" href="/favicon.png" />
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles/normalize.css">
+    <link rel="stylesheet" href="/styles/global.css">
+
+    <title>Yanken Game</title>
+
+    <script>
+     window.YANKEN_SERVER = "ws://localhost:11010";
+    </script>
+    
+		
+
+		
+
+		<link rel="modulepreload" href="/_app/start-d772c1c1.js">
+		<link rel="modulepreload" href="/_app/chunks/vendor-06d4fd3a.js">
+		<link rel="modulepreload" href="/_app/chunks/singletons-12a22614.js">
+		<link rel="stylesheet" href="/_app/assets/start-c446e5f0.css">
+
+		<script type="module">
+			import { start } from "/_app/start-d772c1c1.js";
+			start({
+				target: document.querySelector("#app"),
+				paths: {"base":"","assets":""},
+				session: {},
+				host: location.host,
+				route: true,
+				spa: true,
+				trailing_slash: "never",
+				hydrate: null
+			});
+		</script>
+	</head>
+	<body>
+		<div id="app">
+
+			
+		</div>
+	</body>
+
+  <script>
+   function updateOrientation() {
+     var viewport = document.querySelector("meta[name=viewport]");
+
+     switch (window.orientation) {
+       case 0: //portrait
+         viewport.setAttribute("content", "width=360, user-scalable=no");
+         break;
+       case 90: case -90: //landscape
+         viewport.setAttribute("content", "width=640, user-scalable=no");
+         break;
+     }
+   }
+
+   window.addEventListener('orientationchange', updateOrientation, false);
+   updateOrientation();
+
+  </script>
+</html>

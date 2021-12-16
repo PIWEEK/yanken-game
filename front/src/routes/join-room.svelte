@@ -25,7 +25,7 @@
 
 <MenuContainer>
   <div class="container">
-    <img class="logo" src={logo} alt="Yanken Game"/>
+    <!--img class="logo" src={logo} alt="Yanken Game"/-->
     <div class="input-data">
       <label for="name">ENTER GAME AS...</label>
       <PlayerCard avatar={$session?.avatar} flipx={true} />
@@ -54,11 +54,6 @@
  }
 
  .container {
-   align-items: center;
-   display: grid;
-   grid-template-rows: 50% 50%;
-   height: 100%;
-   justify-content: center;
  }
 
  .logo {
@@ -80,10 +75,21 @@
 
  input {
   max-width: 300px;
+  margin-top: 32px;
  }
 
  button {
    margin-bottom: 16px;
+   padding-right:20px;
+   padding-left:20px;
+ }
+
+ @media only screen and (min-width: 900px) {
+
+   label[for=name] {
+     font-size: 32px;
+   }
+
  }
 
 </style>

@@ -17,16 +17,39 @@
    [yanken.util.time :as dt]
    [yanken.util.uuid :as uuid])
   (:import
-   java.util.concurrent.ForkJoinPool))
+   java.nio.ByteBuffer
+   org.eclipse.jetty.websocket.api.WebSocketAdapter
+   org.eclipse.jetty.websocket.api.RemoteEndpoint
+   org.eclipse.jetty.websocket.api.WriteCallback))
+
+(defn- wrap-callback
+  [ch]
+  (reify WriteCallback
+    (writeFailed [_ throwable]
+      (a/offer! ch throwable)
+      (a/close! ch))
+    (writeSuccess [_]
+      (a/close! ch))))
 
 (defn- ws-send!
-  [conn data]
-  (try
-    (when (jetty/connected? conn)
-      (jetty/send! conn data)
-      true)
-    (catch java.lang.NullPointerException _e
-      false)))
+  "Fully asynchronous websocket send operation."
+  [ws s]
+  (let [ch  (a/chan 1)
+        wcb (wrap-callback ch)]
+    (-> ^WebSocketAdapter ws
+        (.getRemote)
+        (.sendString ^String s ^WriteCallback wcb))
+    ch))
+
+(defn- ws-ping!
+  [ws]
+  (let [ch  (a/chan 1)
+        wcb (wrap-callback ch)
+        bfr (ByteBuffer/allocate 0)]
+    (-> ^WebSocketAdapter ws
+        (.getRemote)
+        (.sendPing ^ByteBuffer bfr ^WriteCallback wcb))
+    ch))
 
 (defn- start-input-loop
   [ws handler]
@@ -65,15 +88,28 @@
       (a/<! (handler @ws {:type "disconnect"})))))
 
 (defn- start-output-loop
-  [{:keys [conn output]}]
-  (let [executor (ForkJoinPool/commonPool)]
-    (a/go-loop []
-      (let [val (a/<! output)]
-        (when (some? val)
-          (when (a/<! (aa/thread-call executor #(ws-send! conn (json/encode-str val))))
-            (recur)))))))
+  [{:keys [conn output input]}]
+  (a/go-loop []
+    (when-let [val (a/<! output)]
+      (a/<! (ws-send! conn (json/encode-str val)))
+      (recur))))
 
-;; TODO: PING/PONG control
+
+(defn- start-ping-pong-loop
+  [{:keys [conn output input close on-close pong]}]
+  (a/go-loop []
+    (let [[val port] (a/alts! [close (a/timeout 2500)])]
+      (when (and (jetty/connected? conn) (not= port close))
+        (a/<! (ws-ping! conn))
+        (recur))))
+
+  (a/go-loop []
+    (let [[val port] (a/alts! [pong (a/timeout 10000)])]
+      (cond
+        (and (= port pong) (not (nil? val))) (recur)
+        (and (= port pong) (nil? val))       nil
+        :else                                (on-close conn -1 "pong-timeout")))))
+
 
 (defn wrap
   ([handler] (wrap handler {}))
@@ -83,6 +119,24 @@
    (fn [request]
      (let [input-ch  (a/chan input-buff-size)
            output-ch (a/chan output-buff-size)
+           pong-ch   (a/chan (a/sliding-buffer 6))
+           close-ch  (a/chan)
+
+           on-error
+           (fn [conn err]
+             (l/info :hint "on-error" :err (str err))
+             (a/close! close-ch)
+             (a/close! pong-ch)
+             (a/close! output-ch)
+             (a/close! input-ch))
+
+           on-close
+           (fn [conn status reason]
+             (l/info :hint "on-close" :status status :reason reason)
+             (a/close! close-ch)
+             (a/close! pong-ch)
+             (a/close! output-ch)
+             (a/close! input-ch))
 
            on-connect
            (fn [conn]
@@ -92,24 +146,20 @@
                              :conn conn
                              :id (uuid/next)})]
 
+               ;; Properly handle keepalive
+               (jetty/idle-timeout! conn (dt/duration 10000))
+               (-> @ws
+                   (assoc :close close-ch)
+                   (assoc :pong pong-ch)
+                   (assoc :on-close on-close)
+                   (start-ping-pong-loop))
+
                ;; Forward all messages from output-ch to the websocket
                ;; connection
                (start-output-loop @ws)
 
                ;; React on messages received from the client
                (start-input-loop ws handler)))
-
-           on-error
-           (fn [conn err]
-             (l/info :hint "on-error" :err (str err))
-             (a/close! output-ch)
-             (a/close! input-ch))
-
-           on-close
-           (fn [conn status reason]
-             (l/info :hint "on-close" :status status :reason reason)
-             (a/close! output-ch)
-             (a/close! input-ch))
 
            on-message
            (fn [conn message]
@@ -120,11 +170,13 @@
 
            on-ping
            (fn [conn buffer]
-             (l/info :hint "on-ping" :buffer buffer))
+             ;; (l/info :hint "on-ping" :buffer buffer)
+             )
 
            on-pong
            (fn [conn buffer]
-             (l/info :hint "on-ping" :buffer buffer))
+             ;; (l/info :hint "on-pong" :buffer buffer)
+             (a/>!! pong-ch :pong))
            ]
        {:on-connect on-connect
         :on-error on-error

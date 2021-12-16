@@ -145,41 +145,37 @@
 
 (defn- start-game-loop
   [{room-id :id players :players opts :options}]
-  (l/debug :hint "start-game-loop" :options opts)
   (let [players (keep (partial resolve-player @yst/state) players)]
     (a/go-loop [round 1]
       (let [state (swap! yst/state yst/prepare-round room-id round)
             room  (resolve-room state)]
-        (l/debug :hint "game-loop" :round round :status (:status room))
 
-        (if (not= "ended" (:status room))
-          (do
-            ;; Pairing stage
-            (a/<! (notify-room-update players room))
-            (a/<! (a/timeout (:pairing-screen-timeout opts)))
+        ;; Pairing stage
+        (a/<! (notify-room-update players room))
+        (a/<! (a/timeout (:pairing-screen-timeout opts)))
 
-            ;; Game Stage
-            (let [state (swap! yst/state yst/update-room-stage room-id "game")
+        ;; Game Stage
+        (let [state (swap! yst/state yst/update-room-stage room-id "game")
+              room  (resolve-room state)]
+          (a/<! (notify-room-update players room))
+          (a/<! (a/timeout (:game-screen-timeout opts))))
+
+        ;; Game End Stage
+        (let [state (swap! yst/state yst/finish-current-round room-id)
+              room  (resolve-room state)]
+          (a/<! (notify-room-update players room))
+          (a/<! (a/timeout (:game-end-screen-timeout opts)))
+
+          (if (yst/is-last-round? room)
+            (let [state (swap! yst/state yst/end-room room-id)
                   room  (resolve-room state)]
               (a/<! (notify-room-update players room))
-              (a/<! (a/timeout (:game-screen-timeout opts))))
-
-            ;; Game End Timeout
-            (let [state (swap! yst/state yst/finish-current-round room-id)
+              round)
+            (let [state (swap! yst/state yst/update-room-stage room-id "result")
                   room  (resolve-room state)]
               (a/<! (notify-room-update players room))
-              (a/<! (a/timeout (:game-end-screen-timeout opts)))
-              (if (yst/is-last-round? room)
-                (let [state (swap! yst/state yst/end-room room-id)
-                      room  (resolve-room state)]
-                  (a/<! (notify-room-update players room)))
-                (let [state (swap! yst/state yst/update-room-stage room-id "result")
-                      room  (resolve-room state)]
-                  (a/<! (notify-room-update players room))
-                  (a/<! (a/timeout (:result-screen-timeout opts)))
-                  (recur (inc round))))))
-
-          (a/<! (notify-room-update players room)))))))
+              (a/<! (a/timeout (:result-screen-timeout opts)))
+              (recur (inc round)))))))))
 
 (yh/defmethod handler ["request" "startGame"]
   [{:keys [session-id] :as ws} {:keys [options] :as message}]
@@ -190,7 +186,13 @@
 
   (let [state (swap! yst/state yst/start-game session-id options)
         room  (:current-room state)]
-    (start-game-loop room)
+
+    (a/go
+      (l/debug :action "game-start" :room (:id room) :players (count (:players room)))
+      (l/trace :action "game-start" :room (:id room) :options (:options room))
+      (let [rounds (a/<! (start-game-loop room))]
+        (l/debug :action "game-end" :room (:id room) :rounds rounds)))
+
     nil))
 
 (yh/defmethod handler ["request" "sendTurn"]

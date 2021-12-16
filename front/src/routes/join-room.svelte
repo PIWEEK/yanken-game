@@ -5,7 +5,7 @@
  import store from "$store";
  import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
- 
+
  const st = store.get<State>();
  const session = st.select(state => state.session);
  let room: string;
@@ -25,7 +25,7 @@
   <div class="container">
     <!--img class="logo" src={logo} alt="Yanken Game"/-->
     <div class="input-data">
-      <label for="name">ENTER GAME AS...</label>
+      <label for="name">ENTERING GAME AS...</label>
       <PlayerCard avatar={$session?.avatar} flipx={false} />
       <label for="name">{$session?.name}</label>
       <button class="no-background" on:click={editPlayer}>

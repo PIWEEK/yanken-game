@@ -18,6 +18,7 @@ button {
   &.no-background {
     background-color: transparent;
     color: var(--button-border);
+    width: auto;
   }
   &.no-background:hover {
     color: white;

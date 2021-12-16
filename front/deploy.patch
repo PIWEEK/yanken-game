@@ -1,0 +1,57 @@
+diff --git a/front/src/app.html b/front/src/app.html
+index fa1ded5..4c85f9f 100644
+--- a/front/src/app.html
++++ b/front/src/app.html
+@@ -6,16 +6,16 @@
+ 
+     <meta name="viewport" content="width=360, user-scalable=no" />
+ 
+-		<link rel="icon" href="/favicon.png" />
+-    <link rel="manifest" href="/manifest.json">
+-    <link rel="stylesheet" href="/styles/normalize.css">
+-    <link rel="stylesheet" href="/styles/global.css">
++		<link rel="icon" href="/yanken-game/favicon.png" />
++    <link rel="manifest" href="/yanken-game/manifest.json">
++    <link rel="stylesheet" href="/yanken-game/styles/normalize.css">
++    <link rel="stylesheet" href="/yanken-game/styles/global.css">
+ 
+     <title>Yanken Game</title>
+ 
+     <script>
+-     // window.YANKEN_SERVER = "wss://niwi.nz/yankens";
+-     window.YANKEN_SERVER = "ws://localhost:11010";
++     window.YANKEN_SERVER = "wss://niwi.nz/yankens";
++     // window.YANKEN_SERVER = "ws://localhost:11010";
+     </script>
+     
+ 		%svelte.head%
+diff --git a/front/static/styles/global.css b/front/static/styles/global.css
+index d84dd31..cd14367 100644
+--- a/front/static/styles/global.css
++++ b/front/static/styles/global.css
+@@ -1,7 +1,7 @@
+ @font-face {
+   font-family: 'upheaval';
+-  src: url('/fonts/upheavtt-webfont.woff2') format('woff2'),
+-       url('/fonts/upheavtt-webfont.woff') format('woff');
++  src: url('/yanken-game/fonts/upheavtt-webfont.woff2') format('woff2'),
++       url('/yanken-game/fonts/upheavtt-webfont.woff') format('woff');
+   font-weight: normal;
+   font-style: normal;
+ 
+diff --git a/front/svelte.config.js b/front/svelte.config.js
+index 70cf087..ea5e61f 100644
+--- a/front/svelte.config.js
++++ b/front/svelte.config.js
+@@ -32,8 +32,8 @@ const config = {
+ };
+ 
+ // Uncomment before deploying to github pages
+-// config.kit.paths = {
+-//   base: "/yanken-game"
+-// }
++config.kit.paths = {
++  base: "/yanken-game"
++}
+ 
+ export default config;

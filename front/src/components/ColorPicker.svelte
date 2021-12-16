@@ -62,5 +62,10 @@
      border: 4px solid black;
    }
 
+  :global(.suc-data) {
+    max-width: 100%;
+    justify-self: center;
+  }
+
  }
 </style>

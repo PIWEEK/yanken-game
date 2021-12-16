@@ -48,11 +48,14 @@
  }
 
  @media only screen and (min-width: 400px) {
+  .hand-picker {
+    width: 100%;
+  }
 
-   .hand {
-     width: 84px;
-     height: 84px;
-   }
+  .hand {
+    width: 84px;
+    height: 84px;
+  }
 
  }
 

@@ -50,6 +50,7 @@
    display: grid;
    justify-content: center;
    align-items: center;
+   max-width: 300px;
  }
 
  label[for=name] {

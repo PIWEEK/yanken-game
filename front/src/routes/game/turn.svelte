@@ -281,19 +281,19 @@
               on:click={() => pick("rock")}
                      class:selected={selectedPick === "rock"}
               disabled={!!$results?.myResult}>
-        <img alt="Rock" src={rock}/>
+        <img width="100%" alt="Rock" src={rock}/>
       </button>
       <button class="action paper"
               on:click={() => pick("paper")}
                      class:selected={selectedPick === "paper"}
               disabled={!!$results?.myResult}>
-        <img alt="Paper"src={paper}/>
+        <img width="100%" alt="Paper"src={paper}/>
       </button>
       <button class="action scissors"
               on:click={() => pick("scissors")}
                      class:selected={selectedPick === "scissors"}
               disabled={!!$results?.myResult}>
-        <img alt="Scissors" src={scissors}/>
+        <img width="100%" alt="Scissors" src={scissors}/>
       </button>
     {/if}
   </div>

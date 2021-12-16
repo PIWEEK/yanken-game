@@ -5,6 +5,7 @@
  import MatchData from "$components/MatchData.svelte";
  import MenuContainer from "$components/MenuContainer.svelte";
  import ProgressBar from "$components/ProgressBar.svelte";
+ import { onDestroy } from 'svelte';
 
  function getPairings(state: State) {
    const room = state.room;
@@ -22,13 +23,25 @@
  const room = st.select(st => st.room);
  const pairings = st.select(getPairings);
 
+ let time = 0;
+ const interval = setInterval(() => {
+   time += 100;
+ }, 100);
+
+ const pairingScreenTimeout = $room?.options.pairingScreenTimeout;
+
+ $: progress = pairingScreenTimeout ? time * 100 / pairingScreenTimeout : 100;
+
+ onDestroy(() => {
+ 	 clearInterval(interval);
+ });
 </script>
 
 <MenuContainer hideRoom>
   <div class="container">
     <div class="round">Round {$room?.round}</div>
     <div class="message">Ready to fight?</div>
-    <ProgressBar progress={100} />
+    <ProgressBar progress={progress} />
 
     <div class="matches-list">
       {#each $pairings as pairing}

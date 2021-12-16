@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-auto';
+import adapter from '@sveltejs/adapter-static';
 import preprocess from 'svelte-preprocess';
 import { resolve } from 'path';
 
@@ -9,7 +9,11 @@ const config = {
   }),
 
 	kit: {
-		adapter: adapter(),
+		adapter: adapter({
+			pages: 'build',
+			assets: 'build',
+			fallback: null
+		}),
     ssr: false,
 		target: '#app',
     vite: {
@@ -25,5 +29,10 @@ const config = {
     }
 	}
 };
+
+// Uncomment before deploying to github pages
+// config.kit.paths = {
+//   base: "/yanken-game"
+// }
 
 export default config;

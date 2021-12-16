@@ -2,6 +2,7 @@
  import type { State, Room } from "$state";
  import type { Subscription } from "rxjs";
  import { goto } from "$app/navigation";
+ import { base } from '$app/paths';
  import { onMount, onDestroy } from "svelte";
  import store from "$store";
  
@@ -16,7 +17,7 @@
        return;
      }
 
-     const prefix = `/game/${room.id}`;
+     const prefix = `${base}/game/${room.id}`;
 
      let state: string = room.status;
      if (state === "playing") {

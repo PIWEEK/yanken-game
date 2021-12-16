@@ -219,7 +219,6 @@
           (set-room room)
           (cond-> need-bot? (update :sessions assoc (:id bot) bot))))))
 
-
 (defn update-room-stage
   "Simply change the room stage to other value."
   [state room-id stage]

@@ -1,5 +1,6 @@
 <script lang="ts">
  import { goto } from "$app/navigation";
+ import { base } from '$app/paths';
  import type { State } from "$state";
  import { Hello } from "$events";
  import store from "$store";
@@ -20,7 +21,7 @@
    if (name) {
      st.emit(new Hello(name, avatar));
    }
-   goto(`/join-room`);
+   goto(`${base}/join-room`);
  }
 
  function changeHand(event: CustomEvent<string>) {

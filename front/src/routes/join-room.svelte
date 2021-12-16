@@ -3,7 +3,6 @@
  import type { State } from "$state";
  import { Join, JoinBots } from "$events";
  import store from "$store";
- import logo from "$lib/images/yanken.png";
  import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
  
@@ -53,11 +52,6 @@
  }
 
  .container {
- }
-
- .logo {
-   width: 100%;
-   max-width: 760px;
  }
 
  .input-data {

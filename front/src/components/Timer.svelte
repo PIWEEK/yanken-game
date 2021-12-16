@@ -1,7 +1,24 @@
 <script lang="ts">
+ import store from "$store";
+ import type { State } from "$state";
  import clockIcon from "$lib/images/timer.svg";
+ import { onDestroy } from 'svelte';
 
- const timeLeft = 1;
+ const st = store.get<State>();
+ const room = st.select(st => st.room);
+ const gameScreenTimeout = $room?.options.gameScreenTimeout;
+
+ let time = gameScreenTimeout || 0;
+ const interval = setInterval(() => {
+   time = Math.max(time - 1000, 0);
+ }, 1000);
+
+ $: timeLeft = Math.trunc(time / 1000);
+
+ onDestroy(() => {
+  clearInterval(interval);
+ });
+
 </script>
 
 <div class="clock"

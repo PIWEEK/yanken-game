@@ -78,13 +78,10 @@
 
  .matches-list {
    overflow-y: auto;
-   height: 100%;
    display: grid;
    grid-template-columns: 1fr 1fr;
    grid-gap: 16px;
-   justify-items: center;
-   align-items: center;
-   justify-self: stretch;
+   align-self: start;
  }
 
  @media only screen and (min-width: 900px) {

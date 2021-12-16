@@ -46,4 +46,16 @@
    text-align: center;
    font-size: 24px;
  }
+
+ @media only screen and (min-width: 900px) {
+
+  .container {
+    height: 800px;
+  }
+
+   label[for=name] {
+     font-size: 32px;
+   }
+
+ }
 </style>

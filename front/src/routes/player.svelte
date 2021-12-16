@@ -57,4 +57,12 @@
  input {
   max-width: 300px;
  }
+
+ @media only screen and (min-width: 900px) {
+
+   label[for=name] {
+     font-size: 32px;
+   }
+
+ }
 </style>

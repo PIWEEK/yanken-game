@@ -211,6 +211,10 @@
  @media only screen and (min-width: 900px) {
    .suc-data {
 
+     & .avatar {
+       border: 4px solid #8e489c;
+     }
+
     &.small {
       width: 120px;
 
@@ -255,7 +259,7 @@
 
    .suc-data:not(.small) .turn-result {
      top: 33px;
-     left: 66px; 
+     left: 66px;
      right: initial;
    }
 

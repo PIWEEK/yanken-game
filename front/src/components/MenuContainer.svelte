@@ -22,6 +22,9 @@
    background-image: var(--background-image);
    background-size: cover;
    padding: 30px;
+   display: flex;
+   justify-content: center;
+   align-items: center;
  }
 
  .room-name {

@@ -31,7 +31,6 @@
 <style lang="postcss">
  .color-picker {
    width: 100%;
-   height: 120px;
    display: grid;
    grid-template-columns: repeat(4, 1fr);
    grid-gap: 16px;
@@ -45,5 +44,15 @@
      background-color: var(--button-color);
      border: 2px solid #de8eee;
    }
+ }
+
+ @media only screen and (min-width: 900px) {
+
+   button {
+     width: 66px;
+     height: 66px;
+     border: 4px solid black;
+   }
+
  }
 </style>

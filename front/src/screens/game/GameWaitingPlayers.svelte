@@ -20,14 +20,14 @@
     <div class="message">Wait until the game starts...</div>
     <div class="clock"><img alt="Timer" src={clockIcon}/></div>
     {#if $room?.players}
-    <div class="player-list">
-      {#each $room.players as player}
-	      <PlayerCard name={$room.sessions[player].name} avatar={$room.sessions[player].avatar || "red"} flipx={true} />
-      {/each}
-    </div>
+      <div class="player-list">
+        {#each $room.players as player}
+	        <PlayerCard name={$room.sessions[player].name} avatar={$room.sessions[player].avatar || "red"} flipx={true} />
+        {/each}
+      </div>
     {/if}
     {#if $room?.owner && $session?.id && $room.owner == $session.id}
-    <button on:click={startGame}>GO!</button>
+      <button on:click={startGame}>GO!</button>
     {/if}
   </div>
 </MenuContainer>
@@ -79,32 +79,32 @@
 
  @media only screen and (min-width: 900px) {
 
-  .message {
-    font-size: 36px;
-    margin-bottom: 16px;
-  }
+   .message {
+     font-size: 36px;
+     margin-bottom: 16px;
+   }
 
-  .clock {
-    margin-bottom: 16px;
-    & img {
-      width: 36px;
-    }
-  }
+   .clock {
+     margin-bottom: 16px;
+     & img {
+       width: 36px;
+     }
+   }
 
-  :global(button) {
-    width: 300px;
-    justify-self: center;
-  }
+   .container :global(button) {
+     width: 300px;
+     justify-self: center;
+   }
 
-  .player-list {
-    grid-template-columns: repeat(6, 16%);
-    max-width: 1200px;
-    margin-top: 100px;
+   .player-list {
+     grid-template-columns: repeat(6, 16%);
+     max-width: 1200px;
+     margin-top: 100px;
 
-    & :global(.player-name) {
-      font-size: 24px;
-    }
-  }
+     & :global(.player-name) {
+       font-size: 24px;
+     }
+   }
 
  }
 </style>

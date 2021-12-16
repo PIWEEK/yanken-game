@@ -27,7 +27,7 @@
    "black" | "blue" | "green" | "orange" |
    "pink" | "purple" | "red" | "white" | "yellow";
 
- export const AVATARS: Record<AvatarColor, string> = {
+ const AVATARS: Record<AvatarColor, string> = {
    black: sucBlack,
    blue: sucBlue,
    green: sucGreen,
@@ -40,7 +40,8 @@
  }
 
  type Hand = "rock" | "paper" | "scissors";
- export const HANDS: Record<Hand, string> = {
+
+ const HANDS: Record<Hand, string> = {
    rock: sucRock,
    paper: sucPaper,
    scissors: sucScissors
@@ -53,7 +54,7 @@
 
  export let pick: "rock" | "paper" | "scissors" | null = null;
  export let result: "win" | "loss" | "draw" | null = null;
- export let lastPlays: string[];
+ export let lastPlays: string[] | undefined = undefined;
 
  let color: AvatarColor = "red";
  let hand: Hand = "rock";

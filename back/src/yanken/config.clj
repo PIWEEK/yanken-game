@@ -40,13 +40,16 @@
 
 (def defaults
   {:http-server-port 11010
+   :http-server-host "localhost"
    :asserts-enabled true})
 
 (s/def ::http-server-port ::us/integer)
+(s/def ::http-server-host ::us/string)
 (s/def ::asserts-enabled ::us/boolean)
 
 (s/def ::config
   (s/keys :opt-un [::http-server-port
+                   ::http-server-host
                    ::asserts-enabled]))
 
 (defn read-env

@@ -147,11 +147,13 @@
 
 (defn- start-game-loop
   [{room-id :id players :players opts :options}]
+  (l/debug :hint "start-game-loop" :options opts)
   (let [players (keep (partial resolve-player @yst/state) players)]
     (a/go-loop [round 1]
       (let [state (swap! yst/state yst/prepare-round room-id round)
             room  (resolve-room state)]
-        (l/debug :action "start-game-loop" :round round :status (:status room) :options opts)
+        (l/debug :hint "game-loop" :round round :status (:status room))
+
         (if (not= "ended" (:status room))
           (do
             ;; Pairing stage

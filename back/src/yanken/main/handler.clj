@@ -22,26 +22,7 @@
 
 (defonce state (atom {}))
 
-(defmulti handler (fn [context messate] [(:type messate) (:name messate)]))
-
-(yh/defmethod handler :default
-  [context message]
-  (l/warn :hint "unrecognized message" :message message)
-  nil)
-
-(yh/defmethod handler ["connect" nil]
-  [ws message]
-  (swap! yst/state yst/connect ws)
-  nil)
-
-(yh/defmethod handler ["disconnect" nil]
-  [ws message]
-  (swap! yst/state yst/disconnect ws)
-  nil)
-
-(yh/defmethod handler ["request" "echo"]
-  [{:keys [out-ch]} message]
-  message)
+;; --- HELPERS
 
 (defn- resolve-room
   [state]
@@ -50,22 +31,6 @@
                             (map #(dissoc % :connection-id :room-id)))
           sessions    (sequence sessions-xf (:players room))]
       (assoc room :sessions (d/index-by :id sessions)))))
-
-(yh/defmethod handler ["request" "hello"]
-  [{:keys [local] :as ws} {:keys [session-id player-name player-avatar]}]
-  (let [state   (swap! yst/state yst/update-session (:id ws)
-                       session-id player-name player-avatar)
-        session (-> (:current-session state)
-                    (dissoc :connection-id))
-
-        result  {:session session
-                 :session-created (:current-session-created state)
-                 :room (resolve-room state)}]
-
-    (-> (d/without-nils result)
-        (with-meta {:session-id (:id session)}))))
-
-;; --- JOIN ROOM
 
 (defn- resolve-player
   [state session-id]
@@ -91,6 +56,48 @@
                          :name "roomUpdate"
                          :room room}))
       (recur (rest players)))))
+
+;; --- EVENTS IMPL
+
+(defmulti handler (fn [context messate] [(:type messate) (:name messate)]))
+
+(yh/defmethod handler :default
+  [context message]
+  (l/warn :hint "unrecognized message" :message message)
+  nil)
+
+(yh/defmethod handler ["connect" nil]
+  [ws message]
+  (swap! yst/state yst/connect ws)
+  nil)
+
+(yh/defmethod handler ["disconnect" nil]
+  [ws message]
+  (let [state (swap! yst/state yst/disconnect ws)]
+    (when-let [room (resolve-room state)]
+      (let [players (->> (:players room) (keep (partial resolve-player state)))]
+        (a/<! (notify-room-update players room))))
+    nil))
+
+(yh/defmethod handler ["request" "echo"]
+  [{:keys [out-ch]} message]
+  message)
+
+(yh/defmethod handler ["request" "hello"]
+  [{:keys [local] :as ws} {:keys [session-id player-name player-avatar]}]
+  (let [state   (swap! yst/state yst/authenticate (:id ws)
+                       session-id player-name player-avatar)
+        session (-> (:current-session state)
+                    (dissoc :connection-id))
+
+        result  {:session session
+                 :session-created (:current-session-created state)
+                 :room (resolve-room state)}]
+
+    (-> (d/without-nils result)
+        (with-meta {:session-id (:id session)}))))
+
+;; --- JOIN ROOM
 
 (yh/defmethod handler ["notification" "joinBots"]
   [{:keys [session-id] :as ws} {:keys [room-id bot-num bot-join-timeout] :as message}]

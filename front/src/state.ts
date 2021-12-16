@@ -36,7 +36,7 @@ export interface Fight {
 }
 
 function getLocalStorage(key: string) {
-  if (localStorage) {
+  if (typeof window !== "undefined") {
     return localStorage.getItem(key);
   }
   return null;

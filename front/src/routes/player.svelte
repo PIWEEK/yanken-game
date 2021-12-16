@@ -1,5 +1,6 @@
 <script lang="ts">
  import { goto } from "$app/navigation";
+ import { base } from '$app/paths';
  import logo from "$lib/images/yanken.png";
  import MenuContainer from "$components/MenuContainer.svelte";
  import type { State } from "$state";
@@ -11,7 +12,7 @@
  let name = $session?.name;
 
  function setupName() {
-   goto(`/avatar?name=${name}`);
+   goto(`${base}/avatar?name=${name}`);
  }
 </script>
 

@@ -231,10 +231,15 @@ export class JoinBots extends Action {
 
 export class StartWebsocket extends StoreEvent<State> {
   public watch(state: State, stream: Observable<StoreEvent<State>>) {
-    const ws = new WebSocket(import.meta.env.VITE_BASE_URL || "ws://localhost:11010");
+    let server: string;
+    if (typeof window !== "undefined") {
+      server = (window as any).YANKEN_SERVER;
+    } else {
+      server = import.meta.env.VITE_BASE_URL;
+    }
 
+    const ws = new WebSocket(server);
     const socketEvents = new Subject<SocketEvent>();
-
     const extraEvents = new Subject<StoreEvent<State>>();
 
     ws.addEventListener("open", (event: Event) => {

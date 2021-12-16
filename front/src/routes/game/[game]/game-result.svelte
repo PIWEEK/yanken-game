@@ -1,5 +1,6 @@
 <script lang="ts">
  import { goto } from "$app/navigation";
+ import { base } from '$app/paths';
  import type { State } from "$state";
  import { Join, JoinBots } from "$events";
  import store from "$store";
@@ -67,7 +68,7 @@
 
    st.emit(new Join(roomId));
    st.emit(new JoinBots(roomId));
-   goto(`/game/${roomId}/wait-players`);
+   goto(`${base}/game/${roomId}/wait-players`);
  }
 </script>
 

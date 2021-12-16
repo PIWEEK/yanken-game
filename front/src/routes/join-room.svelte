@@ -13,7 +13,7 @@
  function joinRoom() {
    st.emit(new Join(room));
    st.emit(new JoinBots(room));
-   goto(`/game/${room}/wait-players`);
+   goto(`/game/wait-players`);
  }
 
  function editPlayer() {

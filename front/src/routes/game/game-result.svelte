@@ -68,7 +68,7 @@
 
    st.emit(new Join(roomId));
    st.emit(new JoinBots(roomId));
-   goto(`${base}/game/${roomId}/wait-players`);
+   goto(`${base}/game/wait-players`);
  }
 </script>
 

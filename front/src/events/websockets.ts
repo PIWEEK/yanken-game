@@ -186,7 +186,10 @@ export class Hello extends Action {
     this.sessionId = sessionId;
   }
   public watch(state: State, stream: Observable<StoreEvent<State>>) {
-    return merge(super.watch(state, stream), of(new HelloRequest(this.name, this.avatar, this.requestId, this.sessionId)));
+    return merge(
+      super.watch(state, stream),
+      of(new HelloRequest(this.name, this.avatar, this.requestId, this.sessionId))
+    );
   }
 }
 
@@ -245,7 +248,7 @@ export class StartWebsocket extends StoreEvent<State> {
     ws.addEventListener("open", (event: Event) => {
       socketEvents.next(new OpenSocketEvent(event));
       if (state.session && state.session?.name && state.session?.avatar) {
-        extraEvents.next(new HelloRequest(state.session.name, state.session.avatar, Date.now().toString(), state.session.id));
+        extraEvents.next(new Hello(state.session.name, state.session.avatar));
       }
     });
 

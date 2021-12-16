@@ -16,6 +16,13 @@
  function editPlayer() {
    st.emit(new ChangeScreen("player"));
  }
+
+ function handleKeyup(event: KeyboardEvent) {
+   if (event.key === "Enter") {
+     joinRoom();
+   }
+ }
+
 </script>
 
 <div class="container">
@@ -32,7 +39,8 @@
       placeholder="Type room name..."
       type="text"
       autocomplete="off"
-      bind:value={room} />
+      bind:value={room}
+      on:keyup|preventDefault={handleKeyup}/>
     <div>
       <button class="join" disabled={!room} on:click={joinRoom}>
         JOIN GAME

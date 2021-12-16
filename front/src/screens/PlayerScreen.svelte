@@ -16,14 +16,21 @@
      st.emit(new ChangeScreen("avatar"));
    }
  }
+
+ let lastkey: string | undefined;
+ function handleKeyup(event: KeyboardEvent) {
+   if (event.key === "Enter") {
+     setupName();
+   }
+ }
 </script>
 
 <div class="container">
   <img class="logo" src={logo} alt="Yanken Game"/>
 
   <div class="chose-name">
-    <label for="name">Choose your name</label>
-    <div><input name="name" type="text" bind:value={name} autoComplete="off"/></div>
+    <label for="name">Choose your name {lastkey}</label>
+    <div><input name="name" type="text" bind:value={name} autoComplete="off" on:keyup|preventDefault={handleKeyup}/></div>
     <div><button disabled={!name} on:click={setupName}>GO!</button></div>
   </div>
 </div>

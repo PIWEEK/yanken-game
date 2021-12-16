@@ -124,7 +124,7 @@
 
            on-error
            (fn [conn err]
-             (l/info :hint "on-error" :err (str err))
+             (l/debug :hint "on-error" :err (str err))
              (a/close! close-ch)
              (a/close! pong-ch)
              (a/close! output-ch)
@@ -132,7 +132,7 @@
 
            on-close
            (fn [conn status reason]
-             (l/info :hint "on-close" :status status :reason reason)
+             (l/debug :hint "on-close" :status status :reason reason)
              (a/close! close-ch)
              (a/close! pong-ch)
              (a/close! output-ch)
@@ -140,7 +140,7 @@
 
            on-connect
            (fn [conn]
-             (l/info :hint "on-connect" :client (jetty/remote-addr conn))
+             (l/debug :hint "on-connect" :client (jetty/remote-addr conn))
              (let [ws (atom {:output output-ch
                              :input input-ch
                              :conn conn
@@ -164,18 +164,18 @@
            on-message
            (fn [conn message]
              (let [message (json/decode-str message)]
-               (l/info :hint "on-message" :message message)
+               (l/debug :hint "on-message" :message message)
                (when-not (a/offer! input-ch message)
                  (l/warn :msg "drop messages"))))
 
            on-ping
            (fn [conn buffer]
-             ;; (l/info :hint "on-ping" :buffer buffer)
+             ;; (l/debug :hint "on-ping" :buffer buffer)
              )
 
            on-pong
            (fn [conn buffer]
-             ;; (l/info :hint "on-pong" :buffer buffer)
+             ;; (l/debug :hint "on-pong" :buffer buffer)
              (a/>!! pong-ch :pong))
            ]
        {:on-connect on-connect

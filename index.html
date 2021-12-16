@@ -6,31 +6,31 @@
 
     <meta name="viewport" content="width=360, user-scalable=no" />
 
-		<link rel="icon" href="/favicon.png" />
-    <link rel="manifest" href="/manifest.json">
-    <link rel="stylesheet" href="/styles/normalize.css">
-    <link rel="stylesheet" href="/styles/global.css">
+		<link rel="icon" href="/yanken-game/favicon.png" />
+    <link rel="manifest" href="/yanken-game/manifest.json">
+    <link rel="stylesheet" href="/yanken-game/styles/normalize.css">
+    <link rel="stylesheet" href="/yanken-game/styles/global.css">
 
     <title>Yanken Game</title>
 
     <script>
-     // window.YANKEN_SERVER = "wss://niwi.nz/yankens";
-     window.YANKEN_SERVER = "ws://localhost:11010";
+     window.YANKEN_SERVER = "wss://niwi.nz/yankens";
+     // window.YANKEN_SERVER = "ws://localhost:11010";
     </script>
     
 		
 
 		
 
-		<link rel="modulepreload" href="/_app/start-625813f1.js">
-		<link rel="modulepreload" href="/_app/chunks/vendor-9e6f6ca4.js">
-		<link rel="stylesheet" href="/_app/assets/start-c446e5f0.css">
+		<link rel="modulepreload" href="/yanken-game/_app/start-8b904a90.js">
+		<link rel="modulepreload" href="/yanken-game/_app/chunks/vendor-9e6f6ca4.js">
+		<link rel="stylesheet" href="/yanken-game/_app/assets/start-c446e5f0.css">
 
 		<script type="module">
-			import { start } from "/_app/start-625813f1.js";
+			import { start } from "/yanken-game/_app/start-8b904a90.js";
 			start({
 				target: document.querySelector("#app"),
-				paths: {"base":"","assets":""},
+				paths: {"base":"/yanken-game","assets":""},
 				session: {},
 				host: location.host,
 				route: true,

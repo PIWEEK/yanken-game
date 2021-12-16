@@ -68,7 +68,7 @@
      class:dimmed={result === "loss"}
      style="--select-bg: url({selectBg})">
   <img class="avatar" alt={color} src={AVATARS[color] || sucYellow}/>
-  <img class="hand" alt={hand} src={HANDS[hand] || rock}/>
+  <img class="hand" alt={hand} src={HANDS[hand] || sucRock}/>
 
   {#if name}
     <div class="player-name">{name}</div>

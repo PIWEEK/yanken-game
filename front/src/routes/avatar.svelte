@@ -37,7 +37,7 @@
 
 <MenuContainer>
   <div class="container">
-    <label for="name">Choose your fighter</label>
+    <label for="name">Get pretty!</label>
     <PlayerCard avatar={avatar} flipx={true} />
     <HandPicker on:change={changeHand} />
     <ColorPicker on:change={changeColor} />

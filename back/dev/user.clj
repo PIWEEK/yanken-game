@@ -19,6 +19,11 @@
    [criterium.core :refer [quick-bench bench with-progress-reporting]]
    [datoteka.core :as fs]
    [integrant.core :as ig]
+   [malli.core :as m]
+   [malli.error :as me]
+   [malli.util :as mu]
+   [malli.generator :as mg]
+   [malli.provider :as mp]
    [yanken.init :as init]))
 
 (repl/disable-reload! (find-ns 'integrant.core))

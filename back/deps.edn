@@ -45,6 +45,10 @@
     criterium/criterium {:mvn/version "RELEASE"}}
    :extra-paths ["test" "dev"]}
 
+  :build
+  {:deps {io.github.clojure/tools.build {:git/tag "v0.7.2" :git/sha "0361dde"}}
+   :ns-default build}
+
   :outdated
   {:extra-deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}
    :main-opts ["-m" "antq.core"]}}}

@@ -10,7 +10,8 @@
    [integrant.core :as ig]
    [yanken.config :as cf]
    [yanken.util.logging :as l]
-   [yanken.util.time :as dt]))
+   [yanken.util.time :as dt])
+  (:gen-class))
 
 (def system-config
   {:yanken.http/server

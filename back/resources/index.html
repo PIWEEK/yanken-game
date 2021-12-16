@@ -54,15 +54,19 @@
 
      let sessionId = sessionStorage.getItem("sessionId") || null;
      let currentRequestId = 0;
+     let protocol = "ws";
 
      console.log("initializing with sesion", sessionId);
-
 
      function getNextRequestId() {
          return currentRequestId++;
      }
 
-     const ws = new WebSocket("ws://" + location.host);
+     if (location.protocol === "https:") {
+         protocol = "wss";
+     }
+
+     const ws = new WebSocket(protocol + "://" + location.host + location.pathname);
 
      function send (msg) {
          if (msg.type === "request") {

@@ -31,7 +31,7 @@
    if (!winnerId) {
      return null;
    }
-   
+
    return sessions[winnerId];
  }
 
@@ -42,7 +42,7 @@
    if (!room || !sessions || !room.results || !room.results[0] || !room.results[0][0]) {
      return null;
    }
-   
+
    const lastFight = room?.results[0][0];
    const winnerId = lastFight?.winner;
    const secondId = lastFight?.players?.find(id => id !== winnerId);
@@ -60,7 +60,7 @@
    if (!room || !sessions || !room.results || !room.results[0] || !room.results[0][0]) {
      return [];
    }
-   
+
    const lastFight = room.results[0][0];
    const winnerId = lastFight.winner;
    const secondId = lastFight.players.find(id => id !== winnerId);
@@ -137,9 +137,9 @@
    align-items: center;
    display: flex;
    flex-direction: column;
-   height: 80%;
+   height: 92%;
    justify-content: flex-start;
-   overflow-y: scroll;
+   overflow-y: auto;
  }
 
  .players {
@@ -170,8 +170,26 @@
  }
 
  button {
-   margin-bottom: 16px;
+   margin-bottom: 0;
    width: 300px;
+ }
+
+ @media only screen and (min-width: 900px) {
+   .winner, .second {
+     margin-top: 16px;
+   }
+   .winner {
+     margin-bottom: 32px;
+   }
+   :global(.results .winner .suc-data.full),
+   :global(.results .second .suc-data.full) {
+     width: 200px;
+   }
+
+   button {
+     justify-self: center;
+   }
+
  }
 
 </style>

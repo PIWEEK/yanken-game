@@ -420,8 +420,8 @@
        width: 85px;
        position: absolute;
        z-index: 200;
-       left: -47px;
-       bottom: 115px;
+       left: -47px;bottom: 50%;
+       margin-bottom: -10px;
      }
    }
  }
@@ -499,7 +499,8 @@
        & img {
          width: 142px;
          left: -104px;
-         bottom: 242px;
+         bottom: 50%;
+         margin-bottom: -40px;
        }
      }
    }

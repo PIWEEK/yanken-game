@@ -60,7 +60,7 @@
    align-content: baseline;
    align-items: start;
    height: 100%;
-   overflow-y: scroll;
+   overflow-y: auto;
    width: 100%;
    display: grid;
    grid-template-columns: repeat(4, 25%);
@@ -88,6 +88,21 @@
     margin-bottom: 16px;
     & img {
       width: 36px;
+    }
+  }
+
+  :global(button) {
+    width: 300px;
+    justify-self: center;
+  }
+
+  .player-list {
+    grid-template-columns: repeat(6, 16%);
+    max-width: 1200px;
+    margin-top: 100px;
+
+    & :global(.player-name) {
+      font-size: 24px;
     }
   }
 

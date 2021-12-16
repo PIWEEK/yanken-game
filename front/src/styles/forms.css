@@ -26,10 +26,12 @@ button {
   &:hover {
     border: 2px solid var(--button-color);
     background-color: var(--button-border);
+    cursor: pointer;
   }
 
   &[disabled] {
     color: rgb(255 255 255 / 40%);
+    pointer-events: none;
   }
 }
 

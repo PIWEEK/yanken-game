@@ -16,6 +16,7 @@
 (def system-config
   {:yanken.http/server
    {:port (cf/get :http-server-port)
+    :host "0.0.0.0"
     :handler (ig/ref :yanken.http/handler)}
 
    :yanken.http/handler

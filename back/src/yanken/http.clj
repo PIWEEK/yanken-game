@@ -34,8 +34,8 @@
   (d/without-nils cfg))
 
 (defmethod ig/init-key ::server
-  [_ {:keys [handler router ws port name metrics] :as opts}]
-  (l/info :msg "starting http server" :port port)
+  [_ {:keys [handler router ws port host name metrics] :as opts}]
+  (l/info :msg "starting http server" :port port :host host)
   (let [pre-start (fn [^Server server]
                     (let [handler (doto (ErrorHandler.)
                                     (.setShowStacks true)
@@ -44,6 +44,7 @@
                       server))
 
         options   {:port port
+                   :host host
                    :h2c? true
                    :join? false
                    :allow-null-path-info true

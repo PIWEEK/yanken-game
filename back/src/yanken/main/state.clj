@@ -219,44 +219,57 @@
           (set-room room)
           (cond-> need-bot? (update :sessions assoc (:id bot) bot))))))
 
+(defn update-round
+  "Updates the player result on the current round. If result is sent
+  out of time, it will raise an exception."
+  [state session-id response]
+  (letfn [(update-fight [{:keys [players] :as fights}]
+            (cond-> fights
+              (contains? players session-id)
+              (update :responses assoc session-id response)))]
+
+    (let [room (get-room-for-session state session-id)]
+      (when (not= (:stage room) "game")
+        (ex/raise :type :validation
+                  :code :response-out-of-time))
+
+      (let [fights (into [] (map update-fight) (:fights room))
+            room   (assoc room :fights fights)]
+        (set-room state room)))))
+
 (defn update-room-stage
-  "Simply change the room stage to other value."
+  "Simply change the room stage to specified value."
   [state room-id stage]
   (let [room (get-room state room-id)]
     (->> (assoc room :stage stage)
          (set-room state))))
 
+(defn is-last-round?
+  "Predicate for check if the specified room is in the last round."
+  [{:keys [live-players] :as room}]
+  (or (empty? live-players) (= 1 (count live-players))))
+
 (defn prepare-round
-  "State transformation function that parepares the room (specified with
-  room-id) for the (next) round. If no next round is posible it will
-  return the state with room with ended status."
+  "Prepares the specified room for the (next) round. If no next round
+  is posible it will raise an exception."
   [state room-id round]
   (let [room    (get-room state room-id)
         players (:live-players room)]
 
-    (if (or (empty? players) (= 1 (count players)))
-      (let [room (-> room
-                     (assoc :status "ended")
-                     (dissoc :stage))]
-        (as-> state $
-          (set-room $ room)
-          (reduce (fn [state player-id]
-                    (d/update-in-when [:sessions player-id] (fn [session]
-                                                              (cond-> session
-                                                                (= room-id (:room-id session))
-                                                                (dissoc :room-id)))))
-                  $ (:players room))))
+    (when (is-last-round? room)
+      (ex/raise :type :validation
+                :code :cant-prepare-round-on-finished-game))
 
-      (let [fights (->> (shuffle (:live-players room))
-                        (into [] (comp (partition-all 2)
-                                       (map make-fight))))
-            room   (-> room
-                       (assoc :round round)
-                       (assoc :stage "pairing")
-                       (assoc :fights fights))]
-        (set-room state room)))))
+    (let [fights (->> (shuffle (:live-players room))
+                      (into [] (comp (partition-all 2)
+                                     (map make-fight))))
+          room   (-> room
+                     (assoc :round round)
+                     (assoc :stage "pairing")
+                     (assoc :fights fights))]
+      (set-room state room))))
 
-(defn finish-round
+(defn finish-current-round
   "Function that handles the resolution of the ongoing turn."
   [state room-id]
   (let [{:keys [options] :as room} (get-room state room-id)]
@@ -323,18 +336,19 @@
                           (update :dead-players into dead))]
         (set-room state room)))))
 
-(defn update-round
-  [state session-id response]
-  (letfn [(update-fight [{:keys [players] :as fights}]
-            (cond-> fights
-              (contains? players session-id)
-              (update :responses assoc session-id response)))]
-
-    (let [room (get-room-for-session state session-id)]
-      (when (not= (:stage room) "game")
-        (ex/raise :type :validation
-                  :code :response-out-of-time))
-
-      (let [fights (into [] (map update-fight) (:fights room))
-            room   (assoc room :fights fights)]
-        (set-room state room)))))
+(defn end-room
+  "Mark the specified room as ended and dissoc the participating
+  sessions from this room."
+  [state room-id]
+  (let [room (get-room state room-id)
+        room (-> room
+                 (assoc :status "ended")
+                 (dissoc :stage))]
+    (as-> state $
+      (set-room $ room)
+      (reduce (fn [state player-id]
+                (update-in state [:sessions player-id] (fn [session]
+                                                         (cond-> session
+                                                           (= room-id (:room-id session))
+                                                           (dissoc :room-id)))))
+              $ (:players room)))))

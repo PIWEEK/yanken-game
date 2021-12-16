@@ -26,7 +26,7 @@
     <!--img class="logo" src={logo} alt="Yanken Game"/-->
     <div class="input-data">
       <label for="name">ENTER GAME AS...</label>
-      <PlayerCard avatar={$session?.avatar} flipx={true} />
+      <PlayerCard avatar={$session?.avatar} flipx={false} />
       <label for="name">{$session?.name}</label>
       <button class="no-background" on:click={editPlayer}>
         EDIT

@@ -15,7 +15,6 @@
 
  function editPlayer() {
    st.emit(new ChangeScreen("player"));
-   // goto(`${base}/player`);
  }
 </script>
 

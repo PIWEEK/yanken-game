@@ -1,6 +1,4 @@
 <script lang="ts">
- // import { goto } from "$app/navigation";
- // import { base } from '$app/paths';
  import type { State } from "$state";
  import store from "$store";
  import { SetSessionName, ChangeScreen } from "$events";

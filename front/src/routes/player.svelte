@@ -2,8 +2,13 @@
  import { goto } from "$app/navigation";
  import logo from "$lib/images/yanken.png";
  import MenuContainer from "$components/MenuContainer.svelte";
+ import type { State } from "$state";
+ import store from "$store";
 
- let name = "Kidd";
+ const st = store.get<State>();
+ const session = st.select(state => state.session);
+
+ let name = $session?.name;
 
  function setupName() {
    goto(`/avatar?name=${name}`);

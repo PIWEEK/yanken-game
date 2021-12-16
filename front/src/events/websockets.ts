@@ -259,7 +259,7 @@ export class StartWebsocket extends StoreEvent<State> {
 
     const requests = stream.pipe(filter((ev: StoreEvent<State>) => ev instanceof WebSocketRequest));
     requests.subscribe((ev) => {
-      const data = (ev as WebSocketRequest).toJSON()
+      const data = (ev as WebSocketRequest).toJSON();
       console.log("[WS]>>", data);
       ws.send(JSON.stringify(data));
     });

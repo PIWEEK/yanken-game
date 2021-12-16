@@ -5,37 +5,54 @@
  import store from "$store";
  import logo from "$lib/images/yanken.png";
  import MenuContainer from "$components/MenuContainer.svelte";
+ import PlayerCard from "$components/PlayerCard.svelte";
+ import { goto } from "$app/navigation";
 
  const st = store.get<State>();
- let room: string = "" + new Date().getTime();
+ const session = st.select(state => state.session);
+ let room: string;
 
  function joinRoom() {
    st.emit(new Join(room));
    st.emit(new JoinBots(room));
    goto(`/game/${room}/wait-players`);
  }
+
+ function editPlayer() {
+   goto(`/player`);
+ }
 </script>
 
 <MenuContainer>
   <div class="container">
     <img class="logo" src={logo} alt="Yanken Game"/>
-
     <div class="input-data">
-      <button disabled={!room} on:click={joinRoom}>
-        JOIN GAME
+      <label for="name">ENTER GAME AS...</label>
+      <PlayerCard avatar={$session?.avatar} flipx={true} />
+      <label for="name">{$session?.name}</label>
+      <button class="no-background" on:click={editPlayer}>
+        EDIT
       </button>
-
       <input
         name="name"
         placeholder="Type room name..."
         type="text"
-        autocomplete="off" 
+        autocomplete="off"
         bind:value={room} />
+      <button class="join" disabled={!room} on:click={joinRoom}>
+        JOIN GAME
+      </button>
     </div>
   </div>
 </MenuContainer>
 
 <style lang="postcss">
+ label[for=name] {
+   margin-bottom: 16px;
+   text-align: center;
+   font-size: 24px;
+ }
+
  .container {
    align-items: center;
    display: grid;
@@ -56,11 +73,17 @@
    align-items: center;
  }
 
- button {
-  margin-bottom: 16px;
+ .join {
+  margin-top: 16px;
   width: 300px;
  }
+
  input {
   max-width: 300px;
  }
+
+ button {
+   margin-bottom: 16px;
+ }
+
 </style>

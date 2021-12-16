@@ -52,6 +52,11 @@
    justify-content: center;
    align-items: center;
    max-width: 300px;
+
+   & > :global(.suc-data) {
+     max-width: 74%;
+     justify-self: center;
+   }
  }
 
  label[for=name] {

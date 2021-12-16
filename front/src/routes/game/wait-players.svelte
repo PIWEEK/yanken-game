@@ -91,10 +91,10 @@
     }
   }
 
-  :global(button) {
-    width: 300px;
-    justify-self: center;
-  }
+   .container :global(button) {
+     width: 300px;
+     justify-self: center;
+   }
 
   .player-list {
     grid-template-columns: repeat(6, 16%);

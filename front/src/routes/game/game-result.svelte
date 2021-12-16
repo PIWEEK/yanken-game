@@ -181,8 +181,8 @@
    .winner {
      margin-bottom: 32px;
    }
-   :global(.results .winner .suc-data.full),
-   :global(.results .second .suc-data.full) {
+   .container :global(.results .winner .suc-data.full),
+   .container :global(.results .second .suc-data.full) {
      width: 200px;
    }
 

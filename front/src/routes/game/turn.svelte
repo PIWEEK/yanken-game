@@ -381,17 +381,21 @@
 
  .play-area {
    display: grid;
-
    grid-template-areas: "message message message" "player-left vs player-right";
    grid-template-columns: 1fr 0px 1fr;
    grid-template-rows: auto 1fr;
-   padding: 0 16px;
+   padding: 16px 16px 0 16px;
+   position: relative;
 
    & .message {
      grid-area: message;
      text-align: center;
      text-shadow: 8px 8px rgba(0,0,0,40%);
      font-size: 32px;
+     position: absolute;
+     top: -16px;
+     left: 0;
+     width: 100%;
    }
 
    & .player-left {
@@ -417,7 +421,7 @@
        position: absolute;
        z-index: 200;
        left: -47px;
-       top: 55px;
+       bottom: 115px;
      }
    }
  }
@@ -495,7 +499,7 @@
        & img {
          width: 142px;
          left: -104px;
-         top: 146px;
+         bottom: 242px;
        }
      }
    }
@@ -504,7 +508,7 @@
      flex-direction: row;
      margin: 4rem;
      overflow-x: auto;
-     align-content: center;
+     align-content: flex-start;
      justify-content: center;
 
      & > :global(*) {

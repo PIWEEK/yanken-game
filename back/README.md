@@ -19,3 +19,14 @@ https://clojure.org/guides/getting_started#_installation_on_linux
 
 It will start watching on http://localhost:11010
 
+
+## Generate deployable jar
+
+```bash
+clojure -T:build jar
+```
+
+This will generate target/backend.jar with everything compiled. You
+can start it with `java -jar target/backend.jar`. Look at the
+`systemd.service` for a concrete example on how it can be run on the
+final server.

@@ -33,12 +33,20 @@
    width: 100%;
    display: grid;
    grid-template-columns: repeat(4, 1fr);
-   grid-gap: 16px;
+   grid-gap: 12px;
  }
+
+:global(.suc-data) {
+  max-width: 74%;
+  justify-self: center;
+}
 
  button {
    background-color: var(--button-color);
    border: 2px solid black;
+   width: 48px;
+   height: 48px;
+   justify-self: center;
 
    &:hover {
      background-color: var(--button-color);

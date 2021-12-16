@@ -36,7 +36,7 @@
 
 <MenuContainer>
   <div class="container">
-    <label for="name">Choose your color</label>
+    <label for="name">Choose your fighter</label>
     <PlayerCard avatar={avatar} flipx={true} />
     <HandPicker on:change={changeHand} />
     <ColorPicker on:change={changeColor} />
@@ -53,7 +53,6 @@
  }
 
  label[for=name] {
-   margin-top: 30px;
    text-align: center;
    font-size: 24px;
  }
@@ -61,11 +60,16 @@
  @media only screen and (min-width: 900px) {
 
   .container {
-    height: 800px;
+    max-height: 900px;
   }
 
    label[for=name] {
      font-size: 32px;
+   }
+
+   :global(button) {
+     width: 300px;
+     justify-self: center;
    }
 
  }

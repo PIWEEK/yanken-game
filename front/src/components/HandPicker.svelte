@@ -29,19 +29,31 @@
 
 <style lang="postcss">
  .hand-picker {
-   width: 100%;
-   height: 120px;
+   width: 74%;
    display: flex;
    justify-content: space-between;
+   justify-self: center;
+   margin: 16px 0;
  }
 
  .hand {
    background-color: #45283c;
    border: 2px solid black;
-   margin: 16px;
+   width: 56px;
+   height: 56px;
 
    &:hover {
      border: 2px solid #de8eee;
    }
  }
+
+ @media only screen and (min-width: 400px) {
+
+   .hand {
+     width: 84px;
+     height: 84px;
+   }
+
+ }
+
 </style>

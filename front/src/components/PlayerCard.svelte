@@ -121,6 +121,7 @@
      overflow: hidden;
      text-overflow: ellipsis;
      text-align: center;
+     white-space: nowrap
    }
 
    & .avatar, & .hand {
@@ -129,10 +130,10 @@
    }
 
    & .hand {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 100;
+     position: absolute;
+     top: 0;
+     left: 0;
+     z-index: 100;
    }
 
    &.dimmed .avatar, &.dimmed .hand  {

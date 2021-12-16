@@ -2,7 +2,6 @@
  import store from "$store";
  import type { Room, Session, Fight, State } from "$state";
  import { SendTurn } from "$events";
- import * as rx from "rxjs/operators";
 
  import rock from "$lib/images/rock.png";
  import paper from "$lib/images/paper.png";
@@ -27,39 +26,62 @@
    "scissors": 3,
  };
 
- function isMyFight(fight: Fight, currentSessionId?: string): boolean {
-   return !!currentSessionId && fight.players.includes(currentSessionId);
+ function isObservedFight(fight: Fight, observedId?: string): boolean {
+   return !!observedId && fight.players.includes(observedId);
  }
 
  function getPairings(room?: Room): Fight[] {
-   return room?.fights || (room?.results && room.results[0]) || [];
+   if (room?.stage == "game" && room?.fights) {
+     return room?.fights;
+   }
+
+   if (room?.results && room.results[0]) {
+     return room.results[0];
+   }
+
+   return [];
  }
 
- function isPlayerDead(room?: Room, currentSessionId?: string) {
-   return currentSessionId && room?.deadPlayers?.includes(currentSessionId);
+ function isPlayerDead(room?: Room, sessionId?: string) {
+   if (!sessionId || room?.livePlayers?.includes(sessionId)) {
+     return false;
+   }
+
+   if (room?.stage === "game") {
+     return room?.deadPlayers?.includes(sessionId);
+   }
+
+   if (room?.stage === "gameEnd") {
+     // If it's dead we need to check if has died this round. The player is only dead if it began the round dead
+     const pairings = getPairings(room);
+     const currentFight = pairings.find((f) => isObservedFight(f, sessionId));
+
+     // We haven't found a fight so the player was dead before starting the round
+     return !currentFight;
+   }
+   
+   return false
  }
  
- function getRivalSessionId(room?: Room, currentSessionId?: string): string | undefined {
+ function getRivalSessionId(room?: Room, sessionId?: string): string | undefined {
    const pairings = getPairings(room);
-   const observeId = isPlayerDead(room) ? (room?.livePlayers && room.livePlayers[0]) : currentSessionId;
-   const currentFight = pairings.find((f) => isMyFight(f, observeId));
-   const otherSessionId = currentFight?.players.find((id) => id !== observeId);
+   const currentFight = pairings.find((f) => isObservedFight(f, sessionId));
+   const otherSessionId = currentFight?.players.find((id) => id !== sessionId);
    return otherSessionId;
  }
 
- function getOthersPairings(room?: Room, currentSessionId?: string): Session[][] {
+ function getOthersPairings(room?: Room, sessionId?: string): Session[][] {
    const sessions = room?.sessions;
 
-   if (!sessions) {
+   if (!sessions || !room) {
      return [];
    }
    
    const pairings = getPairings(room);
-   const observeId = isPlayerDead(room) ? (room?.livePlayers && room.livePlayers[0]) : currentSessionId;
 
    return pairings
-   .filter((f) => !isMyFight(f, observeId))
-   .map((f) => f.players.map((p) => sessions[p]));
+     .filter((f) => !isObservedFight(f, sessionId))
+     .map((f) => f.players.map((p) => sessions[p]));
  }
 
  function getLastPlays(room?: Room): Record<string, string[]> {
@@ -92,24 +114,24 @@
    rivalPick?: "rock" | "paper" | "scissors";
  }
  
- function getResults(room?: Room, currentSessionId?: string): ResultType {
+ function getResults(room?: Room, sessionId?: string): ResultType {
    // Save current round
    if (room?.stage !== "gameEnd") {
      return {};
    }
 
-   const observeId = isPlayerDead(room, currentSessionId) ? (room?.livePlayers && room.livePlayers[0]) : currentSessionId;
-   const rivalSessionId = getRivalSessionId(room, observeId);
+   // const observeId = isPlayerDead(room, currentSessionId) ? (room?.livePlayers && room.livePlayers[0]) : currentSessionId;
+   const rivalSessionId = getRivalSessionId(room, sessionId);
 
-   if (!observeId || !rivalSessionId) {
+   if (!sessionId || !rivalSessionId) {
      return {};
    }
 
-   let result: Fight | undefined;
-   if (room.results[0]) {
-     result = room.results[0].find((f: Fight) => isMyFight(f, observeId));
+   let pairings = room.results[0];
+   let result : Fight | undefined;
+   if (pairings) {
+     result = pairings.find(f => isObservedFight(f, sessionId));
    }
-   
 
    if (!result) {
      return {};
@@ -127,7 +149,7 @@
    } else if (result.winner === "nobody") {
      myResult = "loss";
      rivalResult = "loss";
-   } else if (result.winner === observeId) {
+   } else if (result.winner === sessionId) {
      myResult = "win";
      rivalResult = "loss";
    } else {
@@ -135,7 +157,7 @@
      rivalResult = "win";
    }
 
-   const observeResponse = result.responses[observeId] as 1 | 2 | 3 | undefined;
+   const observeResponse = result.responses[sessionId] as 1 | 2 | 3 | undefined;
    if (observeResponse) {
      myPick = RESPONSES[observeResponse] as ResultType['myPick'];
    }
@@ -153,40 +175,47 @@
    };
  }
 
+ function getObserveId(state: State) {
+   const room = state.room;
+   const session = state.session;
+   let observeId = session?.id;
+
+   if (room?.livePlayers && isPlayerDead(room, session?.id)) {
+     observeId = room.livePlayers[0];
+   }
+   return observeId;
+ }
+
  const st = store.get<State>();
- const session = st.select(state => state.session);
+ // const session = st.select(state => state.session);
  const room = st.select(state => state.room);
+//  const roomSession = room.pipe(rx.withLatestFrom(session));
 
- const roomSession = room.pipe(rx.withLatestFrom(session));
+ const otherPairings = st.select(state => getOthersPairings(state.room, getObserveId(state)));
 
- const otherPairings = roomSession.pipe(
-   rx.map(([room, session]) => getOthersPairings(room, session?.id))
- );
 
- const rival = roomSession.pipe(
-   rx.map(([room, session]) => {
-     const id = getRivalSessionId(room, session?.id)
+ const results = st.select(state => getResults(state.room, getObserveId(state)));
 
-     if (!id) {
-       return undefined;
-     }
-     return room?.sessions[id];
-   })
- );
+ const playerDead = st.select(({room, session}) => isPlayerDead(room, session?.id));
+ const lastPlays = st.select(({room}) => getLastPlays(room));
 
- const results = roomSession.pipe(
-   rx.map(([room, session]) => getResults(room, session?.id))
- );
+ const player = st.select(state => {
+   const observeId = getObserveId(state);
+   if (!observeId) {
+     return null;
+   }
+   return state?.room?.sessions[observeId];
+ });
 
- const playerDead = roomSession.pipe(rx.map(([room, session]) => isPlayerDead(room, session?.id)));
- const lastPlays = room.pipe(rx.map(getLastPlays));
- const observingPlayer = room.pipe(
-   rx.map(room => {
-     const id = room?.livePlayers && room.livePlayers[0];
-     return id && room.sessions[id];
-   })
- );
-
+ const rival = st.select(state => {
+   const observeId = getObserveId(state);
+   const rivalId = getRivalSessionId(state?.room, observeId);
+   if (!rivalId) {
+     return null;
+   }
+   return state?.room?.sessions[rivalId];
+ });
+ 
  let selectedPick: string | null = null;
  
  function pick(value: "rock" | "paper" | "scissors") {
@@ -215,8 +244,8 @@
 
 
   <div class="play-area">
-    {#if $playerDead && $observingPlayer}
-      <div class="message">Observing {$observingPlayer.name}</div>
+    {#if $playerDead}
+      <div class="message">Observing {$player?.name}</div>
     {:else if $results?.myResult === "loss"}
       <div class="message">You Lose!</div>
     {:else if $results?.myResult === "win"}
@@ -225,45 +254,45 @@
 
     <div class="player-left">
       <PlayerCard cardType="full"
-                  name={$session?.name}
-                  avatar={$session?.avatar}
+                  name={$player?.name}
+                  avatar={$player?.avatar}
                   result={$results?.myResult}
                   pick={$results?.myPick}
                   flipx={true}
-                  lastPlays={$lastPlays && $session?.id && $lastPlays[$session.id]}/>
+                  lastPlays={$lastPlays && $player?.id && $lastPlays[$player.id]}/>
     </div>
     <div class="player-right">
       <PlayerCard cardType="full"
                   name={$rival?.name}
-                  avatar={$rival?.avatar}
+                            avatar={$rival?.avatar}
                   result={$results?.rivalResult}
-                  pick={$results?.rivalPick}
+                            pick={$results?.rivalPick}
                   lastPlays={$lastPlays && $rival?.id && $lastPlays[$rival.id]}/>
     </div>
   </div>
 
-  {#if !$playerDead && $room?.stage === "game"}
-    <div class="actions">
+  <div class="actions">
+    {#if !$playerDead && $room?.stage === "game"}
       <button class="action rock"
               on:click={() => pick("rock")}
-              class:selected={selectedPick === "rock"}
+                     class:selected={selectedPick === "rock"}
               disabled={!!$results?.myResult}>
         <img alt="Rock" src={rock}/>
       </button>
       <button class="action paper"
               on:click={() => pick("paper")}
-              class:selected={selectedPick === "paper"}
+                     class:selected={selectedPick === "paper"}
               disabled={!!$results?.myResult}>
         <img alt="Paper"src={paper}/>
       </button>
       <button class="action scissors"
               on:click={() => pick("scissors")}
-              class:selected={selectedPick === "scissors"}
+                     class:selected={selectedPick === "scissors"}
               disabled={!!$results?.myResult}>
         <img alt="Scissors" src={scissors}/>
       </button>
-    </div>
-  {/if}
+    {/if}
+  </div>
 </div>
 
 <style lang="postcss">

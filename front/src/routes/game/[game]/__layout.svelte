@@ -49,7 +49,6 @@
        default:
          console.error("UNKNOWN:", state);
      }
-
    });
  });
 

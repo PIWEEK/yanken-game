@@ -15,8 +15,8 @@
               cardType="small"
               flipx={true}/>
 
-  <PlayerCard name={player2?.name}
-              avatar={player2?.avatar}
+  <PlayerCard name={player2?.name || "mr. nobody"}
+              avatar={player2?.avatar || "bot"}
               cardType="small"/>
 
 </div>

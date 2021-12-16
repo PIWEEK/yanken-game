@@ -60,10 +60,10 @@
      // We haven't found a fight so the player was dead before starting the round
      return !currentFight;
    }
-   
+
    return false
  }
- 
+
  function getRivalSessionId(room?: Room, sessionId?: string): string | undefined {
    const pairings = getPairings(room);
    const currentFight = pairings.find((f) => isObservedFight(f, sessionId));
@@ -77,7 +77,7 @@
    if (!sessions || !room) {
      return [];
    }
-   
+
    const pairings = getPairings(room);
 
    return pairings
@@ -114,7 +114,7 @@
    rivalResult?: "win" | "loss";
    rivalPick?: "rock" | "paper" | "scissors";
  }
- 
+
  function getResults(room?: Room, sessionId?: string): ResultType {
    // Save current round
    if (room?.stage !== "gameEnd") {
@@ -216,9 +216,9 @@
    }
    return state?.room?.sessions[rivalId];
  });
- 
+
  let selectedPick: string | null = null;
- 
+
  function pick(value: "rock" | "paper" | "scissors") {
    selectedPick = value;
    st.emit(new SendTurn(TURNS[value]))
@@ -488,6 +488,15 @@
      & .player-right {
        justify-content: flex-start;
        padding-right: 40px;
+     }
+
+     & .vs {
+
+       & img {
+         width: 142px;
+         left: -104px;
+         top: 146px;
+       }
      }
    }
 

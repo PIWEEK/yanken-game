@@ -135,7 +135,7 @@
      position: absolute;
      top: 0;
      left: 0;
-     z-index: 100;
+     z-index: 9;
    }
 
    &.dimmed .avatar, &.dimmed .hand  {
@@ -162,29 +162,35 @@
 
  .turn-result {
    position: absolute;
-   width: 40px;
-   height: 40px;
-   top: -20px;
-   right: -20px;
+   width: 42px;
+   height: 42px;
+   top: -21px;
+   right: -21px;
    filter: drop-shadow(6px 6px 0px rgba(0, 0, 0, 40%));
+   z-index: 10;
  }
 
- .suc-data:not(.small) .turn-result {
-   top: 0;
-   left: 0;
+ .player-left .suc-data:not(.small) .turn-result {
+   left: -21px;
    right: initial;
+ }
+
+ .player-right .suc-data:not(.small) .turn-result {
+   left: initial;
+   right: -21px;
  }
 
  .turn-pick {
    align-items: center;
    background-image: var(--select-bg);
    background-size: cover;
-   bottom: 40px;
+   top: 30px;
    display: flex;
    flex-direction: row;
    height: 90px;
    justify-content: center;
    position: absolute;
+   z-index: 10;
    right: -40px;
    width: 90px;
 
@@ -288,19 +294,32 @@
      right: -50px;
    }
 
-   .suc-data:not(.small) .turn-result {
-     top: 33px;
-     left: 66px;
+   .player-left .suc-data:not(.small) .turn-result {
+     left: -50px;
      right: initial;
    }
 
+   .player-right .suc-data:not(.small) .turn-result {
+     left: initial;
+     right: -50px;
+   }
+   .turn-pick {
+     top: 80px;
+     height: 164px;
+     right: -60px;
+     width: 164px;
+
+     & img {
+       width: 90px;
+     }
+   }
    .flipx .turn-result {
      right: initial;
-     left: -50px;
+     left: -60px;
    }
    .flipx .turn-pick {
      right: initial;
-     left: -50px;
+     left: -80px;
    }
  }
 </style>

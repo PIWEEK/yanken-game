@@ -13,17 +13,17 @@
  const room = st.select(state => state.room);
 </script>
 
-{#if $room.status === "playing" && ($room.stage === "game" || $room.stage === "gameEnd") }
+{#if $room?.status === "playing" && ($room?.stage === "game" || $room?.stage === "gameEnd") }
   <GameTurn/>
 {:else}
   <MenuContainer>
-    {#if $room.status === "waiting"}
+    {#if $room?.status === "waiting"}
       <GameWaitingPlayers/>
-    {:else if $room.status === "playing" && $room.stage === "pairing"}
+    {:else if $room?.status === "playing" && $room.stage === "pairing"}
       <GameTurnPairing/>
-    {:else if $room.status === "playing" && $room.stage === "result"}
+    {:else if $room?.status === "playing" && $room.stage === "result"}
       <GameTurnResult/>
-    {:else if $room.status === "ended"}
+    {:else if $room?.status === "ended"}
       <GameResult/>
     {/if}
   </MenuContainer>

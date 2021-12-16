@@ -6,7 +6,6 @@
  import { SetSessionName, ChangeScreen } from "$events";
 
  import logo from "$lib/images/yanken-live.gif";
- import MenuContainer from "$components/MenuContainer.svelte";
 
  const st = store.get<State>();
  const session = st.select(state => state.session);
@@ -14,8 +13,10 @@
  let name = $session?.name;
 
  function setupName() {
-   st.emit(new SetSessionName(name));
-   st.emit(new ChangeScreen("avatar"));
+   if (name) {
+     st.emit(new SetSessionName(name));
+     st.emit(new ChangeScreen("avatar"));
+   }
  }
 </script>
 

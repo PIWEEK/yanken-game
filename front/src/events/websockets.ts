@@ -244,7 +244,7 @@ export class StartWebsocket extends StoreEvent<State> {
 
     ws.addEventListener("open", (event: Event) => {
       socketEvents.next(new OpenSocketEvent(event));
-      if (state.session) {
+      if (state.session && state.session?.name && state.session?.avatar) {
         extraEvents.next(new HelloRequest(state.session.name, state.session.avatar, Date.now().toString(), state.session.id));
       }
     });

@@ -1,7 +1,7 @@
 <script lang="ts">
- import { State, initialState } from "$state";
+ import { initialState } from "$state";
  import store from "$store";
- import { StartWebsocket, Hello } from "$events";
+ import { StartWebsocket } from "$events";
 
  import PlayerScreen from "$screens/PlayerScreen.svelte";
  import AvatarScreen from "$screens/AvatarScreen.svelte";
@@ -19,10 +19,6 @@
  $: if ($session) {
    localStorage.setItem("session", JSON.stringify($session));
  }
-
- // $: if ($session && $session.id && $session.avatar) {
- //   st.emit(new Hello($session.name, $session.avatar));
- // }
 
  $: if ($room) {
    localStorage.setItem("room", JSON.stringify($room));

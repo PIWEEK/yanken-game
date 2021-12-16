@@ -2,7 +2,6 @@
  import type { State } from "$state";
  import { Join, ChangeScreen } from "$events";
  import store from "$store";
- import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
 
  const st = store.get<State>();

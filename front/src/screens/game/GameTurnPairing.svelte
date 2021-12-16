@@ -3,7 +3,6 @@
  import type { State } from "$state";
 
  import MatchData from "$components/MatchData.svelte";
- import MenuContainer from "$components/MenuContainer.svelte";
  import ProgressBar from "$components/ProgressBar.svelte";
  import { onDestroy } from 'svelte';
 

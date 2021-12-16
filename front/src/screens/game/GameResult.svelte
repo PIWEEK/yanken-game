@@ -3,7 +3,6 @@
  import { Join, ChangeScreen } from "$events";
  import store from "$store";
 
- import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
 
  import dropDecoration from "$lib/images/drop.png";

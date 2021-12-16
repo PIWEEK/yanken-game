@@ -1,12 +1,9 @@
 <script lang="ts">
+ import type { Session } from "$state";
  import PlayerCard from "$components/PlayerCard.svelte";
 
- interface Player {
-   name: string;
-   avatar: string;
- }
- export let player1: Player;
- export let player2: Player;
+ export let player1: Session;
+ export let player2: Session;
 </script>
 
 <div class="match-info">

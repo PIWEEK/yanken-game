@@ -1,10 +1,7 @@
 <script lang="ts">
  import type { State } from "$state";
-
  import store from "$store";
-
  import PlayerCard from "$components/PlayerCard.svelte";
- import MenuContainer from "$components/MenuContainer.svelte";
 
  const st = store.get<State>();
 

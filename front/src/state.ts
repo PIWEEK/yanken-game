@@ -29,10 +29,10 @@ export interface Room {
 }
 
 export interface Session {
-  id: string;
-  isBot: boolean;
-  avatar: string;
-  name: string;
+  id?: string;
+  isBot?: boolean;
+  avatar?: string;
+  name?: string;
 }
 
 export interface Fight {
@@ -50,7 +50,7 @@ function getLocalStorage(key: string) {
   return null;
 }
 
-export const initialState = {
+export const initialState: State = {
   session: JSON.parse(getLocalStorage("session") || "{}"),
   room: JSON.parse(getLocalStorage("room") || "{}")
 };

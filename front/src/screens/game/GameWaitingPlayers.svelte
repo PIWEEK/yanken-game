@@ -2,7 +2,6 @@
  import store from "$store";
  import type { State } from "$state";
  import PlayerCard from "$components/PlayerCard.svelte";
- import MenuContainer from "$components/MenuContainer.svelte";
  import clockIcon from "$lib/images/timer.png"
  import { StartGame, JoinBots } from "$events";
 

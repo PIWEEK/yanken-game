@@ -3,7 +3,6 @@
  import { Hello, ChangeScreen } from "$events";
  import store from "$store";
 
- import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
  import ColorPicker from "$components/ColorPicker.svelte";
  import HandPicker  from "$components/HandPicker.svelte";
@@ -16,7 +15,7 @@
  let hand = avatar.split("-")[1];
 
  function startGame() {
-   if ($session.name) {
+   if ($session?.name) {
      st.emit(new Hello($session.name, avatar));
      st.emit(new ChangeScreen("join-room"));
    }

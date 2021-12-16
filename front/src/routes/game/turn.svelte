@@ -9,6 +9,7 @@
  import background from "$lib/images/play-bg.png";
  import handsBg from "$lib/images/hands-bg.png";
  import selectBg from "$lib/images/select.png";
+ import vsLetters from "$lib/images/versus.png";
 
  import MatchData from "$components/MatchData.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
@@ -259,15 +260,18 @@
                   result={$results?.myResult}
                   pick={$results?.myPick}
                   flipx={true}
-                  lastPlays={$lastPlays && $player?.id && $lastPlays[$player.id]}/>
+                  lastPlays={$lastPlays && $player?.id && $lastPlays[$player.id] || []}/>
+    </div>
+    <div class="vs">
+      <img src={vsLetters} alt="VS" />
     </div>
     <div class="player-right">
       <PlayerCard cardType="full"
-                  name={$rival?.name}
-                            avatar={$rival?.avatar}
+                  name={$rival?.name || "MR. nobody"}
+                  avatar={$rival?.avatar || "bot"}
                   result={$results?.rivalResult}
-                            pick={$results?.rivalPick}
-                  lastPlays={$lastPlays && $rival?.id && $lastPlays[$rival.id]}/>
+                  pick={$results?.rivalPick}
+                  lastPlays={$lastPlays && $rival?.id && $lastPlays[$rival.id] || []}/>
     </div>
   </div>
 
@@ -378,8 +382,8 @@
  .play-area {
    display: grid;
 
-   grid-template-areas: "message message" "player-left player-right";
-   grid-template-columns: 1fr 1fr;
+   grid-template-areas: "message message message" "player-left vs player-right";
+   grid-template-columns: 1fr 0px 1fr;
    grid-template-rows: auto 1fr;
    padding: 0 16px;
 
@@ -402,6 +406,19 @@
      display: flex;
      align-items: center;
      justify-content: center;
+   }
+
+   & .vs {
+     grid-area: vs;
+     position: relative;
+
+     & img {
+       width: 85px;
+       position: absolute;
+       z-index: 200;
+       left: -47px;
+       top: 55px;
+     }
    }
  }
 

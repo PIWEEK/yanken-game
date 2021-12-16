@@ -1,6 +1,6 @@
 <script lang="ts">
  import store from "$store"
- import Turn from "../game/turn.svelte"
+ import Turn from "../game/game-result.svelte"
 
  store.start({
    session: {
@@ -23,6 +23,7 @@
          "id": "54fdd0e0-5e69-11ec-8be4-aa07de7f731b",
          "players": [
            "00000000-0000-0064-0000-000000000001",
+           "50820cc0-5e69-11ec-8be4-aa07de7f731b"
          ],
          "winner": null,
        },
@@ -120,9 +121,47 @@
            },
            "winner": null,
          }
+       ],
+       [
+         {
+           "id": "54fdd0e0-5e69-11ec-8be4-aa07de7f731b",
+           "players": [
+             "00000000-0000-0064-0000-000000000001",
+             "50820cc0-5e69-11ec-8be4-aa07de7f731b"
+           ],
+           "responses": {
+             "00000000-0000-0064-0000-000000000001": 1,
+             "50820cc0-5e69-11ec-8be4-aa07de7f731b": 2
+           },
+           "winner": null,
+         },
+         {
+           "id": "54fdd0e1-5e69-11ec-8be4-aa07de7f731b",
+           "players": [
+             "00000000-0000-0064-0000-000000000004",
+             "00000000-0000-0064-0000-000000000003"
+           ],
+           "responses": {
+             "00000000-0000-0064-0000-000000000004": 1,
+             "00000000-0000-0064-0000-000000000003": 2
+           },
+           "winner": null,
+         },
+         {
+           "id": "54fdd0e2-5e69-11ec-8be4-aa07de7f731b",
+           "players": [
+             "00000000-0000-0064-0000-000000000005",
+             "00000000-0000-0064-0000-000000000002"
+           ],
+           "responses": {
+             "00000000-0000-0064-0000-000000000005": 1,
+             "00000000-0000-0064-0000-000000000002": 2
+           },
+           "winner": null,
+         }
        ]
      ],
-     "stage": "game",
+     "stage": "gameEnd",
      "round": 1,
      "deadPlayers": [],
      "status": "playing",

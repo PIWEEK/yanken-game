@@ -53,7 +53,7 @@
 
  export let pick: "rock" | "paper" | "scissors" | null = null;
  export let result: "win" | "loss" | "draw" | null = null;
- export let lastPlays: string[] = [];
+ export let lastPlays: string[];
 
  let color: AvatarColor = "red";
  let hand: Hand = "rock";
@@ -78,7 +78,7 @@
     <div class="player-name">{name}</div>
   {/if}
 
-  {#if cardType === "full" && lastPlays && lastPlays.length > 0}
+  {#if cardType === "full" && lastPlays}
     <div class="last-plays-title">Last Plays</div>
     <div class="last-plays">
       {#each lastPlays as pick}
@@ -223,6 +223,7 @@
    padding: 3px;
    margin: 4px;
    justify-content: center;
+   height: 30px;
 
    & .last-play-item {
      height: 25px;

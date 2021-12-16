@@ -8,6 +8,9 @@
  import MenuContainer from "$components/MenuContainer.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
 
+ import dropDecoration from "$lib/images/drop.png";
+ import winnerDecoration from "$lib/images/winner-live.gif";
+
  const st = store.get<State>();
  const room = st.select(state => state.room);
  const winner = st.select(getWinner);
@@ -76,13 +79,19 @@
   <div class="container">
     <div class="results">
       <div class="message">Winner</div>
-      <PlayerCard cardType="full"
-                  name={$winner?.name}
-                  avatar={$winner?.avatar}/>
+      <div class="winner">
+        <img src={winnerDecoration} alt="champion" />
+        <PlayerCard cardType="full"
+                    name={$winner?.name}
+                              avatar={$winner?.avatar}/>
+      </div>
       <div class="message">Not winner</div>
-      <PlayerCard cardType="full"
-                  name={$second?.name}
-                  avatar={$second?.avatar}/>
+      <div class="second">
+        <img src={dropDecoration} alt="drop" />
+        <PlayerCard cardType="full"
+                    name={$second?.name}
+                              avatar={$second?.avatar}/>
+      </div>
 
       <div class="message">Bunch of losers</div>
       <div class="players">
@@ -115,16 +124,39 @@
  }
 
  .results {
+   align-items: center;
    display: flex;
    flex-direction: column;
-   align-items: center;
-   justify-content: center;
-   overflow-y: scroll;
    height: 80%;
+   justify-content: flex-start;
+   overflow-y: scroll;
  }
 
  .players {
    display: flex;
+ }
+
+ .winner {
+   position: relative;
+   & > img {
+     position: absolute;
+     top: -10%;
+     left: -15%;
+     width: 130%;
+     z-index: 200;
+   }
+ }
+
+ .second {
+   position: relative;
+
+   & > img {
+     position: absolute;
+     z-index: 200;
+     right: -10%;
+     width: 25%;
+     top: -5%;
+   }
  }
 
  button {

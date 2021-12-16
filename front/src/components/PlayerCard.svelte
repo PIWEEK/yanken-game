@@ -20,6 +20,8 @@
  import sucRock from "$lib/images/sucubus-rock.png";
  import sucPaper from "$lib/images/sucubus-paper.png";
  import sucScissors from "$lib/images/sucubus-scissors.png";
+ import sucBot from "$lib/images/sucubus-bot.png";
+
 
  type AvatarColor =
    "black" | "blue" | "green" | "orange" |
@@ -67,8 +69,8 @@
      class:full={cardType === "full"}
      class:dimmed={result === "loss"}
      style="--select-bg: url({selectBg})">
-  <img class="avatar" alt={color} src={AVATARS[color] || sucYellow}/>
-  <img class="hand" alt={hand} src={HANDS[hand] || sucRock}/>
+  <img class="avatar" alt={color} src={AVATARS[color] || Object.values(AVATARS)[Math.floor(Math.random() * Object.values(AVATARS).length)]}/>
+  <img class="hand" alt={hand} src={HANDS[hand] || sucBot}/>
 
   {#if name}
     <div class="player-name">{name}</div>

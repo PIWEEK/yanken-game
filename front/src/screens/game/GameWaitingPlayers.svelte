@@ -1,8 +1,9 @@
 <script lang="ts">
+ import { onMount, onDestroy } from "svelte";
  import store from "$store";
  import type { State } from "$state";
  import PlayerCard from "$components/PlayerCard.svelte";
- import clockIcon from "$lib/images/timer.png"
+ import clockIcon from "$lib/images/timer-live.gif"
  import { StartGame, JoinBots } from "$events";
 
  const st = store.get<State>();
@@ -18,11 +19,33 @@
      st.emit(new JoinBots($room.id));
    }
  }
+
+ let drawGifs = false;
+ let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+
+ onMount(() => {
+   if (typeof window !== "undefined") {
+     timeoutId = setTimeout(() => {
+       drawGifs = true;
+     }, 100);
+   }
+ });
+
+ onDestroy(() => {
+   if (typeof window !== "undefined" && timeoutId) {
+     clearTimeout(timeoutId);
+   }
+ });
+
 </script>
 
 <div class="container">
   <div class="message">Wait until the game starts...</div>
-  <div class="clock"><img alt="Timer" src={clockIcon}/></div>
+  <div class="clock">
+    {#if drawGifs}
+      <img alt="Timer" src={clockIcon}/>
+    {/if}
+  </div>
   {#if $room?.players}
     <div class="player-list">
       {#each $room.players as player}

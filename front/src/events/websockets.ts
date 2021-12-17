@@ -202,7 +202,7 @@ export class Hello extends Action {
 
 export class Echo extends Action {
   public watch(state: State, stream: Observable<StoreEvent<State>>) {
-    return merge(super.watch(state, stream), of(new EchoRequest()));
+    return merge(super.watch(state, stream), of(new EchoRequest(this.requestId)));
   }
 }
 

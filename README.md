@@ -36,30 +36,30 @@ cd back
 <table>
   <tr>
     <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/mobile1.jpeg">
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/mobile1.jpeg">
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/mobile2.jpeg">
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/mobile2.jpeg">
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/mobile3.jpeg">
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/mobile3.jpeg">
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/mobile4.jpeg">
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/mobile4.jpeg">
     </td>
   </tr> 
   <tr>
     <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/mobile5.jpeg">
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/mobile5.jpeg">
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/mobile6.jpeg">
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/mobile6.jpeg">
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/mobile7.jpeg">
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/mobile7.jpeg">
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/mobile8.jpeg">
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/mobile8.jpeg">
     </td>
   </tr> 
 </table>
@@ -70,23 +70,23 @@ cd back
 <table>
   <tr>
     <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/desktop1.png">
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/desktop1.png">
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/desktop2.png">
-    </td>
-  </tr> 
-  <tr>
-    <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/desktop3.png">
-    </td>
-    <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/desktop4.png">
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/desktop2.png">
     </td>
   </tr> 
   <tr>
     <td>
-      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/testreadme/screens/desktop5.png">
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/desktop3.png">
+    </td>
+    <td>
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/desktop4.png">
+    </td>
+  </tr> 
+  <tr>
+    <td>
+      <img src="https://raw.githubusercontent.com/PIWEEK/yanken-game/main/screens/desktop5.png">
     </td>
   </tr> 
 </table>

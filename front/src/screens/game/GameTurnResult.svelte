@@ -63,8 +63,8 @@
    }
 
    & :global(.decoration .turn-result) {
-     left: -21px;
-     top: -12px;
+     left: -8px;
+     top: -8px;
    }
 
    & :global(.suc-data) {

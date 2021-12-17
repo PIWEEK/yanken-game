@@ -144,12 +144,12 @@
 
    & .player-left {
      grid-area: player-left;
-     padding-right: 28px;
+     padding-right: 14px;
    }
 
    & .player-right {
      grid-area: player-right;
-     padding-right: 28px;
+     padding-left: 14px;
    }
 
    & .player-right, & .player-left {
@@ -166,7 +166,7 @@
        width: 85px;
        position: absolute;
        z-index: 200;
-       left: -56px;
+       left: -47px;
        bottom: 50%;
        margin-bottom: -30px;
      }

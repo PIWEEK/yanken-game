@@ -1,12 +1,12 @@
 <script lang="ts">
+ import { onMount, onDestroy } from "svelte";
  import store from "$store";
  import type { State } from "$state";
 
  import MatchData from "$components/MatchData.svelte";
  import ProgressBar from "$components/ProgressBar.svelte";
- import { onDestroy } from 'svelte';
  import PlayerCard from "$components/PlayerCard.svelte";
- import vsLetters from "$lib/images/versus.png";
+ import vsLetters from "$lib/images/versus-live.gif";
 
  function getPairings(state: State) {
    const room = state.room;
@@ -33,8 +33,26 @@
 
  $: progress = pairingScreenTimeout ? time * 100 / pairingScreenTimeout : 100;
 
+
+ let drawGifs = false;
+ let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+
+ onMount(() => {
+   if (typeof window !== "undefined") {
+     timeoutId = setTimeout(() => {
+       drawGifs = true;
+     }, 100);
+   }
+ });
+
  onDestroy(() => {
- 	 clearInterval(interval);
+   if (typeof window !== "undefined" && timeoutId) {
+     clearTimeout(timeoutId);
+ 	   clearInterval(interval);
+   }
+ });
+
+ onDestroy(() => {
  });
 </script>
 
@@ -64,7 +82,9 @@
                     flipx={true}/>
       </div>
       <div class="vs">
-        <img src={vsLetters} alt="VS" />
+        {#if drawGifs}
+          <img src={vsLetters + "?ts=" + new Date().getTime()} alt="VS" />
+        {/if}
       </div>
       <div class="player-right">
         <PlayerCard cardType="full"

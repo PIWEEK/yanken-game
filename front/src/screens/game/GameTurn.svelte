@@ -1,4 +1,5 @@
 <script lang="ts">
+ import { onMount, onDestroy } from "svelte";
  import store from "$store";
  import type { Room, Session, Fight, State } from "$state";
  import { SendTurn } from "$events";
@@ -9,7 +10,7 @@
  import background from "$lib/images/play-bg.png";
  import handsBg from "$lib/images/hands-bg.png";
  import selectBg from "$lib/images/select.png";
- import vsLetters from "$lib/images/versus.png";
+ import vsLetters from "$lib/images/versus-live.gif";
 
  import MatchData from "$components/MatchData.svelte";
  import PlayerCard from "$components/PlayerCard.svelte";
@@ -224,6 +225,23 @@
    st.emit(new SendTurn(TURNS[value]))
  }
 
+ let drawGifs = false;
+ let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+
+ onMount(() => {
+   if (typeof window !== "undefined") {
+     timeoutId = setTimeout(() => {
+       drawGifs = true;
+     }, 100);
+   }
+ });
+
+ onDestroy(() => {
+   if (typeof window !== "undefined" && timeoutId) {
+     clearTimeout(timeoutId);
+   }
+ });
+
 </script>
 
 <div class="game"
@@ -263,7 +281,9 @@
                             lastPlays={$lastPlays && $player?.id && $lastPlays[$player.id] || []}/>
     </div>
     <div class="vs">
-      <img src={vsLetters} alt="VS" />
+      {#if drawGifs}
+        <img src={vsLetters + "?ts=" + new Date().getTime()} alt="VS" />
+      {/if}
     </div>
     <div class="player-right">
       <PlayerCard cardType="full"

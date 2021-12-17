@@ -1,4 +1,5 @@
 <script lang="ts">
+ import { onMount, onDestroy } from "svelte";
  import type { State, Session } from "$state";
  import { Join, ChangeScreen } from "$events";
  import store from "$store";
@@ -79,13 +80,32 @@
    st.emit(new Join(roomId));
    st.emit(new ChangeScreen("game"));
  }
+
+ let drawGifs = false;
+ let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+
+ onMount(() => {
+   if (typeof window !== "undefined") {
+     timeoutId = setTimeout(() => {
+       drawGifs = true;
+     }, 100);
+   }
+ });
+
+ onDestroy(() => {
+   if (typeof window !== "undefined" && timeoutId) {
+     clearTimeout(timeoutId);
+   }
+ });
 </script>
 
 <div class="container">
   <div class="results">
     <div class="message">Winner</div>
     <div class="winner">
-      <img src={winnerDecoration} alt="champion" />
+      {#if drawGifs}
+        <img src={winnerDecoration  + "?ts=" + new Date().getTime()} alt="champion" />
+      {/if}
       <PlayerCard cardType="full"
                   name={$winner?.name}
                             avatar={$winner?.avatar}/>

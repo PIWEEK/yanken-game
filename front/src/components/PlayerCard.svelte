@@ -1,4 +1,6 @@
 <script lang="ts">
+ import { onMount, onDestroy } from "svelte";
+
  import sucBlack from "$lib/images/sucubus-black.png";
  import sucBlue from "$lib/images/sucubus-blue.png";
  import sucGreen from "$lib/images/sucubus-green.png";
@@ -79,6 +81,23 @@
  // $: nameValue = name ? ([...name].reduce((a,b) => a + b.charCodeAt(0), 0)) % Object.values(AVATARS).length : 0;
  $: nameValue = name ? colorFromName(name) : 0;
 
+ let drawGifs = false;
+ let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+
+ onMount(() => {
+   if (typeof window !== "undefined") {
+     timeoutId = setTimeout(() => {
+       drawGifs = true;
+     }, 100);
+   }
+ });
+
+ onDestroy(() => {
+   if (typeof window !== "undefined" && timeoutId) {
+     clearTimeout(timeoutId);
+   }
+ });
+
 </script>
 
 <div class="suc-data"
@@ -111,10 +130,12 @@
     </div>
   {/if}
   <div class="decoration">
-    {#if result === "win"}
-      <img class="turn-result" src={victory} alt="Victory" />
-    {:else if result === "loss"}
-      <img class="turn-result" src={defeat} alt="Defeat" />
+    {#if drawGifs}
+      {#if result === "win"}
+        <img class="turn-result" src={victory + "?ts=" + new Date().getTime()} alt="Victory" />
+      {:else if result === "loss"}
+        <img class="turn-result" src={defeat + "?ts=" + new Date().getTime()} alt="Defeat" />
+      {/if}
     {/if}
 
     {#if pick}

@@ -85,7 +85,7 @@
 
  .player-list {
    align-content: baseline;
-   align-items: start;
+   align-items: flex-start;
    height: 100%;
    overflow-y: auto;
    width: 100%;

@@ -205,7 +205,7 @@
       (ex/raise :type :validation
                 :code :game-is-already-running))
 
-    (let [bot       (make-bot -1)
+    (let [bot       (make-bot (rand-int 10000))
           need-bot? (odd? (count players))
           players   (cond-> players need-bot? (conj (:id bot)))
           room      (-> room

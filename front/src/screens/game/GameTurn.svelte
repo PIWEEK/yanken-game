@@ -264,7 +264,7 @@
 
   <div class="play-area">
     {#if $playerDead}
-      <div class="message">Observing {$player?.name}</div>
+      <div class="message">Observing<br/>{$player?.name}</div>
     {:else if $results?.myResult === "loss"}
       <div class="message">You Lose!</div>
     {:else if $results?.myResult === "win"}
@@ -412,10 +412,8 @@
      text-align: center;
      text-shadow: 8px 8px rgba(0,0,0,40%);
      font-size: 32px;
-     position: absolute;
-     top: -16px;
-     left: 0;
      width: 100%;
+     white-space: nowrap;
    }
 
    & .player-left {

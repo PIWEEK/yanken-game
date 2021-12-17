@@ -24,7 +24,6 @@ const config = {
           $events: resolve("./src/events"),
           $styles: resolve("./src/styles"),
           $components: resolve("./src/components"),
-          $screens: resolve("./src/screens"),
         }
       }
     }
@@ -32,8 +31,8 @@ const config = {
 };
 
 // Uncomment before deploying to github pages
-config.kit.paths = {
-  base: "/yanken-game"
-}
+// config.kit.paths = {
+//   base: "/yanken-game"
+// }
 
 export default config;

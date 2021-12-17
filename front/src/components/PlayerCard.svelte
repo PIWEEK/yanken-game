@@ -58,7 +58,7 @@
 
    // Hash module colors
    const colors = Object.keys(AVATARS);
-   return hash % colors.length;
+   return Math.abs(hash) % colors.length;
  }
 
  export let name: string | null = null;

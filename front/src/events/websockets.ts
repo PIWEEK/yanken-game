@@ -15,6 +15,16 @@ export class WebSocketRequest extends StoreEvent<State> {
   }
 }
 
+export class EchoRequest extends WebSocketRequest {
+  public toJSON() {
+    return {
+      type: "request",
+      name: "echo",
+      n: Date.now()
+    };
+  }
+}
+
 export class HelloRequest extends WebSocketRequest {
   private name: string;
   private avatar: string;
@@ -186,10 +196,13 @@ export class Hello extends Action {
     this.sessionId = sessionId;
   }
   public watch(state: State, stream: Observable<StoreEvent<State>>) {
-    return merge(
-      super.watch(state, stream),
-      of(new HelloRequest(this.name, this.avatar, this.requestId, this.sessionId))
-    );
+    return merge(super.watch(state, stream), of(new HelloRequest(this.name, this.avatar, this.requestId, this.sessionId)));
+  }
+}
+
+export class Echo extends Action {
+  public watch(state: State, stream: Observable<StoreEvent<State>>) {
+    return merge(super.watch(state, stream), of(new EchoRequest()));
   }
 }
 
@@ -245,7 +258,15 @@ export class StartWebsocket extends StoreEvent<State> {
     const socketEvents = new Subject<SocketEvent>();
     const extraEvents = new Subject<StoreEvent<State>>();
 
+    function heartbeat() {
+      if (state.session && state.session?.name && state.session?.avatar) {
+        extraEvents.next(new Echo());
+      }
+      setTimeout(heartbeat, 1000);
+    }
+
     ws.addEventListener("open", (event: Event) => {
+      heartbeat();
       socketEvents.next(new OpenSocketEvent(event));
       if (state.session && state.session?.name && state.session?.avatar) {
         extraEvents.next(new Hello(state.session.name, state.session.avatar));

@@ -159,6 +159,10 @@
  .players {
    display: flex;
    flex-wrap: wrap;
+   justify-content: center;
+   & :global(.suc-data) {
+     margin: 8px;
+   }
  }
 
  .winner {
@@ -196,13 +200,22 @@
    .winner {
      margin-bottom: 32px;
    }
-   .container :global(.results .winner .suc-data.full),
+   .container :global(.results .winner .suc-data.full) {
+     width: 220px;
+   }
+
    .container :global(.results .second .suc-data.full) {
-     width: 200px;
+     width: 140px;
    }
 
    button {
      justify-self: center;
+   }
+   .players {
+     max-width: 900px;
+     & :global(.suc-data) {
+       margin: 16px;
+     }
    }
 
  }

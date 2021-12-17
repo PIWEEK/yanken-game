@@ -48,8 +48,8 @@
    height: 100%;
    overflow-y: auto;
    width: 100%;
-   display: grid;
-   grid-template-columns: repeat(4, 25%);
+   display: flex;
+   flex-wrap: wrap;
    align-items: center;
    justify-content: center;
 
@@ -66,6 +66,11 @@
      left: -21px;
      top: -12px;
    }
+
+   & :global(.suc-data) {
+     width: 59px;
+     margin-bottom: 16px;
+   }
  }
 
  @media only screen and (min-width: 900px) {
@@ -74,12 +79,16 @@
      margin-bottom: 16px;
    }
    .player-list {
-     grid-template-columns: repeat(6, 16%);
      max-width: 1200px;
      margin-top: 100px;
 
      & :global(.player-name) {
        font-size: 24px;
+     }
+
+     & :global(.suc-data) {
+       width: 160px;
+       margin-bottom: 32px;
      }
    }
  }

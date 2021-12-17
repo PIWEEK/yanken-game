@@ -66,8 +66,8 @@
    height: 100%;
    overflow-y: auto;
    width: 100%;
-   display: grid;
-   grid-template-columns: repeat(4, 25%);
+   display: flex;
+   flex-wrap: wrap;
    align-items: center;
    justify-content: center;
 
@@ -78,6 +78,11 @@
    & :global(.player-name) {
      font-size: 10px;
      padding-top: 0px;
+   }
+
+   & :global(.suc-data) {
+     width: 59px;
+     margin-bottom: 16px;
    }
  }
 
@@ -107,6 +112,11 @@
 
      & :global(.player-name) {
        font-size: 24px;
+     }
+
+     & :global(.suc-data) {
+       width: 160px;
+       margin-bottom: 32px;
      }
    }
 

@@ -5,6 +5,8 @@
  import MatchData from "$components/MatchData.svelte";
  import ProgressBar from "$components/ProgressBar.svelte";
  import { onDestroy } from 'svelte';
+ import PlayerCard from "$components/PlayerCard.svelte";
+ import vsLetters from "$lib/images/versus.png";
 
  function getPairings(state: State) {
    const room = state.room;
@@ -37,15 +39,46 @@
 </script>
 
 <div class="container">
-  <div class="round">Round {$room?.round}</div>
-  <div class="message">Ready to fight?</div>
+  <div class="round">
+    {#if $pairings.length == 1}
+      Last round
+    {:else}
+      Round {$room?.round}
+    {/if}
+  </div>
+  <div class="message">
+    {#if $pairings.length == 1}
+      Who will win?
+    {:else}
+      Ready to fight?
+    {/if}
+  </div>
   <ProgressBar progress={progress} />
 
+  {#if $pairings.length == 1}
+    <div class="play-area">
+      <div class="player-left">
+        <PlayerCard cardType="full"
+                    name={$pairings[0][0].name}
+                    avatar={$pairings[0][0].avatar}
+                    flipx={true}/>
+      </div>
+      <div class="vs">
+        <img src={vsLetters} alt="VS" />
+      </div>
+      <div class="player-right">
+        <PlayerCard cardType="full"
+                    name={$pairings[0][1].name}
+                    avatar={$pairings[0][1].avatar}/>
+      </div>
+    </div>
+  {:else}
   <div class="matches-list">
     {#each $pairings as pairing}
       <MatchData player1={pairing[0]} player2={pairing[1]} />
     {/each}
   </div>
+  {/if}
 </div>
 
 <style lang="postcss">
@@ -80,8 +113,67 @@
    grid-gap: 16px;
    align-self: start;
  }
+ 
+ .play-area {
+   display: grid;
+   grid-template-areas: "message message message" "player-left vs player-right";
+   grid-template-columns: 1fr 0px 1fr;
+   grid-template-rows: auto 1fr;
+   padding: 16px 16px 0 16px;
+   position: relative;
+
+   & .player-left {
+     grid-area: player-left;
+     padding-right: 28px;
+   }
+
+   & .player-right {
+     grid-area: player-right;
+     padding-right: 28px;
+   }
+
+   & .player-right, & .player-left {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+   }
+
+   & .vs {
+     grid-area: vs;
+     position: relative;
+
+     & img {
+       width: 85px;
+       position: absolute;
+       z-index: 200;
+       left: -56px;
+       bottom: 50%;
+       margin-bottom: -30px;
+     }
+   }
+ }
 
  @media only screen and (min-width: 900px) {
+   .play-area {
+     & .player-left {
+       justify-content: flex-end;
+       padding-right: 40px;
+     }
+
+     & .player-right {
+       justify-content: flex-start;
+       padding-right: 40px;
+     }
+
+     & .vs {
+       & img {
+         width: 142px;
+         left: -104px;
+         bottom: 50%;
+         margin-bottom: -40px;
+       }
+     }
+   }
 
    .message {
      font-size: 56px;

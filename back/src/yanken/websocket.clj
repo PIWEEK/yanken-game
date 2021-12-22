@@ -109,7 +109,7 @@
 
            on-error
            (fn [conn err]
-             (l/debug :hint "on-error" :err (str err))
+             (l/info :hint "on-error" :err (str err))
              (a/close! close-ch)
              (a/close! pong-ch)
              (a/close! output-ch)
@@ -117,7 +117,7 @@
 
            on-close
            (fn [conn status reason]
-             (l/debug :hint "on-close" :status status :reason reason)
+             (l/info :hint "on-close" :status status :reason reason)
              (a/close! close-ch)
              (a/close! pong-ch)
              (a/close! output-ch)

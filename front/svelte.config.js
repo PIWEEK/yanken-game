@@ -31,9 +31,4 @@ const config = {
 	}
 };
 
-// Uncomment before deploying to github pages
-// config.kit.paths = {
-//   base: "/yanken-game"
-// }
-
 export default config;

@@ -42,4 +42,5 @@
 
 (defn -main
   [& _args]
-  (start))
+  (start)
+  @(promise))

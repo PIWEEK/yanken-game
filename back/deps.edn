@@ -6,16 +6,19 @@
   metosin/jsonista {:mvn/version "0.3.5"}
 
   ;; Logging
-  org.clojure/tools.logging {:mvn/version "1.2.2"}
-  org.apache.logging.log4j/log4j-api {:mvn/version "2.16.0"}
-  org.apache.logging.log4j/log4j-core {:mvn/version "2.16.0"}
-  org.apache.logging.log4j/log4j-web {:mvn/version "2.16.0"}
-  org.apache.logging.log4j/log4j-jul {:mvn/version "2.16.0"}
-  org.apache.logging.log4j/log4j-slf4j18-impl {:mvn/version "2.16.0"}
+  org.clojure/tools.logging {:mvn/version "1.2.3"}
+  org.apache.logging.log4j/log4j-api {:mvn/version "2.17.0"}
+  org.apache.logging.log4j/log4j-core {:mvn/version "2.17.0"}
+  org.apache.logging.log4j/log4j-web {:mvn/version "2.17.0"}
+  org.apache.logging.log4j/log4j-jul {:mvn/version "2.17.0"}
+  org.apache.logging.log4j/log4j-slf4j18-impl {:mvn/version "2.17.0"}
   org.slf4j/slf4j-api {:mvn/version "2.0.0-alpha1"}
+  org.slf4j/jcl-over-slf4j {:mvn/version "2.0.0-alpha1"}
+  org.slf4j/log4j-over-slf4j {:mvn/version "2.0.0-alpha1"}
+  org.slf4j/osgi-over-slf4j {:mvn/version "2.0.0-alpha1"}
+  org.slf4j/jul-to-slf4j {:mvn/version "2.0.0-alpha1"}
 
-  metosin/malli {:mvn/version "0.7.2"}
-
+  metosin/malli {:mvn/version "0.7.5"}
   expound/expound {:mvn/version "0.8.10"}
   funcool/promesa {:mvn/version "6.0.2"}
   funcool/cuerdas {:mvn/version "2021.05.29-0"}
@@ -25,7 +28,8 @@
   commons-io/commons-io {:mvn/version "2.11.0"}
   clojure-humanize/clojure-humanize {:mvn/version "0.2.2"}
 
-  funcool/yetti {:git/tag "v1.0" :git/sha "e3d7794"
+  ;; funcool/yetti {:local/root "/home/user/devel/yetti"}
+  funcool/yetti {:git/tag "v2.1" :git/sha "97bf73a"
                  :git/url "https://github.com/funcool/yetti.git"}
 
   funcool/datoteka {:mvn/version "2.0.0"}
@@ -34,7 +38,6 @@
   camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.2"}
 
   ;; exception printing
-  io.aviso/pretty {:mvn/version "1.1"}
   environ/environ {:mvn/version "1.2.0"}}
  :paths ["src" "resources"]
  :aliases

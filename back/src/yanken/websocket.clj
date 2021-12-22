@@ -79,21 +79,20 @@
       (a/<! (ws-send! conn (json/encode-str val)))
       (recur))))
 
+;; (defn- start-ping-pong-loop
+;;   [{:keys [conn output input close on-close pong]}]
+;;   (a/go-loop []
+;;     (let [[val port] (a/alts! [close (a/timeout 2500)])]
+;;       (when (and (yws/connected? conn) (not= port close))
+;;         (a/<! (ws-ping! conn))
+;;         (recur))))
 
-(defn- start-ping-pong-loop
-  [{:keys [conn output input close on-close pong]}]
-  (a/go-loop []
-    (let [[val port] (a/alts! [close (a/timeout 2500)])]
-      (when (and (yws/connected? conn) (not= port close))
-        (a/<! (ws-ping! conn))
-        (recur))))
-
-  (a/go-loop []
-    (let [[val port] (a/alts! [pong (a/timeout 10000)])]
-      (cond
-        (and (= port pong) (not (nil? val))) (recur)
-        (and (= port pong) (nil? val))       nil
-        :else                                (on-close conn -1 "pong-timeout")))))
+;;   (a/go-loop []
+;;     (let [[val port] (a/alts! [pong (a/timeout 10000)])]
+;;       (cond
+;;         (and (= port pong) (not (nil? val))) (recur)
+;;         (and (= port pong) (nil? val))       nil
+;;         :else                                (on-close conn -1 "pong-timeout")))))
 
 
 (defn wrap
@@ -109,7 +108,7 @@
 
            on-error
            (fn [conn err]
-             (l/debug :hint "on-error" :err (str err))
+             (l/info :hint "on-error" :err (str err))
              (a/close! close-ch)
              (a/close! pong-ch)
              (a/close! output-ch)
@@ -117,7 +116,7 @@
 
            on-close
            (fn [conn status reason]
-             (l/debug :hint "on-close" :status status :reason reason)
+             (l/info :hint "on-close" :status status :reason reason)
              (a/close! close-ch)
              (a/close! pong-ch)
              (a/close! output-ch)
@@ -125,19 +124,19 @@
 
            on-connect
            (fn [conn]
-             (l/debug :hint "on-connect" :client (yws/remote-addr conn))
+             (l/info :hint "on-connect" :client (yws/remote-addr conn))
              (let [ws (atom {:output output-ch
                              :input input-ch
                              :conn conn
                              :id (uuid/next)})]
 
                ;; Properly handle keepalive
-               (yws/idle-timeout! conn (dt/duration 10000))
-               (-> @ws
-                   (assoc :close close-ch)
-                   (assoc :pong pong-ch)
-                   (assoc :on-close on-close)
-                   (start-ping-pong-loop))
+               ;; (yws/idle-timeout! conn (dt/duration 10000))
+               ;; (-> @ws
+               ;;     (assoc :close close-ch)
+               ;;     (assoc :pong pong-ch)
+               ;;     (assoc :on-close on-close)
+               ;;     (start-ping-pong-loop))
 
                ;; Forward all messages from output-ch to the websocket
                ;; connection

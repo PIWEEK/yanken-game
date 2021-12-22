@@ -34,10 +34,9 @@
 (defmethod ig/init-key ::server
   [_ {:keys [handler router ws port host name metrics] :as opts}]
   (l/info :msg "starting http server" :port port :host host)
-  (let [options {:port port
-                 :host host
-                 :join? false
-                 :h2c? true}
+  (let [options {:http/port port
+                 :http/host host
+                 :join false}
         server  (-> handler
                     (yt/server options)
                     (yt/start! options))]

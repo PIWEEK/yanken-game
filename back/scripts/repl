@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 
-export OPTIONS="-A:dev -J-Dlog4j2.configurationFile=log4j2-dev.xml -J-Dlog4j2.debug=false -J-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -J-Dclojure.tools.logging.factory=clojure.tools.logging.impl/log4j2-factory -J-XX:+UseShenandoahGC -J-XX:ConcGCThreads=1 -J-XX:-OmitStackTraceInFastThrow -J-Xms50m -J-Xmx512m -J-Djdk.attach.allowAttachSelf -J-XX:+UnlockDiagnosticVMOptions -J-XX:+DebugNonSafepoints";
+export OPTIONS="\
+       -A:dev \
+       -J-Dlog4j2.configurationFile=log4j2-dev.xml \
+       -J-Dlog4j2.debug=false \
+       -J-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager \
+       -J-Dclojure.tools.logging.factory=clojure.tools.logging.impl/log4j2-factory \
+       -J-XX:+UseShenandoahGC \
+       -J-XX:-OmitStackTraceInFastThrow \
+       -J-Xms50m -J-Xmx512m \
+       -J-Djdk.attach.allowAttachSelf \
+       -J-XX:+UnlockDiagnosticVMOptions \
+       -J-XX:+DebugNonSafepoints";
 
 export OPTIONS_EVAL="nil"
 

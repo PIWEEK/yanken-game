@@ -270,40 +270,35 @@
   (let [{:keys [options] :as room} (get-room state room-id)]
     (letfn [(get-alive-players [{:keys [winner] :as fight}]
               (cond
-                (= :nobody winner) []
                 (= :both winner)   (:players fight)
                 :else              [winner]))
 
-            (get-bot-response [responses players]
-              (cond
-                (contains? options :bot-default-response)
+            (get-bot-response []
+              (if (contains? options :bot-default-response)
                 (:bot-default-response options)
-
-                (:bot-always-winner options)
-                (let [id  (->> players
-                               (remove is-bot?)
-                               (first))
-                      res (get responses id)]
-                  (cond
-                    (nil? res) 1
-                    (= res 1) 2
-                    (= res 2) 3
-                    (= res 3) 1))
-
-                :else
                 (inc (rand-int 3))))
 
-            (resolve-bot-response [{:keys [players responses] :as fight}]
-              (reduce (fn [fight player-id]
-                        (cond-> fight
-                          (is-bot? player-id)
-                          (assoc-in [:responses player-id] (get-bot-response responses players))))
-                      fight
-                      players))
+            (resolve-auto-response [responses player-id]
+              (cond
+                (is-bot? player-id)
+                (assoc responses player-id (get-bot-response))
+
+                (not (contains? responses player-id))
+                (assoc responses player-id (inc (rand-int 3)))
+
+                :else
+                responses))
+
+            (resolve-auto-responses [{:keys [players responses] :as fight}]
+              (loop [players (seq players)
+                     fight   fight]
+                (if-let [player-id (first players)]
+                  (recur (rest players)
+                         (update fight :responses resolve-auto-response player-id))
+                  fight)))
 
             (get-winner [responses]
               (cond
-                (empty? responses)      :nobody
                 (= 1 (count responses)) (ffirst responses)
                 :else
                 (let [[[p1 r1] [p2 r2]] (seq responses)]
@@ -316,7 +311,7 @@
             (resolve-winner [{:keys [responses] :as fight}]
               (assoc fight :winner (get-winner responses)))]
 
-      (let [fights-xf (comp (map resolve-bot-response)
+      (let [fights-xf (comp (map resolve-auto-responses)
                             (map resolve-winner)
                             (map #(assoc % :round (:round room))))
 

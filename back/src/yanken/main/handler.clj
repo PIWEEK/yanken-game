@@ -110,7 +110,7 @@
   (let [total   (if (and (integer? bot-num)
                          (pos? bot-num))
                    bot-num
-                   3)
+                   1)
         timeout (or bot-join-timeout 1000)]
 
     (dotimes [_ total]

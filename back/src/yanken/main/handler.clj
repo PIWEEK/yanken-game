@@ -197,12 +197,12 @@
     (a/go
       (l/debug :event "gameStarted" :room (:id room) :players (count (:players room)))
       (let [rounds (a/<! (start-game-loop room))]
-        (l/debug :action "gameEnded" :room (:id room) :rounds rounds)))
+        (l/debug :event "gameEnded" :room (:id room) :rounds rounds)))
 
     nil))
 
 (yh/defmethod handler ["request" "sendTurn"]
   [{:keys [session-id] :as ws} {:keys [result] :as message}]
   (let [state (swap! yst/state yst/update-round session-id result)]
-    (l/debug :action "sendTurn" :player (get-in state [:sessions session-id :name]))
+    (l/debug :action "sendTurn" :player (get-in state [:sessions session-id :name]) :result result)
     nil))

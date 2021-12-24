@@ -53,21 +53,18 @@
   (.isEnabled ^Logger logger ^Level level))
 
 (defmacro log
-  [& {:keys [level cause ::logger ::async ::raw] :as props}]
-  (let [props      (dissoc props :level :cause ::logger ::async ::raw)
+  [& {:keys [level cause ::logger ::raw] :as props}]
+  (let [props      (dissoc props :level :cause ::logger ::raw)
         logger     (or logger (str *ns*))
         logger-sym (gensym "log")
         level-sym  (gensym "log")]
     `(let [~logger-sym (get-logger ~logger)
            ~level-sym  (get-level ~level)]
-       (if (enabled? ~logger-sym ~level-sym)
-         ~(if async
-            `(send-off logging-agent
-                       (fn [_#]
-                         (let [message# (or ~raw (build-map-message ~props))]
-                           (write-log! ~logger-sym ~level-sym ~cause message#))))
-            `(let [message# (or ~raw (build-map-message ~props))]
-               (write-log! ~logger-sym ~level-sym ~cause message#)))))))
+       (when (enabled? ~logger-sym ~level-sym)
+         (send-off logging-agent
+                   (fn [_#]
+                     (let [message# (or ~raw (build-map-message ~props))]
+                       (write-log! ~logger-sym ~level-sym ~cause message#))))))))
 
 (defmacro info
   [& params]
@@ -88,11 +85,3 @@
 (defmacro trace
   [& params]
   `(log :level :trace ~@params))
-
-(defmacro set-level!
-  ([level]
-   (when (:ns &env)
-     `(set-level* ~(str *ns*) ~level)))
-  ([n level]
-   (when (:ns &env)
-     `(set-level* ~n ~level))))

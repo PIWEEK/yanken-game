@@ -36,6 +36,7 @@
   (l/info :msg "starting http server" :port port :host host)
   (let [options {:http/port port
                  :http/host host
+                 :http/handle-forwarded true
                  :join false}
         server  (-> handler
                     (yt/server options)

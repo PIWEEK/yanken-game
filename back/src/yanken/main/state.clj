@@ -206,17 +206,13 @@
                 :code :game-is-already-running))
 
     (let [bot       (make-bot (rand-int 10000))
-          need-bot? (odd? (count players))
-          players   (cond-> players need-bot? (conj (:id bot)))
           room      (-> room
                         (assoc :status "playing")
                         (assoc :players players)
                         (assoc :live-players players)
                         (assoc :dead-players #{})
                         (update :options merge options))]
-      (-> state
-          (set-room room)
-          (cond-> need-bot? (update :sessions assoc (:id bot) bot))))))
+      (set-room state room))))
 
 (defn update-round
   "Updates the player result on the current round. If result is sent

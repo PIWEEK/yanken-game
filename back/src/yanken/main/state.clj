@@ -205,8 +205,13 @@
       (ex/raise :type :validation
                 :code :game-is-already-running))
 
-    (let [bot       (make-bot (rand-int 10000))
-          room      (-> room
+    ;; This is a temporal fix, because frontend does not handles well
+    ;; a game with a single player.
+    (when (< (count players) 2)
+      (ex/raise :type :validation
+                :code :cant-start-game-with-odd-number-of-players))
+
+    (let [room      (-> room
                         (assoc :status "playing")
                         (assoc :players players)
                         (assoc :live-players players)

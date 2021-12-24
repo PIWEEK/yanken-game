@@ -16,7 +16,7 @@
 
   <Loggers>
     <Logger name="org.eclipse.jetty" level="error" />
-
+    <Logger name="yanken.websocket" level="info" />
     <Logger name="yanken" level="trace" additivity="false">
       <AppenderRef ref="main" level="debug" />
     </Logger>

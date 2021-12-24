@@ -84,6 +84,7 @@
 
 (yh/defmethod handler ["request" "hello"]
   [{:keys [local] :as ws} {:keys [session-id player-name player-avatar]}]
+  (l/debug :action "hello" :player player-name)
   (let [state   (swap! yst/state yst/authenticate (:id ws)
                        session-id player-name player-avatar)
         session (-> (:current-session state)
@@ -100,6 +101,7 @@
 
 (yh/defmethod handler ["notification" "joinBots"]
   [{:keys [session-id] :as ws} {:keys [room-id bot-num bot-join-timeout] :as message}]
+  (l/debug :action "joinBots" :room room-id)
 
   ;; Session ID is mandatory for join-room
   (when-not session-id
@@ -134,10 +136,14 @@
               :hint "missing hello event"))
 
   (let [state   (swap! yst/state yst/join-room session-id (str/lower room-id))
+        pname   (get-in state [:sessions session-id :name])
         room    (resolve-room state)
         players (->> (:players room)
                      (filter #(not= % session-id))
                      (keep (partial resolve-player state)))]
+
+    (l/debug :action "joinRoom" :room room-id
+             :player (get-in state [:sessions session-id :name]))
 
     (a/<! (notify-room-update players room))
     {:room room}))
@@ -186,15 +192,17 @@
   (let [state (swap! yst/state yst/start-game session-id options)
         room  (:current-room state)]
 
+    (l/debug :action "startGame" :room (:id room))
+
     (a/go
-      (l/debug :action "game-start" :room (:id room) :players (count (:players room)))
-      (l/trace :action "game-start" :room (:id room) :options (:options room))
+      (l/debug :event "gameStarted" :room (:id room) :players (count (:players room)))
       (let [rounds (a/<! (start-game-loop room))]
-        (l/debug :action "game-end" :room (:id room) :rounds rounds)))
+        (l/debug :action "gameEnded" :room (:id room) :rounds rounds)))
 
     nil))
 
 (yh/defmethod handler ["request" "sendTurn"]
   [{:keys [session-id] :as ws} {:keys [result] :as message}]
-  (swap! yst/state yst/update-round session-id result)
-  nil)
+  (let [state (swap! yst/state yst/update-round session-id result)]
+    (l/debug :action "sendTurn" :player (get-in state [:sessions session-id :name]))
+    nil))

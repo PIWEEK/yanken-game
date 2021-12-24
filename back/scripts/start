@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
 set -ex
-clojure -J-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -J-Dclojure.tools.logging.factory=clojure.tools.logging.impl/log4j2-factory -M -m yanken.init
+clojure -J-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager \
+        -M -m yanken.init

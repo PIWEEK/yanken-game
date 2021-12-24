@@ -241,8 +241,8 @@
 
 (defn is-last-round?
   "Predicate for check if the specified room is in the last round."
-  [{:keys [live-players] :as room}]
-  (or (empty? live-players) (= 1 (count live-players))))
+  [room]
+  (some? (:winner room)))
 
 (defn prepare-round
   "Prepares the specified room for the (next) round. If no next round
@@ -316,14 +316,21 @@
                             (map #(assoc % :round (:round room))))
 
             fights    (into [] fights-xf (:fights room))
-            alive     (into #{} (mapcat get-alive-players) fights)
 
+            alive     (into #{} (mapcat get-alive-players) fights)
             dead      (set/difference (:live-players room) alive)
-            room      (-> (dissoc room :fights)
+
+            winner    (when (= 1 (count alive))
+                        (first alive))
+
+            room      (-> room
+                          (dissoc room :fights)
                           (assoc :live-players alive)
+                          (assoc :dead-players dead)
                           (assoc :stage "gameEnd")
-                          (update :results conj fights)
-                          (update :dead-players into dead))]
+                          (assoc :winner winner)
+                          (update :results conj fights))]
+
         (set-room state room)))))
 
 (defn end-room
